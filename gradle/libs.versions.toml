@@ -22,7 +22,8 @@ lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 jline = { module = "org.jline:jline", version.ref = "jline" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
-netty = { module = "io.netty:netty-all", version.ref = "netty" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
+netty-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
 simpleyaml = { module = "com.github.Carleslc.Simple-YAML:Simple-Yaml", version.ref = "simpleyaml" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 oshi = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
