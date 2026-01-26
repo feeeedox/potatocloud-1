@@ -8,6 +8,7 @@ import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
+import net.potatocloud.api.utils.Version;
 
 @Getter
 public abstract class CloudAPI {
@@ -21,7 +22,7 @@ public abstract class CloudAPI {
     /**
      * The current version.
      */
-    public static final String VERSION = "1.4.2";
+    public static final Version VERSION = Version.of(1, 4, 3);
 
     public CloudAPI() {
         instance = this;

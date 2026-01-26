@@ -9,6 +9,7 @@ import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.api.utils.Version;
 import net.potatocloud.core.event.ServerEventManager;
 import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.core.networking.netty.server.NettyNetworkServer;
@@ -65,7 +66,7 @@ public class Node extends CloudAPI {
     private final ServiceManagerImpl serviceManager;
     private final ServiceStartQueue serviceStartQueue;
 
-    private final String previousVersion;
+    private final Version previousVersion;
     private boolean ready = false;
     private boolean isStopping;
 
@@ -79,8 +80,9 @@ public class Node extends CloudAPI {
             System.exit(0);
         }
 
-        previousVersion = VersionFile.getVersion();
-        VersionFile.create();
+        previousVersion = VersionFile.read();
+
+        VersionFile.write(CloudAPI.VERSION);
 
         commandManager = new CommandManager();
         console = new Console(commandManager, this);
