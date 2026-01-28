@@ -13,19 +13,18 @@ import net.potatocloud.core.networking.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.core.networking.packet.packets.group.RequestGroupsPacket;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.group.listeners.GroupAddListener;
 import net.potatocloud.node.group.listeners.GroupDeleteListener;
 import net.potatocloud.node.group.listeners.GroupUpdateListener;
 import net.potatocloud.node.group.listeners.RequestGroupsListener;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
@@ -35,10 +34,12 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     private final Path groupsPath;
 
     private final NetworkServer server;
+    private final Logger logger;
 
-    public ServiceGroupManagerImpl(Path groupsPath, NetworkServer server) {
+    public ServiceGroupManagerImpl(Path groupsPath, NetworkServer server, Logger logger) {
         this.groupsPath = groupsPath;
         this.server = server;
+        this.logger = logger;
 
         server.on(RequestGroupsPacket.class, new RequestGroupsListener(this));
         server.on(GroupUpdatePacket.class, new GroupUpdateListener(this, server));
@@ -49,7 +50,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     @Override
     public ServiceGroup getServiceGroup(String name) {
         return groups.stream()
-                .filter(cloudServiceGroup -> cloudServiceGroup.getName().equalsIgnoreCase(name))
+                .filter(group -> group.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
@@ -119,7 +120,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 propertyMap
         ));
 
-        Node.getInstance().getLogger().info("Group &a" + name + " &7was successfully created");
+        logger.info("Group &a" + name + " &7was successfully created");
     }
 
     public void addServiceGroup(ServiceGroup group) {
@@ -175,11 +176,11 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public boolean existsServiceGroup(String groupName) {
-        if (groupName == null) {
+    public boolean existsServiceGroup(String name) {
+        if (name == null) {
             return false;
         }
-        return groups.stream().anyMatch(group -> group != null && group.getName().equalsIgnoreCase(groupName));
+        return groups.stream().anyMatch(group -> group != null && group.getName().equalsIgnoreCase(name));
     }
 
 
@@ -189,8 +190,14 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             return;
         }
 
-        try (Stream<Path> paths = Files.list(groupsPath)) {
-            paths.filter(path -> path.toString().endsWith(".yml")).forEach(path -> groups.add(ServiceGroupStorage.loadFromFile(path)));
+        final Collection<File> files = FileUtils.listFiles(groupsPath.toFile(), new String[]{"yml"}, false);
+
+        for (File file : files) {
+            final ServiceGroup group = ServiceGroupStorage.loadFromFile(file);
+            if (group == null) {
+                return;
+            }
+            groups.add(group);
         }
     }
 }
