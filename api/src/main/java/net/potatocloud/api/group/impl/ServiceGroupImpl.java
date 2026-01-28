@@ -48,29 +48,17 @@ public class ServiceGroupImpl implements ServiceGroup {
         this.javaCommand = javaCommand;
         this.customJvmFlags = customJvmFlags;
         this.propertyMap = propertyMap;
-
         this.serviceTemplates = new ArrayList<>();
         addServiceTemplate("every");
         addServiceTemplate(name);
 
         final Platform platform = getPlatform();
-        if (platform == null) {
-            return;
-        }
-
-        if (platform.isProxy()) {
-            addServiceTemplate("every_proxy");
-        } else {
-            addServiceTemplate("every_service");
+        if (platform != null) {
+            addServiceTemplate(platform.isProxy() ? "every_proxy" : "every_service");
         }
     }
 
-    @Override
-    public String getPropertyHolderName() {
-        return getName();
-    }
-
-    @Override
+   @Override
     public <T> void setProperty(Property<T> property, T value) {
         ServiceGroup.super.setProperty(property, value);
 
@@ -102,5 +90,10 @@ public class ServiceGroupImpl implements ServiceGroup {
             return;
         }
         serviceTemplates.remove(template);
+    }
+
+    @Override
+    public String getPropertyHolderName() {
+        return getName();
     }
 }

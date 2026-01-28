@@ -82,6 +82,12 @@ public class Node extends CloudAPI {
     public Node(long startupTime) {
         this.startupTime = startupTime;
         config = new NodeConfig();
+
+        if (!NetworkUtils.isPortFree(config.getNodePort())) {
+            System.err.println("The configured node port is already in use. Is another instance of potatocloud already running on this port?");
+            System.exit(0);
+        }
+
         previousVersion = VersionFile.read();
         migrationManager = new MigrationManager(previousVersion);
 
@@ -118,11 +124,6 @@ public class Node extends CloudAPI {
     }
 
     public void start() {
-        if (!NetworkUtils.isPortFree(config.getNodePort())) {
-            System.err.println("The configured node port is already in use. Is another instance of potatocloud already running on this port?");
-            System.exit(0);
-        }
-
         registerMigrations();
         migrationManager.migrate();
 

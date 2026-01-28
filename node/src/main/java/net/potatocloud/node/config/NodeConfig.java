@@ -2,110 +2,82 @@ package net.potatocloud.node.config;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.simpleyaml.configuration.comments.format.YamlCommentFormat;
+import org.apache.commons.io.FileUtils;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Getter
 public class NodeConfig {
 
-    private String prompt = "&7&a%user%&7@cloud ~> ";
-    private boolean enableBanner = true;
-    private int primaryColorCode = 42;
-    private boolean logPlayerConnections = true;
+    private static final String CONFIG_FILE_NAME = "config.yml";
 
-    private int serviceStartPort = 30000;
-    private int proxyStartPort = 25565;
-    private String splitter = "-";
-    private boolean platformAutoUpdate = true;
+    private final String prompt;
+    private final boolean enableBanner;
+    private final int primaryColorCode;
+    private final boolean logPlayerConnections;
 
-    private String groupsFolder = "groups";
-    private String staticFolder = "services/static";
-    private String tempServicesFolder = "services/temp";
-    private String templatesFolder = "templates";
-    private String platformsFolder = "platforms";
-    private String logsFolder = "logs";
-    private String dataFolder = "data";
-    private String backupsFolder = "backups";
+    private final int serviceStartPort;
+    private final int proxyStartPort;
+    private final String splitter;
+    private final boolean platformAutoUpdate;
 
-    private String nodeHost = "127.0.0.1";
-    private int nodePort = 16000;
+    private final String groupsFolder;
+    private final String staticFolder;
+    private final String tempServicesFolder;
+    private final String templatesFolder;
+    private final String platformsFolder;
+    private final String logsFolder;
+    private final String dataFolder;
+    private final String backupsFolder;
+
+    private final String nodeHost;
+    private final int nodePort;
 
     @SneakyThrows
     public NodeConfig() {
-        final File file = new File("config.yml");
-        final YamlFile yaml = new YamlFile(file);
+        final File configFile = new File(CONFIG_FILE_NAME);
 
-        if (!file.exists()) {
-            file.createNewFile();
-            save(yaml);
+        if (!configFile.exists()) {
+            createFile(configFile);
         }
 
-        yaml.load();
+        final YamlFile config = new YamlFile(configFile);
+        config.load();
 
-        prompt = yaml.getString("console.prompt", prompt);
-        enableBanner = yaml.getBoolean("console.enable-banner", enableBanner);
-        primaryColorCode = yaml.getInt("console.primary-color", primaryColorCode);
-        logPlayerConnections = yaml.getBoolean("console.log-player-connections", logPlayerConnections);
+        prompt = config.getString("console.prompt");
+        enableBanner = config.getBoolean("console.enable-banner");
+        primaryColorCode = config.getInt("console.primary-color");
+        logPlayerConnections = config.getBoolean("console.log-player-connections");
 
-        serviceStartPort = yaml.getInt("service.service-start-port", serviceStartPort);
-        proxyStartPort = yaml.getInt("service.proxy-start-port", proxyStartPort);
-        splitter = yaml.getString("service.service-splitter", splitter);
-        platformAutoUpdate = yaml.getBoolean("service.auto-update-platforms", platformAutoUpdate);
+        serviceStartPort = config.getInt("service.service-start-port");
+        proxyStartPort = config.getInt("service.proxy-start-port");
+        splitter = config.getString("service.service-splitter");
+        platformAutoUpdate = config.getBoolean("service.auto-update-platforms");
 
-        groupsFolder = yaml.getString("folders.groups", groupsFolder);
-        staticFolder = yaml.getString("folders.static", staticFolder);
-        tempServicesFolder = yaml.getString("folders.temp-services", tempServicesFolder);
-        templatesFolder = yaml.getString("folders.templates", templatesFolder);
-        platformsFolder = yaml.getString("folders.platforms", platformsFolder);
-        logsFolder = yaml.getString("folders.logs", logsFolder);
-        dataFolder = yaml.getString("folders.data", dataFolder);
-        backupsFolder = yaml.getString("folders.backups", backupsFolder);
+        groupsFolder = config.getString("folders.groups");
+        staticFolder = config.getString("folders.static");
+        tempServicesFolder = config.getString("folders.temp-services");
+        templatesFolder = config.getString("folders.templates");
+        platformsFolder = config.getString("folders.platforms");
+        logsFolder = config.getString("folders.logs");
+        dataFolder = config.getString("folders.data");
+        backupsFolder = config.getString("folders.backups");
 
-        nodeHost = yaml.getString("node.host", nodeHost);
-        nodePort = yaml.getInt("node.port", nodePort);
+        nodeHost = config.getString("node.host");
+        nodePort = config.getInt("node.port");
     }
 
-    @SneakyThrows
-    private void save(YamlFile yaml) {
-        yaml.setCommentFormat(YamlCommentFormat.PRETTY);
-
-        yaml.setComment("console.prompt", "Console prompt text (%user% = current user)");
-        yaml.set("console.prompt", prompt);
-        yaml.set("console.enable-banner", enableBanner);
-        yaml.setComment("console.primary-color", "Primary color code for console messages and prompt (Supported colors: https://www.ditig.com/256-colors-cheat-sheet)");
-        yaml.set("console.primary-color", primaryColorCode);
-        yaml.set("console.log-player-connections", logPlayerConnections);
-
-        addSpacer(yaml, "service");
-
-        yaml.set("service.service-start-port", serviceStartPort);
-        yaml.set("service.proxy-start-port", proxyStartPort);
-        yaml.set("service.service-splitter", splitter);
-        yaml.setComment("service.auto-update-platforms", "Auto updates platform jars to latest build in the same MC version. Also updates MC version if using 'platform-latest'");
-        yaml.set("service.auto-update-platforms", platformAutoUpdate);
-
-        addSpacer(yaml, "folders");
-
-        yaml.set("folders.groups", groupsFolder);
-        yaml.set("folders.static", staticFolder);
-        yaml.set("folders.temp-services", tempServicesFolder);
-        yaml.set("folders.templates", templatesFolder);
-        yaml.set("folders.platforms", platformsFolder);
-        yaml.set("folders.logs", logsFolder);
-        yaml.set("folders.data", dataFolder);
-        yaml.set("folders.backups", backupsFolder);
-
-        addSpacer(yaml, "node");
-
-        yaml.set("node.host", nodeHost);
-        yaml.set("node.port", nodePort);
-
-        yaml.save();
-    }
-
-    private void addSpacer(YamlFile yaml, String key) {
-        yaml.setComment(key, "\n");
+    private void createFile(File configFile) {
+        try (InputStream stream = getClass().getResourceAsStream(CONFIG_FILE_NAME)) {
+            if (stream == null) {
+                throw new IllegalStateException(CONFIG_FILE_NAME + "not found in resources!");
+            }
+            FileUtils.copyInputStreamToFile(stream, configFile);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to copy" + CONFIG_FILE_NAME + "from resources!", e);
+        }
     }
 }
