@@ -11,7 +11,7 @@ public class Version implements Comparable<Version> {
     private final int minor;
     private final int patch;
 
-    private Version(int major, int minor, int patch) {
+    protected Version(int major, int minor, int patch) {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
@@ -42,7 +42,18 @@ public class Version implements Comparable<Version> {
         if (minor != other.minor) {
             return Integer.compare(minor, other.minor);
         }
-        return Integer.compare(patch, other.patch);
+        if (patch != other.patch) {
+            return Integer.compare(patch, other.patch);
+        }
+
+        if (this instanceof BetaVersion && !(other instanceof BetaVersion)) {
+            return -1;
+        }
+        if (!(this instanceof BetaVersion) && other instanceof BetaVersion) {
+            return 1;
+        }
+
+        return 0;
     }
 
     @Override
