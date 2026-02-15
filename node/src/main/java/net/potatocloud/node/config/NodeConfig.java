@@ -2,6 +2,7 @@ package net.potatocloud.node.config;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import net.potatocloud.node.Node;
 import org.apache.commons.io.FileUtils;
 import org.simpleyaml.configuration.file.YamlFile;
 
@@ -71,7 +72,7 @@ public class NodeConfig {
     }
 
     private void createFile(File configFile) {
-        try (InputStream stream = getClass().getResourceAsStream(CONFIG_FILE_NAME)) {
+        try (InputStream stream = Node.getInstance().getClass().getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)) {
             if (stream == null) {
                 throw new IllegalStateException(CONFIG_FILE_NAME + " not found in resources!");
             }
