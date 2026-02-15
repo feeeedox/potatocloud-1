@@ -33,7 +33,22 @@ public class ServiceGroupImpl implements ServiceGroup {
     private List<String> customJvmFlags;
     private final Map<String, Property<?>> propertyMap;
 
-    public ServiceGroupImpl(String name, String platformName, String platformVersionName, int minOnlineCount, int maxOnlineCount, int maxPlayers, int maxMemory, boolean fallback, boolean isStatic, int startPriority, int startPercentage, String javaCommand, List<String> customJvmFlags, Map<String, Property<?>> propertyMap) {
+    public ServiceGroupImpl(
+            String name,
+            String platformName,
+            String platformVersionName,
+            int minOnlineCount,
+            int maxOnlineCount,
+            int maxPlayers,
+            int maxMemory,
+            boolean fallback,
+            boolean isStatic,
+            int startPriority,
+            int startPercentage,
+            String javaCommand,
+            List<String> customJvmFlags,
+            Map<String, Property<?>> propertyMap
+    ) {
         this.name = name;
         this.platformName = platformName;
         this.platformVersionName = platformVersionName;
@@ -48,6 +63,7 @@ public class ServiceGroupImpl implements ServiceGroup {
         this.javaCommand = javaCommand;
         this.customJvmFlags = customJvmFlags;
         this.propertyMap = propertyMap;
+
         this.serviceTemplates = new ArrayList<>();
         addServiceTemplate("every");
         addServiceTemplate(name);
@@ -58,7 +74,7 @@ public class ServiceGroupImpl implements ServiceGroup {
         }
     }
 
-   @Override
+    @Override
     public <T> void setProperty(Property<T> property, T value) {
         ServiceGroup.super.setProperty(property, value);
 
