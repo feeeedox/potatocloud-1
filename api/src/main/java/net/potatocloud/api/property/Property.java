@@ -59,6 +59,10 @@ public class Property<T> {
         return new Property<>(name, defaultValue, defaultValue);
     }
 
+    public static Property<Double> ofDouble(String name, double defaultValue) {
+        return new Property<>(name, defaultValue, defaultValue);
+    }
+
     public static <T> Property<T> of(String name, T defaultValue, T value) {
         return new Property<>(name, defaultValue, value);
     }

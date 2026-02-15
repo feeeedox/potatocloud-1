@@ -87,6 +87,9 @@ public class PacketBuffer {
         } else if (object instanceof Float f) {
             buf.writeByte(5);
             writeFloat(f);
+        } else if (object instanceof Double d) {
+            buf.writeByte(6);
+            writeDouble(d);
         } else {
             throw new IllegalArgumentException("Unsupported object: " + object.getClass());
         }
@@ -100,6 +103,7 @@ public class PacketBuffer {
             case 3 -> readBoolean();
             case 4 -> readLong();
             case 5 -> readFloat();
+            case 6 -> readDouble();
             default -> throw new IllegalArgumentException("Unknown object id: " + type);
         };
     }
@@ -148,8 +152,16 @@ public class PacketBuffer {
         buf.writeFloat(value);
     }
 
+    public void writeDouble(double value) {
+        buf.writeDouble(value);
+    }
+
     public float readFloat() {
         return buf.readFloat();
+    }
+
+    public double readDouble() {
+        return buf.readDouble();
     }
 
     public void writePlatform(Platform platform) {

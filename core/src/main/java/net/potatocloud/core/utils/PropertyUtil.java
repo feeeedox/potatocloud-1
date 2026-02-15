@@ -28,6 +28,11 @@ public final class PropertyUtil {
 
         }
 
+        try {
+            return Property.ofDouble(key, Double.parseDouble(value));
+        } catch (NumberFormatException ignored) {
+        }
+
         return Property.ofString(key, value);
     }
 
