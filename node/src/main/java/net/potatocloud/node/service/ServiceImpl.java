@@ -164,8 +164,10 @@ public class ServiceImpl implements Service {
         directory = this.getDirectory();
         Files.createDirectories(directory);
 
-        for (String template : group.getServiceTemplates()) {
-            templateManager.copyTemplate(template, directory);
+        if(!group.isStatic()) {
+            for (String template : group.getServiceTemplates()) {
+                templateManager.copyTemplate(template, directory);
+            }
         }
 
         final Path pluginsFolder = directory.resolve("plugins");
