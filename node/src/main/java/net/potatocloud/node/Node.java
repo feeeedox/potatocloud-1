@@ -33,7 +33,7 @@ import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.ServiceDefaultFiles;
 import net.potatocloud.node.service.ServiceImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
-import net.potatocloud.node.service.ServiceStartQueue;
+import net.potatocloud.node.service.start.ServiceStartScheduler;
 import net.potatocloud.node.setup.SetupManager;
 import net.potatocloud.node.template.TemplateManager;
 import net.potatocloud.node.utils.HardwareUtils;
@@ -69,14 +69,14 @@ public class Node extends CloudAPI {
     private final CacheManager cacheManager;
 
     private final ServiceManagerImpl serviceManager;
-    private final ServiceStartQueue serviceStartQueue;
+    private final ServiceStartScheduler serviceStartScheduler;
 
     private final SetupManager setupManager;
     private final UpdateChecker updateChecker;
 
     private final Version previousVersion;
     private boolean ready = false;
-    private boolean isStopping;
+    private boolean stopping;
 
     public Node(long startupTime) {
         this.startupTime = startupTime;
@@ -143,13 +143,13 @@ public class Node extends CloudAPI {
         serviceManager = new ServiceManagerImpl(
                 config, logger, server, eventManager, groupManager, screenManager, templateManager, platformManager, downloadManager, cacheManager, console
         );
-        serviceStartQueue = new ServiceStartQueue(groupManager, serviceManager);
+        serviceStartScheduler = new ServiceStartScheduler(groupManager, serviceManager, eventManager);
 
         registerCommands();
 
         logger.info("Startup completed in &a" + (System.currentTimeMillis() - startupTime) + "ms &8| &7Use &8'&ahelp&8' &7to see available commands");
 
-        serviceStartQueue.start();
+        serviceStartScheduler.start();
         ready = true;
     }
 
@@ -171,9 +171,10 @@ public class Node extends CloudAPI {
     @SneakyThrows
     public void shutdown() {
         logger.info("Shutting down node&8...");
-        isStopping = true;
+        stopping = true;
 
-        serviceStartQueue.close();
+        serviceStartScheduler.close();
+
         if (!serviceManager.getAllServices().isEmpty()) {
             logger.info("Shutting down all running services&8...");
             for (Service service : serviceManager.getAllServices()) {
