@@ -27,7 +27,8 @@ public class LoginListener {
         final Player player = event.getPlayer();
         final String username = player.getUsername();
 
-        if (plugin.getWhitelist().contains(username) || player.hasPermission("*")) {
+        final String byPassPermission = config.yaml().getString("bypass-permission");
+        if (plugin.getWhitelist().contains(username) || player.hasPermission(byPassPermission)) {
             return;
         }
 

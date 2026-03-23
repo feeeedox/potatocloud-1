@@ -1,4 +1,8 @@
 permission: "potatocloud.proxy"
+aliases:
+  - maintenance
+  - wartungen
+bypass-permission: "potatocloud.maintenance.bypass"
 useTablistBanner: false # Only works with Labymod
 tablistImageURL: "https://imgur.com/TGofXh8.png%22" # Only works with Labymod. "%22" is the Size of the Banner.
 useTablist: true
@@ -14,9 +18,9 @@ tablist:
 
 motd:
   default:
-    firstLine: "<dark_gray>» <gradient:#55FF55:#DAF3DA>potatocloud</gradient> <dark_gray>• <gray>Powered by potatoes <dark_gray>• <white>1.20+"
+    firstLine: "<dark_gray>» <gradient:#55FF55:#DAF3DA>potatocloud</gradient> <dark_gray>• <gray>Powered by potatoes <dark_gray>• <white>1.21+"
     secondLine: "                   <green>We are online"
   maintenance:
-    firstLine: "<dark_gray>» <gradient:#55FF55:#DAF3DA>potatocloud</gradient> <dark_gray>• <gray>Powered by potatoes <dark_gray>• <white>1.20+"
+    firstLine: "<dark_gray>» <gradient:#55FF55:#DAF3DA>potatocloud</gradient> <dark_gray>• <gray>Powered by potatoes <dark_gray>• <white>1.21+"
     secondLine: "                  <red>We are in maintenance"
     version: "<red>Maintenance"

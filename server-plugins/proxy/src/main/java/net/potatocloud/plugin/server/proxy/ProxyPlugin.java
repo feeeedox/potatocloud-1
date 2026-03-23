@@ -55,7 +55,12 @@ public class ProxyPlugin {
 
         eventManager.register(this, new LoginListener(this, config, messagesConfig));
 
-        server.getCommandManager().register(server.getCommandManager().metaBuilder("proxy").build(), new ProxyCommand(this, config, messagesConfig));
+        server.getCommandManager().register(server.getCommandManager().metaBuilder("proxy")
+                .aliases(this.commandAliases()).build(), new ProxyCommand(this, config, messagesConfig));
+    }
+
+    private String[] commandAliases() {
+        return config.yaml().getStringList("aliases").toArray(new String[0]);
     }
 
     public boolean isMaintenance() {
