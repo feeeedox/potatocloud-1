@@ -1,6 +1,5 @@
 package net.potatocloud.node.platform;
 
-import lombok.SneakyThrows;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
@@ -132,57 +131,62 @@ public class PlatformFileHandler {
         }
     }
 
-    @SneakyThrows
     public void updatePlatform(Platform platform) {
-        final List<Map<String, Object>> versions = new ArrayList<>();
+        try {
+            final List<Map<String, Object>> versions = new ArrayList<>();
 
-        for (PlatformVersion version : platform.getVersions()) {
-            final Map<String, Object> versionMap = new LinkedHashMap<>();
+            for (PlatformVersion version : platform.getVersions()) {
+                final Map<String, Object> versionMap = new LinkedHashMap<>();
 
-            versionMap.put("version", version.getName());
-            versionMap.put("download", version.getDownloadUrl());
-            versionMap.put("legacy", version.isLegacy());
+                versionMap.put("version", version.getName());
+                versionMap.put("download", version.getDownloadUrl());
+                versionMap.put("legacy", version.isLegacy());
 
-            versions.add(versionMap);
+                versions.add(versionMap);
+            }
+
+            config.set(platform.getName() + ".versions", versions);
+            config.save(platformsFilePath.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update platform: " + platform.getName(), e);
         }
-
-        config.set(platform.getName() + ".versions", versions);
-        config.save(platformsFilePath.toFile());
     }
 
-    @SneakyThrows
     public void addPlatform(Platform platform) {
         if (platform == null) {
             return;
         }
 
-        final Map<String, Object> platformMap = new LinkedHashMap<>();
-        putIfNotNull(platformMap, "download", platform.getDownloadUrl());
-        putIfNotNull(platformMap, "base", platform.getBase());
-        putIfNotNull(platformMap, "custom", platform.isCustom());
-        putIfNotNull(platformMap, "pre-cache", platform.getPreCacheBuilder());
-        putIfNotNull(platformMap, "parser", platform.getParser());
-        putIfNotNull(platformMap, "proxy", platform.isProxy());
-        putIfNotNull(platformMap, "hash-type", platform.getHashType());
-        putIfNotNull(platformMap, "prepare-steps", new ArrayList<>(platform.getPrepareSteps()));
+        try {
+            final Map<String, Object> platformMap = new LinkedHashMap<>();
+            putIfNotNull(platformMap, "download", platform.getDownloadUrl());
+            putIfNotNull(platformMap, "base", platform.getBase());
+            putIfNotNull(platformMap, "custom", platform.isCustom());
+            putIfNotNull(platformMap, "pre-cache", platform.getPreCacheBuilder());
+            putIfNotNull(platformMap, "parser", platform.getParser());
+            putIfNotNull(platformMap, "proxy", platform.isProxy());
+            putIfNotNull(platformMap, "hash-type", platform.getHashType());
+            putIfNotNull(platformMap, "prepare-steps", new ArrayList<>(platform.getPrepareSteps()));
 
-        final List<Map<String, Object>> versions = new ArrayList<>();
+            final List<Map<String, Object>> versions = new ArrayList<>();
+            for (PlatformVersion version : platform.getVersions()) {
+                final Map<String, Object> versionMap = new LinkedHashMap<>();
 
-        for (PlatformVersion version : platform.getVersions()) {
-            final Map<String, Object> versionMap = new LinkedHashMap<>();
+                putIfNotNull(versionMap, "version", version.getName());
+                putIfNotNull(versionMap, "download", version.getDownloadUrl());
+                putIfNotNull(versionMap, "legacy", version.isLegacy());
+                putIfNotNull(versionMap, "local", version.isLocal());
 
-            putIfNotNull(versionMap, "version", version.getName());
-            putIfNotNull(versionMap, "download", version.getDownloadUrl());
-            putIfNotNull(versionMap, "legacy", version.isLegacy());
-            putIfNotNull(versionMap, "local", version.isLocal());
+                versions.add(versionMap);
+            }
 
-            versions.add(versionMap);
+            putIfNotNull(platformMap, "versions", versions);
+
+            config.set(platform.getName(), platformMap);
+            config.save(platformsFilePath.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to add platform: " + platform.getName(), e);
         }
-
-        putIfNotNull(platformMap, "versions", versions);
-
-        config.set(platform.getName(), platformMap);
-        config.save(platformsFilePath.toFile());
     }
 
     private void putIfNotNull(Map<String, Object> map, String key, Object value) {

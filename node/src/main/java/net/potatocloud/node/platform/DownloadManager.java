@@ -1,7 +1,6 @@
 package net.potatocloud.node.platform;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.core.utils.FileUtils;
@@ -12,7 +11,7 @@ import net.potatocloud.node.platform.parser.PurpurBuildParser;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.FileInputStream;
-import java.net.URI;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -25,7 +24,6 @@ public class DownloadManager {
 
     private static final List<BuildParser> PARSERS = List.of(new PaperBuildParser("paper"), new PaperBuildParser("velocity"), new PurpurBuildParser());
 
-    @SneakyThrows
     public void downloadPlatformVersion(Platform platform, PlatformVersion version) {
         if (platform == null) {
             logger.info("&cThis platform does not exist");
@@ -33,7 +31,11 @@ public class DownloadManager {
         }
 
         if (!Files.exists(platformsDirectory)) {
-            Files.createDirectories(platformsDirectory);
+            try {
+                Files.createDirectories(platformsDirectory);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create platforms directory: " + platformsDirectory, e);
+            }
         }
 
         final Path platformJarPath = PlatformUtils.getPlatformJarPath(platform, version);
@@ -68,7 +70,6 @@ public class DownloadManager {
         }
     }
 
-    @SneakyThrows
     private void download(Platform platform, PlatformVersion version, Path platformJarPath) {
         logger.info("&7Downloading platform &a" + platform.getName() + "&7 version &a" + version.getName());
 
@@ -77,11 +78,10 @@ public class DownloadManager {
             return;
 
         }
-        FileUtils.downloadFile(URI.create(version.getDownloadUrl()).toURL(), platformJarPath);
+        FileUtils.downloadFile(version.getDownloadUrl(), platformJarPath);
         logger.info("&7Finished downloading platform &a" + platform.getName() + "&7 version &a" + version.getName());
     }
 
-    @SneakyThrows
     private boolean needsUpdate(PlatformVersion version, Path platformJarPath) {
         // Check if the platform version file is outdated by comparing its hash with the latest version hash
         final String versionHash = version.getFileHash();
@@ -96,6 +96,8 @@ public class DownloadManager {
 
             // Returns true if the file is outdated
             return !currentFileHash.equalsIgnoreCase(versionHash);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to check for platform updates: " + platformJarPath, e);
         }
     }
 }

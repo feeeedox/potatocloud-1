@@ -38,7 +38,7 @@ public class PurpurBuildParser implements BuildParser {
                 impl.setDownloadUrl(downloadUrl);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to parse Purpur build for: " + version.getName(), e);
         }
     }
 

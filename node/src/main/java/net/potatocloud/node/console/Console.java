@@ -1,7 +1,6 @@
 package net.potatocloud.node.console;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.command.CommandManager;
 import org.jline.reader.LineReader;
@@ -24,15 +23,18 @@ public class Console {
 
     private String prompt;
 
-    @SneakyThrows
     public Console(CommandManager commandManager, Node node) {
         this.node = node;
 
-        terminal = TerminalBuilder.builder()
-                .name("potatocloud-console")
-                .system(true)
-                .encoding(StandardCharsets.UTF_8)
-                .build();
+        try {
+            terminal = TerminalBuilder.builder()
+                    .name("potatocloud-console")
+                    .system(true)
+                    .encoding(StandardCharsets.UTF_8)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize terminal", e);
+        }
 
         lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
@@ -84,9 +86,12 @@ public class Console {
         }
     }
 
-    @SneakyThrows
     public void close() {
         consoleReader.interrupt();
-        terminal.close();
+        try {
+            terminal.close();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to close terminal", e);
+        }
     }
 }

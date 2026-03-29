@@ -39,7 +39,6 @@ public class UpdateChecker {
         logger.warn("A new version is available! &8(&7Latest&8: &a" + latest + "&8, &7Current&8: &a" + CloudAPI.VERSION + "&8)");
     }
 
-    @SneakyThrows
     public Version getLatestVersion() {
         final String url = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
         final JsonObject response = RequestUtil.request(url);

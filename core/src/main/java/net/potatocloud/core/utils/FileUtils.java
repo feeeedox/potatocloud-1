@@ -2,7 +2,7 @@ package net.potatocloud.core.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -49,14 +49,14 @@ public final class FileUtils {
         }
     }
 
-    public static void downloadFile(URL url, Path targetPath) {
+    public static void downloadFile(String url, Path targetPath) {
         try {
             final Path parent = targetPath.getParent();
             if (parent != null && Files.notExists(parent)) {
                 Files.createDirectories(parent);
             }
 
-            try (InputStream in = url.openStream()) {
+            try (InputStream in = URI.create(url).toURL().openStream()) {
                 Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {

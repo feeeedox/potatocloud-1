@@ -3,7 +3,6 @@ package net.potatocloud.node.utils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.node.Node;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,8 +24,7 @@ public final class RequestUtil {
 
             return JsonParser.parseString(buildResponse.body()).getAsJsonObject();
         } catch (Exception e) {
-            Node.getInstance().getLogger().error("Failed to request: " + url);
+            throw new RuntimeException("Failed to request: " + url, e);
         }
-        return null;
     }
 }

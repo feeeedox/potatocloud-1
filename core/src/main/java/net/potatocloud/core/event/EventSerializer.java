@@ -17,8 +17,7 @@ public class EventSerializer {
             final Class<?> clazz = Class.forName(packet.getEventClass());
             return (Event) gson.fromJson(packet.getJson(), clazz);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to deserialize event: " + packet.getEventClass(), e);
         }
     }
 }

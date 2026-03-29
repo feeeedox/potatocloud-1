@@ -1,6 +1,5 @@
 package net.potatocloud.node.group;
 
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.impl.ServiceGroupImpl;
@@ -9,12 +8,12 @@ import net.potatocloud.node.utils.YamlUtils;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 @UtilityClass
 public class ServiceGroupStorage {
 
-    @SneakyThrows
     public void saveToFile(ServiceGroup group, Path directory) {
         final YamlFile config = new YamlFile(directory.resolve(group.getName() + ".yml").toFile());
 
@@ -46,13 +45,20 @@ public class ServiceGroupStorage {
             }
         }
 
-        config.save();
+        try {
+            config.save();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save service group to file: " + config.getFilePath(), e);
+        }
     }
 
-    @SneakyThrows
     public ServiceGroup loadFromFile(File file) {
         final YamlFile config = new YamlFile(file);
-        config.load();
+        try {
+            config.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load service group from file: " + file, e);
+        }
 
         return new ServiceGroupImpl(
                 config.getString("name"),

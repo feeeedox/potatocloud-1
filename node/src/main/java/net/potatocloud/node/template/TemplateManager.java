@@ -26,7 +26,6 @@ public class TemplateManager {
         }
     }
 
-    @SneakyThrows
     public void copyTemplate(String templateName, Path serviceDirectory) {
         final Path sourceDirectory = templatesDirectory.resolve(templateName);
         if (Files.notExists(sourceDirectory)) {

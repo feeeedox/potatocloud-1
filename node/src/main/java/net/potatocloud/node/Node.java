@@ -1,7 +1,6 @@
 package net.potatocloud.node;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventManager;
 import net.potatocloud.api.group.ServiceGroup;
@@ -177,7 +176,6 @@ public class Node extends CloudAPI {
         commandManager.registerCommand(new ShutdownCommand(this));
     }
 
-    @SneakyThrows
     public void shutdown() {
         if (stopping) {
             return;

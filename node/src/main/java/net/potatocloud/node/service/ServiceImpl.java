@@ -31,10 +31,7 @@ import net.potatocloud.node.template.TemplateManager;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -155,7 +152,6 @@ public class ServiceImpl implements Service {
         return (int) (usedBytes / 1024 / 1024);
     }
 
-    @SneakyThrows
     public void start() {
         if (isOnline()) {
             return;
@@ -164,49 +160,60 @@ public class ServiceImpl implements Service {
         status = ServiceStatus.STARTING;
         startTimestamp = System.currentTimeMillis();
 
-        directory = this.getDirectory();
-        Files.createDirectories(directory);
+        directory = getDirectory();
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create service directory: " + directory, e);
+        }
 
         for (String template : group.getServiceTemplates()) {
             templateManager.copyTemplate(template, directory);
         }
 
         final Path pluginsFolder = directory.resolve("plugins");
-        Files.createDirectories(pluginsFolder);
-
-        final String pluginName = this.getPlatformPluginName();
-        Files.copy(
-                Path.of(config.getDataFolder(), pluginName),
-                pluginsFolder.resolve(pluginName),
-                StandardCopyOption.REPLACE_EXISTING
-        );
+        try {
+            Files.createDirectories(pluginsFolder);
+            final String pluginName = getPlatformPluginName();
+            Files.copy(
+                    Path.of(config.getDataFolder(), pluginName),
+                    pluginsFolder.resolve(pluginName),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to set up plugins folder for service " + getName(), e);
+        }
 
         final Platform platform = group.getPlatform();
         final PlatformVersion version = group.getPlatformVersion();
 
-        downloadManager.downloadPlatformVersion(
-                platform,
-                platform.getVersion(group.getPlatformVersionName())
-        );
+        downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.getPlatformVersionName()));
 
         final Path cacheFolder = cacheManager.preCachePlatform(group);
         cacheManager.copyCacheToService(group, cacheFolder, directory);
 
-        Files.copy(
-                PlatformUtils.getPlatformJarPath(platform, version),
-                directory.resolve("server.jar"),
-                StandardCopyOption.REPLACE_EXISTING
-        );
+        try {
+            Files.copy(
+                    PlatformUtils.getPlatformJarPath(platform, version),
+                    directory.resolve("server.jar"),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to copy platform jar for service" + getName(), e);
+        }
 
         for (String step : platform.getPrepareSteps()) {
             PlatformPrepareSteps.getStep(step).execute(this, platform, directory);
         }
 
-        final List<String> startArguments = this.getStartArguments();
-
-        serverProcess = new ProcessBuilder(startArguments)
-                .directory(directory.toFile())
-                .start();
+        final List<String> startArguments = getStartArguments();
+        try {
+            serverProcess = new ProcessBuilder(startArguments)
+                    .directory(directory.toFile())
+                    .start();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to start server process for service " + getName(), e);
+        }
 
         processWriter = new BufferedWriter(new OutputStreamWriter(serverProcess.getOutputStream()));
         processReader = new BufferedReader(new InputStreamReader(serverProcess.getInputStream()));
@@ -379,15 +386,20 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    @SneakyThrows
     public boolean executeCommand(String command) {
         if (!isAlive() || processWriter == null) {
             return false;
         }
 
-        processWriter.write(command);
-        processWriter.newLine();
-        processWriter.flush();
+        try {
+            processWriter.write(command);
+            processWriter.newLine();
+            processWriter.flush();
+        } catch (IOException e) {
+            logger.error("Failed to send command to service " + getName());
+            return false;
+        }
+
         return true;
     }
 
@@ -396,7 +408,6 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    @SneakyThrows
     public void copy(String template, String filter) {
         final Path templatesFolder = Path.of(config.getTemplatesFolder());
         Path targetPath = templatesFolder.resolve(template);

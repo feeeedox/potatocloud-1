@@ -65,7 +65,7 @@ public class PaperBuildParser implements BuildParser {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to parse Paper build for: " + projectName + " : " + version.getName(), e);
         }
     }
 
