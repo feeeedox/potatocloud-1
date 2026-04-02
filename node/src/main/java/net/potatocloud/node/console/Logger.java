@@ -12,10 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
 public class Logger {
@@ -28,7 +28,7 @@ public class Logger {
     private final NodeConfig config;
     private final Console console;
     private final Path logsDirectory;
-    private final List<String> cachedLogs = new ArrayList<>();
+    private final List<String> cachedLogs = new CopyOnWriteArrayList<>();
 
     public Logger(NodeConfig config, Console console, Path logsDirectory) {
         this.config = config;
@@ -102,8 +102,10 @@ public class Logger {
         appendLine(latestLogPath, uncoloredMessage);
 
         // Make sure the cached logs list wont get too big
-        if (cachedLogs.size() > 1000) {
-            cachedLogs.removeFirst();
+        synchronized (cachedLogs) {
+            if (cachedLogs.size() >= 1000) {
+                cachedLogs.remove(0);
+            }
         }
 
         cachedLogs.add(coloredMessage);
