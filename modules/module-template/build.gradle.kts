@@ -10,9 +10,6 @@ repositories {
 
 dependencies {
     compileOnly(project(":api"))
-
-    compileOnly("com.google.auto.service:auto-service:1.1.1") // This dependency is used to automatically create the META-INF/service file.
-    annotationProcessor("com.google.auto.service:auto-service:1.1.1")
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {

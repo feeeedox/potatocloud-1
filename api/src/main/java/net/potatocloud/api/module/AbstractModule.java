@@ -3,12 +3,18 @@ package net.potatocloud.api.module;
 import lombok.Getter;
 import lombok.Setter;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.utils.version.Version;
 
 @Setter
+@Getter
 public abstract class AbstractModule implements PotatoModule {
 
     @Getter
     protected ModuleLogger logger;
+    @Getter
+    private String name;
+    @Getter
+    private Version version;
 
     protected void info(String message) {
         if (logger != null) {
@@ -33,7 +39,7 @@ public abstract class AbstractModule implements PotatoModule {
             System.out.println("[ERROR] " + message);
         }
     }
-    
+
     protected CloudAPI getCloudAPI() {
         return CloudAPI.getInstance();
     }

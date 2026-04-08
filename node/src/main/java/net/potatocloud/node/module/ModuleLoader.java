@@ -3,7 +3,9 @@ package net.potatocloud.node.module;
 import lombok.Getter;
 import net.potatocloud.api.module.AbstractModule;
 import net.potatocloud.api.module.PotatoModule;
+import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.node.console.Logger;
+import org.simpleyaml.configuration.implementation.snakeyaml.lib.Yaml;
 
 import java.io.IOException;
 import java.net.URL;
@@ -13,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 @Getter
 public class ModuleLoader {
@@ -52,20 +53,34 @@ public class ModuleLoader {
                     this.getClass().getClassLoader()
             );
 
-            ServiceLoader<PotatoModule> serviceLoader = ServiceLoader.load(PotatoModule.class, classLoader);
+            try (var inputStream = classLoader.getResourceAsStream("module.yml")) {
+                if (inputStream == null) return;
 
-            for (PotatoModule module : serviceLoader) {
+                Yaml yaml = new Yaml();
+                Map<String, Object> data = yaml.load(inputStream);
+
+                String mainClassPath = (String) data.get("main");
+                String name = (String) data.get("name");
+                String versionStr = (String) data.get("version");
+
+                Class<?> clazz = Class.forName(mainClassPath, true, classLoader);
+                PotatoModule module = (PotatoModule) clazz.getDeclaredConstructor().newInstance();
+
                 if (module instanceof AbstractModule abstractModule) {
+                    abstractModule.setName(name);
+                    abstractModule.setVersion(Version.fromString(versionStr));
                     abstractModule.setLogger(new NodeModuleLogger(logger));
                 }
 
-                modules.put(module.getName(), module);
-
                 Thread.currentThread().setContextClassLoader(classLoader);
+
+                modules.put(name, module);
                 module.onEnable();
+
+                logger.info("Module " + name + " (v" + versionStr + ") enabled.");
             }
         } catch (Exception ex) {
-            logger.error("Failed to load module: " + jarFile.getFileName() + " - " + ex.getMessage());
+            logger.error("Error loading " + jarFile.getFileName() + ": " + ex.getMessage());
         }
     }
 
