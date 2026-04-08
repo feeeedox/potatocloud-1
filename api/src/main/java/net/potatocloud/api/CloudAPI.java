@@ -10,7 +10,6 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.utils.version.Version;
 
-@Getter
 public abstract class CloudAPI {
 
     /**
