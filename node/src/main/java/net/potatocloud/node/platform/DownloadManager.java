@@ -6,6 +6,7 @@ import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.platform.parser.LeafBuildParser;
 import net.potatocloud.node.platform.parser.PaperBuildParser;
 import net.potatocloud.node.platform.parser.PurpurBuildParser;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,7 +23,12 @@ public class DownloadManager {
     private final Path platformsDirectory;
     private final Logger logger;
 
-    private static final List<BuildParser> PARSERS = List.of(new PaperBuildParser("paper"), new PaperBuildParser("velocity"), new PurpurBuildParser());
+    private static final List<BuildParser> PARSERS = List.of(
+            new PaperBuildParser("paper"),
+            new PaperBuildParser("velocity"),
+            new PurpurBuildParser(),
+            new LeafBuildParser()
+    );
 
     public void downloadPlatformVersion(Platform platform, PlatformVersion version) {
         if (platform == null) {

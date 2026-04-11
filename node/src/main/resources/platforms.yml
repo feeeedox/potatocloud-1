@@ -70,6 +70,29 @@ purpur:
     - version: 1.20.6
     - version: 1.20.5
     - version: 1.20.4
+leaf:
+  download: https://api.leafmc.one/v2/projects/leaf/versions/{version}/builds/{build}/downloads/leaf-{version}-{build}.jar
+  base: paper
+  custom: false
+  proxy: false
+  parser: leaf
+  hash-type: sha256
+  pre-cache: paper
+  prepare-steps:
+    - default-files
+    - eula
+    - port
+    - setup-proxy
+  versions:
+    - version: latest
+    - version: 1.21.11
+    - version: 1.21.10
+    - version: 1.21.9
+    - version: 1.21.8
+    - version: 1.21.7
+    - version: 1.21.6
+    - version: 1.21.5
+    - version: 1.21.4
 pandaspigot:
   base: bukkit
   custom: false
