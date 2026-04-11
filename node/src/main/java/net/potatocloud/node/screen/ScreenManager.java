@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.potatocloud.node.console.Console;
-import net.potatocloud.node.console.Logger;
+import net.potatocloud.node.logging.NodeLogger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ScreenManager {
 
     private final Console console;
-    private final Logger logger;
+    private final NodeLogger logger;
 
     private final Map<String, Screen> screens = new ConcurrentHashMap<>();
     private Screen currentScreen;

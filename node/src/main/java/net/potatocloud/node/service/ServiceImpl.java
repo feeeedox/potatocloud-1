@@ -7,6 +7,7 @@ import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
 import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.property.Property;
@@ -18,7 +19,6 @@ import net.potatocloud.core.networking.packet.packets.service.ServiceRemovePacke
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
-import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.PlatformManagerImpl;
 import net.potatocloud.node.platform.PlatformPrepareSteps;

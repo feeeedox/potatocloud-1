@@ -1,11 +1,11 @@
 package net.potatocloud.node.platform;
 
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.node.Node;
-import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.platform.parser.PaperBuildParser;
 import net.potatocloud.node.platform.parser.PurpurBuildParser;
 import org.apache.commons.codec.digest.DigestUtils;

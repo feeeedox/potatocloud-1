@@ -1,10 +1,10 @@
 package net.potatocloud.node.setup.setups;
 
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
 import net.potatocloud.node.console.Console;
-import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.setup.Setup;
 import net.potatocloud.node.setup.answer.AnswerResult;

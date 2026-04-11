@@ -1,6 +1,7 @@
 package net.potatocloud.node.command.commands;
 
 import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
@@ -9,7 +10,6 @@ import net.potatocloud.node.command.ArgumentType;
 import net.potatocloud.node.command.Command;
 import net.potatocloud.node.command.CommandInfo;
 import net.potatocloud.node.command.SubCommand;
-import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.ServiceImpl;

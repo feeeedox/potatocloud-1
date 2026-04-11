@@ -1,9 +1,9 @@
-package net.potatocloud.node.console;
+package net.potatocloud.node.logging;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.config.NodeConfig;
+import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.Screen;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
-public class Logger {
+public class NodeLogger implements Logger {
 
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -30,7 +30,7 @@ public class Logger {
     private final Path logsDirectory;
     private final List<String> cachedLogs = new CopyOnWriteArrayList<>();
 
-    public Logger(NodeConfig config, Console console, Path logsDirectory) {
+    public NodeLogger(NodeConfig config, Console console, Path logsDirectory) {
         this.config = config;
         this.console = console;
         this.logsDirectory = logsDirectory;
@@ -53,33 +53,20 @@ public class Logger {
         }
     }
 
-    public void info(String message) {
-        log(Level.INFO, message);
-    }
-
-    public void warn(String message) {
-        log(Level.WARN, message);
-    }
-
-    public void error(String message) {
-        log(Level.ERROR, message);
-    }
-
-    public void debug(String message) {
-        if (config.isDebug()) {
-            log(Level.DEBUG, message);
-        }
-    }
-
     public void logCommand(String command) {
-        log(Level.COMMAND, command);
+        log(Level.COMMAND_INPUT, command);
     }
 
     public List<String> getCachedLogs() {
         return Collections.unmodifiableList(cachedLogs);
     }
 
-    private void log(Level level, String message) {
+    @Override
+    public void log(Level level, String message) {
+        if (level == Level.DEBUG && !config.isDebug()) {
+            return;
+        }
+
         final Date now = new Date();
         final String formattedTime = TIME_FORMAT.format(now);
         final String formattedDate = DATE_FORMAT.format(now);
@@ -87,7 +74,7 @@ public class Logger {
         String uncoloredMessage;
         String coloredMessage;
 
-        if (level.equals(Level.COMMAND)) {
+        if (level.equals(Level.COMMAND_INPUT)) {
             coloredMessage = console.getPrompt() + message;
             uncoloredMessage = removeColorCodes(coloredMessage);
         } else {
@@ -101,7 +88,7 @@ public class Logger {
         appendLine(dayLogPath, uncoloredMessage);
         appendLine(latestLogPath, uncoloredMessage);
 
-        // Make sure the cached logs list wont get too big
+        // Make sure the cached logs list will not get too big
         synchronized (cachedLogs) {
             if (cachedLogs.size() >= 1000) {
                 cachedLogs.remove(0);
@@ -110,8 +97,8 @@ public class Logger {
 
         cachedLogs.add(coloredMessage);
 
-        final boolean isNodeScreen = Node.getInstance().getScreenManager().getCurrentScreen().name().equals(Screen.NODE_SCREEN);
-        if (!level.equals(Level.COMMAND) && isNodeScreen) {
+        final boolean nodeScreen = Node.getInstance().getScreenManager().getCurrentScreen().name().equals(Screen.NODE_SCREEN);
+        if (!level.equals(Level.COMMAND_INPUT) && nodeScreen) {
             console.println(coloredMessage);
         }
     }
@@ -139,18 +126,5 @@ public class Logger {
         } catch (IOException e) {
             throw new RuntimeException("Failed to write to log file: " + path, e);
         }
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public enum Level {
-        INFO("&a"),
-        WARN("&e"),
-        ERROR("&c"),
-        DEBUG("&e"),
-        COMMAND("&7");
-
-        private final String colorCode;
-
     }
 }

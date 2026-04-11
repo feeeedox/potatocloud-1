@@ -3,6 +3,7 @@ package net.potatocloud.api;
 import lombok.Getter;
 import net.potatocloud.api.event.EventManager;
 import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
@@ -26,6 +27,13 @@ public abstract class CloudAPI {
     public CloudAPI() {
         instance = this;
     }
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger
+     */
+    public abstract Logger getLogger();
 
     /**
      * Gets the service group manager.

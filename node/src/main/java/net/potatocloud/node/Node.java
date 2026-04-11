@@ -3,9 +3,7 @@ package net.potatocloud.node;
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventManager;
-import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
-import net.potatocloud.api.module.PotatoModule;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.utils.version.Version;
@@ -15,16 +13,18 @@ import net.potatocloud.core.migration.MigrationManager;
 import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.core.networking.netty.server.NettyNetworkServer;
 import net.potatocloud.core.networking.packet.PacketManager;
+import net.potatocloud.core.networking.packet.packets.logging.LogMessagePacket;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.command.commands.*;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
-import net.potatocloud.node.console.Logger;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.logging.NodeLogger;
 import net.potatocloud.node.migration.Migration_1_4_3;
 import net.potatocloud.node.migration.Migration_1_4_4;
-import net.potatocloud.node.module.ModuleLoader;
 import net.potatocloud.node.migration.Migration_1_4_5;
+import net.potatocloud.node.module.ModuleLoader;
+import net.potatocloud.node.module.ModuleManager;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.PlatformManagerImpl;
 import net.potatocloud.node.platform.cache.CacheManager;
@@ -52,7 +52,7 @@ public class Node extends CloudAPI {
     private final long startupTime;
     private final NodeConfig config;
 
-    private final Logger logger;
+    private final NodeLogger logger;
     private final Console console;
     private final ScreenManager screenManager;
     private final CommandManager commandManager;
@@ -77,6 +77,7 @@ public class Node extends CloudAPI {
     private final SetupManager setupManager;
     private final UpdateChecker updateChecker;
 
+    private final ModuleManager moduleManager;
     private final ModuleLoader moduleLoader;
 
     private final Version previousVersion;
@@ -104,13 +105,13 @@ public class Node extends CloudAPI {
 
         commandManager = new CommandManager();
         console = new Console(config, commandManager);
-        logger = new Logger(config, console, Path.of(config.getLogsFolder()));
+        logger = new NodeLogger(config, console, Path.of(config.getLogsFolder()));
 
         commandManager.setLogger(logger);
 
         final Screen nodeScreen = new Screen(Screen.NODE_SCREEN);
         screenManager = new ScreenManager(console, logger);
-        screenManager.addScreen(nodeScreen);
+        screenManager.register(nodeScreen);
         screenManager.setCurrentScreen(nodeScreen);
 
         console.start();
@@ -132,6 +133,12 @@ public class Node extends CloudAPI {
         server.start(config.getNodeHost(), config.getNodePort());
         logger.info("Network server started using &aNetty &7on &a" + config.getNodeHost() + "&8:&a" + config.getNodePort());
 
+        // TODO: Maybe move this somewhere else
+        // Handle logs from Connector
+        server.on(LogMessagePacket.class, (connection, packet) -> {
+            logger.log(net.potatocloud.api.logging.Logger.Level.valueOf(packet.getLevel()), packet.getMessage());
+        });
+
         eventManager = new ServerEventManager(server);
         propertiesHolder = new NodePropertiesHolder(server);
         playerManager = new CloudPlayerManagerImpl(server);
@@ -139,15 +146,21 @@ public class Node extends CloudAPI {
         groupManager = new ServiceGroupManagerImpl(Path.of(config.getGroupsFolder()), server, logger);
 
         if (!groupManager.getAllServiceGroups().isEmpty()) {
-            final int groupCount = groupManager.getAllServiceGroups().size();
-            logger.info("Loaded &a" + groupCount + "&7 " + (groupCount == 1 ? "group" : "groups") + "&8:");
+            final int count = groupManager.getAllServiceGroups().size();
 
-            for (ServiceGroup group : groupManager.getAllServiceGroups()) {
-                logger.info("&8» &a" + group.getName());
-            }
+            logger.info("Loaded &a" + count + "&7 " + (count == 1 ? "group" : "groups") + "&8:");
+
+            groupManager.getAllServiceGroups().forEach(group -> logger.info("&8» &a" + group.getName()));
         }
 
         platformManager = new PlatformManagerImpl(logger, server);
+
+        if (!platformManager.getPlatforms().isEmpty()) {
+            logger.info("Loaded &a" + platformManager.getPlatforms().size() + "&7 platforms&8:");
+
+            platformManager.getPlatforms().forEach(platform -> logger.info("&8» &a" + platform.getName()));
+        }
+
         downloadManager = new DownloadManager(Path.of(config.getPlatformsFolder()), logger);
         cacheManager = new CacheManager(logger);
 
@@ -157,12 +170,23 @@ public class Node extends CloudAPI {
         );
         serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventManager);
 
+        moduleManager = new ModuleManager();
+        moduleLoader = new ModuleLoader(moduleManager);
+        moduleLoader.load(Path.of("modules")); // TODO: Get folder from config
+
+        if (!moduleManager.getModules().isEmpty()) {
+            final int count = moduleManager.getModules().size();
+
+            logger.info("Loaded &a" + count + "&7 module" + (count == 1 ? "" : "s") + "&8:");
+
+            moduleManager.getModules().values().forEach(module -> logger.info("&8» &a" + module.getName() + " &7v" + module.getVersion()));
+        }
+
+        moduleManager.enableAll();
+
         registerCommands();
 
         logger.info("Startup completed in &a" + (System.currentTimeMillis() - startupTime) + "ms &8| &7Use &8'&ahelp&8' &7to see available commands");
-
-        moduleLoader = new ModuleLoader(logger);
-        moduleLoader.loadModules();
 
         serviceStartScheduler.start();
         ready = true;
@@ -199,7 +223,7 @@ public class Node extends CloudAPI {
 
         serviceStartScheduler.close();
 
-        moduleLoader.getModules().values().forEach(PotatoModule::onDisable);
+        moduleManager.disableAll();
 
         if (!serviceManager.getAllServices().isEmpty()) {
             logger.info("Shutting down all running services&8...");
@@ -219,7 +243,7 @@ public class Node extends CloudAPI {
 
         logger.info("Shutdown complete. Goodbye!");
 
-        // console.close();
+        //console.close();
         System.exit(0);
     }
 

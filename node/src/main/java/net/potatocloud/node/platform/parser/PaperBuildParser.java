@@ -26,7 +26,7 @@ public class PaperBuildParser implements BuildParser {
             final JsonObject project = RequestUtil.request("https://fill.papermc.io/v3/projects/" + projectName);
             final JsonObject versions = project.getAsJsonObject("versions");
 
-            // Find the latest minecraft version if the user wants the latest
+            // Find the latest Minecraft version if the user wants the latest
             if (versionName.equalsIgnoreCase("latest")) {
                 final List<String> allVersions = new ArrayList<>();
 
