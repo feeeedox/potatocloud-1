@@ -1,85 +1,68 @@
 package net.potatocloud.node.module;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.module.AbstractModule;
-import net.potatocloud.api.module.PotatoModule;
+import net.potatocloud.api.module.Module;
 import net.potatocloud.api.utils.version.Version;
-import net.potatocloud.node.console.Logger;
-import org.simpleyaml.configuration.implementation.snakeyaml.lib.Yaml;
+import net.potatocloud.common.FileUtils;
+import org.simpleyaml.configuration.file.YamlFile;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
-@Getter
+@RequiredArgsConstructor
 public class ModuleLoader {
 
-    private final Map<String, PotatoModule> modules = new HashMap<>();
-    private final Logger logger;
+    private final ModuleManager moduleManager;
 
-    public ModuleLoader(Logger logger) {
-        this.logger = logger;
-    }
-
-    public void loadModules() {
-        Path modulesDir = Path.of("modules");
+    public void load(Path modulesPath) {
         try {
-            if (!Files.exists(modulesDir)) {
-                Files.createDirectories(modulesDir);
+            if (Files.notExists(modulesPath)) {
+                Files.createDirectories(modulesPath);
                 return;
             }
 
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(modulesDir, "*.jar")) {
-                for (Path jarFile : stream) {
-                    loadModule(jarFile);
-                }
-            }
+            FileUtils.list(modulesPath).stream()
+                    .filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".jar"))
+                    .forEach(this::loadJar);
 
-            logger.info("Loaded " + modules.size() + " module(s) from modules directory");
-        } catch (IOException ex) {
-            logger.error("Failed to create modules directory: " + ex.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading modules: " + e.getMessage());
         }
     }
 
-    public void loadModule(Path jarFile) {
+    private void loadJar(Path jar) {
         try {
-            URLClassLoader classLoader = new URLClassLoader(
-                    new URL[]{jarFile.toUri().toURL()},
-                    this.getClass().getClassLoader()
-            );
+            final URLClassLoader loader = new URLClassLoader(new URL[]{jar.toUri().toURL()}, getClass().getClassLoader());
 
-            try (var inputStream = classLoader.getResourceAsStream("module.yml")) {
-                if (inputStream == null) return;
+            try (InputStream stream = loader.getResourceAsStream("module.yml")) {
+                if (stream == null) {
+                    return;
+                }
 
-                Yaml yaml = new Yaml();
-                Map<String, Object> data = yaml.load(inputStream);
+                final YamlFile yaml = new YamlFile();
+                yaml.load(stream);
 
-                String mainClassPath = (String) data.get("main");
-                String name = (String) data.get("name");
-                String versionStr = (String) data.get("version");
+                final String name = yaml.getString("name");
+                final String version = yaml.getString("version");
+                final String main = yaml.getString("main");
 
-                Class<?> clazz = Class.forName(mainClassPath, true, classLoader);
-                PotatoModule module = (PotatoModule) clazz.getDeclaredConstructor().newInstance();
+                final Class<?> clazz = Class.forName(main, true, loader);
+                final Module module = (Module) clazz.getDeclaredConstructor().newInstance();
 
                 if (module instanceof AbstractModule abstractModule) {
                     abstractModule.setName(name);
-                    abstractModule.setVersion(Version.fromString(versionStr));
-                    abstractModule.setLogger(new NodeModuleLogger(logger));
+                    abstractModule.setVersion(Version.fromString(version));
                 }
 
-                Thread.currentThread().setContextClassLoader(classLoader);
-
-                modules.put(name, module);
-                module.onEnable();
+                module.onLoad();
+                moduleManager.register(module);
             }
-        } catch (Exception ex) {
-            logger.error("Error loading " + jarFile.getFileName() + ": " + ex.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading module: " + e.getMessage());
         }
     }
-
 }
