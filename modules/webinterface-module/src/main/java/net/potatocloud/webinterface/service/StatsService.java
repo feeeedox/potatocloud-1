@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventManager;
 import net.potatocloud.api.event.events.player.CloudPlayerJoinEvent;
+import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.node.Node;
 import net.potatocloud.webinterface.dto.player.PlayerCountDto;
 import net.potatocloud.webinterface.dto.stats.JoinPointDto;
 import net.potatocloud.webinterface.dto.stats.JoinStatsDto;
+import net.potatocloud.webinterface.dto.stats.ServiceStatsDto;
 import net.potatocloud.webinterface.dto.stats.StatsDto;
 
 import java.time.Instant;
@@ -26,7 +29,6 @@ public class StatsService {
     private static final DateTimeFormatter HOUR_FORMATTER = DateTimeFormatter.ofPattern("HH:00").withZone(ZoneOffset.UTC);
 
     private final CloudAPI cloudAPI;
-    private final NodeService nodeService;
     private final CopyOnWriteArrayList<Long> joinTimestamps = new CopyOnWriteArrayList<>();
 
     public void start() {
@@ -81,6 +83,37 @@ public class StatsService {
         List<JoinPointDto> result = new ArrayList<>();
         counts.forEach((hour, joins) -> result.add(JoinPointDto.builder().hour(hour).joins(joins).build()));
         return result;
+    }
+
+    public ServiceStatsDto getServiceStats() {
+        int running = getServices(ServiceStatus.RUNNING);
+        int starting = getServices(ServiceStatus.STARTING);
+        int stopping = getServices(ServiceStatus.STOPPING);
+        int currentMemoryUsage;
+
+        List<Integer> memUsages = cloudAPI.getServiceManager().getOnlineServices().stream()
+                .filter(service -> service.getStatus() == ServiceStatus.RUNNING || service.getStatus() == ServiceStatus.STARTING)
+                .map(Service::getUsedMemory)
+                .toList();
+
+        if (memUsages.isEmpty()) {
+            currentMemoryUsage = 0;
+        } else {
+            currentMemoryUsage = memUsages.stream().mapToInt(Integer::intValue).sum();
+        }
+
+        return ServiceStatsDto.builder()
+                .running(running)
+                .starting(starting)
+                .stopping(stopping)
+                .currentMemoryUsage(currentMemoryUsage)
+                .build();
+    }
+
+    public int getServices(ServiceStatus status) {
+        return cloudAPI.getServiceManager().getAllServices().stream()
+                .filter(service -> service.getStatus() == status)
+                .toList().size();
     }
 }
 

@@ -14,5 +14,6 @@ public class StatsRestController extends BaseRestController {
         ApiBuilder.get("/api/stats", ctx -> ctx.json(statsService.getStats()));
         ApiBuilder.get("/api/stats/joins", ctx -> ctx.json(statsService.getJoinStats()));
         ApiBuilder.get("/api/stats/players", ctx -> ctx.json(statsService.getPlayerCount()));
+        ApiBuilder.get("/api/stats/services", ctx -> ctx.json(statsService.getServiceStats()));
     }
 }

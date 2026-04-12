@@ -4,7 +4,6 @@ import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.module.AbstractModule;
 import net.potatocloud.node.Node;
 import net.potatocloud.webinterface.api.rest.*;
@@ -15,10 +14,12 @@ import net.potatocloud.webinterface.config.WebInterfaceConfig;
 import net.potatocloud.webinterface.dto.event.ErrorDto;
 import net.potatocloud.webinterface.security.AuthService;
 import net.potatocloud.webinterface.service.*;
-import net.potatocloud.webinterface.service.broadcast.GroupDetailsBroadcastService;
 import net.potatocloud.webinterface.service.broadcast.PlayerBroadcastService;
 import net.potatocloud.webinterface.service.broadcast.ScreenLogBroadcastService;
+import net.potatocloud.webinterface.service.broadcast.ServerBroadcastService;
+import net.potatocloud.webinterface.service.broadcast.group.GroupDetailsBroadcastService;
 import net.potatocloud.webinterface.service.broadcast.group.GroupsBroadcastService;
+import net.potatocloud.webinterface.service.broadcast.stats.StatsServicesBroadcastService;
 
 public class WebInterfaceModule extends AbstractModule {
 
@@ -33,6 +34,8 @@ public class WebInterfaceModule extends AbstractModule {
     private ScreenLogBroadcastService screenLogBroadcastService;
     private PlayerBroadcastService playerBroadcastService;
     private GroupsBroadcastService groupsBroadcastService;
+    private StatsServicesBroadcastService statsServicesBroadcastService;
+    private ServerBroadcastService serverBroadcastService;
 
     @Override
     public void onEnable() {
@@ -47,7 +50,8 @@ public class WebInterfaceModule extends AbstractModule {
         GroupService groupService = new GroupService(cloudAPI, node);
         PlayerService playerService = new PlayerService(cloudAPI, node);
         PlatformService platformService = new PlatformService(cloudAPI);
-        StatsService statsService = new StatsService(cloudAPI, nodeService);
+        StatsService statsService = new StatsService(cloudAPI);
+        ServerService serviceService = new ServerService(cloudAPI);
 
         statsService.start();
 
@@ -65,6 +69,14 @@ public class WebInterfaceModule extends AbstractModule {
         groupsBroadcastService = new GroupsBroadcastService(cloudAPI, groupService, config.getWsUpdateIntervalSeconds());
         groupsBroadcastService.registerCloudListeners();
         groupsBroadcastService.start();
+
+        statsServicesBroadcastService = new StatsServicesBroadcastService(cloudAPI, statsService, config.getWsUpdateIntervalSeconds());
+        statsServicesBroadcastService.registerCloudListeners();
+        statsServicesBroadcastService.start();
+
+        serverBroadcastService = new ServerBroadcastService(cloudAPI, serviceService, config.getWsUpdateIntervalSeconds());
+        serverBroadcastService.registerCloudListeners();
+        serverBroadcastService.start();
 
         GroupRestController groupRestController = new GroupRestController(groupService);
         PlatformRestController platformRestController = new PlatformRestController(platformService);
@@ -90,6 +102,12 @@ public class WebInterfaceModule extends AbstractModule {
         ScreenWebSocketHandler screenWebSocketHandler = new ScreenWebSocketHandler(
                 nodeService, screenLogBroadcastService, sessionManager, authService, config.getWsPingIntervalSeconds()
         );
+        StatsServiceWebSocketHandler statsServiceWebSocketHandler = new StatsServiceWebSocketHandler(
+                statsServicesBroadcastService, sessionManager, authService, config.getWsUpdateIntervalSeconds()
+        );
+        ServicesWebSocketHandler servicesWebSocketHandler = new ServicesWebSocketHandler(
+                serverBroadcastService, sessionManager, authService, config.getWsUpdateIntervalSeconds()
+        );
 
         app = Javalin.create(cfg -> {
             cfg.jsonMapper(new JavalinJackson());
@@ -104,6 +122,8 @@ public class WebInterfaceModule extends AbstractModule {
                 screenRestController.register();
             });
 
+            cfg.routes.ws("/ws/stats/services", statsServiceWebSocketHandler::configure);
+            cfg.routes.ws("/ws/services", servicesWebSocketHandler::configure);
             cfg.routes.ws("/ws/group-details", groupDetailsWebSocketHandler::configure);
             cfg.routes.ws("/ws/groups", groupsWebSocketHandler::configure);
             cfg.routes.ws("/ws/players", playerWebSocketHandler::configure);
@@ -137,6 +157,10 @@ public class WebInterfaceModule extends AbstractModule {
 
         if (groupsBroadcastService != null) {
             groupsBroadcastService.shutdown();
+        }
+
+        if (statsServicesBroadcastService != null) {
+            statsServicesBroadcastService.shutdown();
         }
 
         if (sessionManager != null) {

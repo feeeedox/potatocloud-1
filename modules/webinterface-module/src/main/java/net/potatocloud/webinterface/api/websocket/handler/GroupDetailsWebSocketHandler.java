@@ -4,7 +4,7 @@ import io.javalin.websocket.WsContext;
 import net.potatocloud.webinterface.api.websocket.session.WebSocketSessionManager;
 import net.potatocloud.webinterface.security.AuthService;
 import net.potatocloud.webinterface.service.GroupService;
-import net.potatocloud.webinterface.service.broadcast.GroupDetailsBroadcastService;
+import net.potatocloud.webinterface.service.broadcast.group.GroupDetailsBroadcastService;
 
 public class GroupDetailsWebSocketHandler extends BaseWebSocketHandler {
 

@@ -1,9 +1,9 @@
-package net.potatocloud.webinterface.service.broadcast;
+package net.potatocloud.webinterface.service.broadcast.group;
 
 import io.javalin.websocket.WsContext;
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.webinterface.dto.group.GroupDto;
 import net.potatocloud.webinterface.dto.event.WsEventDto;
+import net.potatocloud.webinterface.dto.group.GroupDto;
 import net.potatocloud.webinterface.service.GroupService;
 
 import java.util.Map;
