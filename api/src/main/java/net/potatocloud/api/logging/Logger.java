@@ -32,6 +32,11 @@ public interface Logger {
         log(Level.ERROR, message);
     }
 
+    /**
+     * Logs an exception with the stack trace.
+     *
+     * @param throwable the exception to log
+     */
     default void exception(Throwable throwable) {
         log(Level.ERROR, "An exception occurred: " + throwable.getMessage());
         for (StackTraceElement element : throwable.getStackTrace()) {
