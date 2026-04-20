@@ -48,6 +48,21 @@ These plugins are separate jars you can drop into your proxy or servers:
 ## API
 Check out the [potatocloud API Wiki](https://github.com/potatocloudmc/potatocloud/wiki/01%E2%80%90Getting-Started-with-the-API). It shows you how to use the API and includes examples.
 
+## Documentation & Support
+We don't currently have any official documentation, but you can check out various resources for help:
+
+### Resources
+* **[API Wiki](https://github.com/potatocloudmc/potatocloud/wiki/01%E2%80%90Getting-Started-with-the-API)** - Learn how to integrate potatocloud into your own projects with code examples.
+* **[DeepWiki](https://deepwiki.com/potatocloudmc/potatocloud)** - AI-supported documentation assistant. Perfect for quick questions about configuration and features.
+  [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/potatocloudmc/potatocloud)
+
+### Need Help?
+If you run into any issues or have questions that aren't covered in the Wiki:
+- **Search existing [Issues](https://github.com/potatocloudmc/potatocloud/issues)** to see if your question has already been answered.
+- **Open a new [Issue](https://github.com/potatocloudmc/potatocloud/issues)** if you’ve found a bug or need specific assistance.
+
+> **Note:** DeepWiki is an AI and may occasionally provide inaccurate information. Always verify critical configurations.
+
 ## Building from Source
 Use Gradle to build the project:
 ```bash
