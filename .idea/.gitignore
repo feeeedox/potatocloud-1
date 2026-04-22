@@ -3,3 +3,6 @@
 /workspace.xml
 # Environment-dependent path to Maven home directory
 /mavenHomeManager.xml
+
+.name
+copilot.data.migration.ask2agent.xml
