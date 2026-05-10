@@ -30,17 +30,12 @@ public class ServiceManagerImpl implements ServiceManager {
 
     private final List<Service> services = new CopyOnWriteArrayList<>();
 
+    private final ServiceFactory factory;
+
     private final NodeConfig config;
     private final Logger logger;
     private final NetworkServer server;
-    private final EventManager eventManager;
     private final ServiceGroupManager groupManager;
-    private final ScreenManager screenManager;
-    private final TemplateManager templateManager;
-    private final PlatformManagerImpl platformManager;
-    private final DownloadManager downloadManager;
-    private final CacheManager cacheManager;
-    private final Console console;
 
     public ServiceManagerImpl(
             NodeConfig config,
@@ -58,14 +53,8 @@ public class ServiceManagerImpl implements ServiceManager {
         this.config = config;
         this.logger = logger;
         this.server = server;
-        this.eventManager = eventManager;
         this.groupManager = groupManager;
-        this.screenManager = screenManager;
-        this.templateManager = templateManager;
-        this.platformManager = platformManager;
-        this.downloadManager = downloadManager;
-        this.cacheManager = cacheManager;
-        this.console = console;
+        this.factory = new ServiceFactory(config, logger, server, screenManager, templateManager, eventManager, this, console, downloadManager, cacheManager);
 
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
         server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventManager));
@@ -108,21 +97,7 @@ public class ServiceManagerImpl implements ServiceManager {
         final int serviceId = getFreeServiceId(group);
         final int port = getServicePort(group);
 
-        final AbstractService service = new LocalService(
-                serviceId,
-                port,
-                group,
-                config,
-                logger,
-                server,
-                screenManager,
-                templateManager,
-                eventManager,
-                this,
-                console,
-                downloadManager,
-                cacheManager
-        );
+        final AbstractService service = factory.create(ServiceType.LOCAL, serviceId, port, group);
 
         services.add(service);
 
