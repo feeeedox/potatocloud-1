@@ -1,4 +1,4 @@
-package net.potatocloud.node.service.runtime;
+package net.potatocloud.node.service.runtime.local;
 
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
@@ -14,6 +14,7 @@ import net.potatocloud.node.platform.PlatformUtils;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.service.ServiceImpl;
 import net.potatocloud.node.service.config.ServicePerformanceFlags;
+import net.potatocloud.node.service.runtime.AbstractServiceRuntime;
 import net.potatocloud.node.template.TemplateManager;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
