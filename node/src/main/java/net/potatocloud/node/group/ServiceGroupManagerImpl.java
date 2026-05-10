@@ -152,7 +152,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         try {
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            logger.error("Failed to delete group file for: " + name);;
+            logger.error("Failed to delete group file for: " + name);
         }
     }
 

@@ -137,9 +137,7 @@ public class Node extends CloudAPI {
 
         // TODO: Maybe move this somewhere else
         // Handle logs from Connector
-        server.on(LogMessagePacket.class, (connection, packet) -> {
-            logger.log(Logger.Level.valueOf(packet.getLevel()), packet.getMessage());
-        });
+        server.on(LogMessagePacket.class, (_, packet) -> logger.log(Logger.Level.valueOf(packet.getLevel()), packet.getMessage()));
 
         eventManager = new ServerEventManager(server);
         propertiesHolder = new NodePropertiesHolder(server);

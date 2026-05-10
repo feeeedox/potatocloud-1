@@ -109,7 +109,7 @@ public class GroupConfigurationSetup extends Setup {
 
         final Platform platform = platformManager.getPlatform(platformName);
 
-        if (platform.isProxy() && ProxyUtils.getProxyGroups() != null && ProxyUtils.getProxyGroups().size() > 1) {
+        if (platform.isProxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
             Node.getInstance().getLogger().warn("You have more than one proxy group! This may cause issues");
         }
 
