@@ -1,6 +1,6 @@
 package net.potatocloud.node.utils;
 
-import oshi.SystemInfo;
+import oshi.ffm.SystemInfo;
 
 public final class HardwareUtils {
 

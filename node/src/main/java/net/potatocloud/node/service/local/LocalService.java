@@ -19,7 +19,7 @@ import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.config.ServicePerformanceFlags;
 import net.potatocloud.node.template.TemplateManager;
-import oshi.SystemInfo;
+import oshi.ffm.SystemInfo;
 import oshi.software.os.OSProcess;
 
 import java.io.*;
@@ -199,7 +199,7 @@ public class LocalService extends AbstractService {
             return 0;
         }
 
-        return (int) (osProcess.getResidentSetSize() / 1024 / 1024);
+        return (int) (osProcess.getResidentMemory() / 1024 / 1024);
     }
 
     @Override

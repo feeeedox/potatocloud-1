@@ -5,7 +5,7 @@ import net.potatocloud.api.utils.TimeFormatter;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.command.Command;
 import net.potatocloud.node.command.CommandInfo;
-import oshi.SystemInfo;
+import oshi.ffm.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 
@@ -14,7 +14,7 @@ public class InfoCommand extends Command {
 
     public InfoCommand(Logger logger) {
         defaultExecutor(ctx -> {
-            final SystemInfo info = new SystemInfo();
+            final oshi.ffm.SystemInfo info = new SystemInfo();
             final GlobalMemory memory = info.getHardware().getMemory();
             final CentralProcessor processor = info.getHardware().getProcessor();
 
