@@ -8,6 +8,8 @@ import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
+import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
@@ -19,7 +21,6 @@ import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
-import net.potatocloud.node.service.runtime.ServiceRuntime;
 import net.potatocloud.node.template.TemplateManager;
 
 import java.nio.file.Files;
@@ -30,20 +31,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Getter
-public class ServiceImpl implements Service {
+public abstract class AbstractService implements Service {
 
     private final int serviceId;
     private final int port;
-    private final ServiceGroup group;
-    private final NodeConfig config;
-    private final Logger logger;
+    protected final ServiceGroup group;
+    protected final NodeConfig config;
+    protected final Logger logger;
 
-    private final String name;
-
-    private final ServiceRuntime runtime;
+    protected final String name;
 
     @Setter
-    private ServiceProcessChecker processChecker;
+    protected ServiceProcessChecker processChecker;
 
     private final ExecutorService executorService;
 
@@ -61,16 +60,15 @@ public class ServiceImpl implements Service {
     private final Screen screen;
     private final List<String> logs = new ArrayList<>();
 
-    private final TemplateManager templateManager;
-    private final Path directory;
+    protected final TemplateManager templateManager;
+    protected final Path directory;
 
     private final Map<String, Property<?>> propertyMap;
 
     @Setter
     private int maxPlayers;
 
-    public ServiceImpl(
-            ServiceRuntime runtime,
+    public AbstractService(
             int serviceId,
             int port,
             ServiceGroup group,
@@ -83,7 +81,6 @@ public class ServiceImpl implements Service {
             ServiceManager serviceManager,
             Console console
     ) {
-        this.runtime = runtime;
         this.serviceId = serviceId;
         this.port = port;
         this.group = group;
@@ -111,10 +108,6 @@ public class ServiceImpl implements Service {
         return group;
     }
 
-    public int getUsedMemory() {
-        return runtime.usedMemory(this);
-    }
-
     public void start() {
         if (isOnline()) {
             return;
@@ -124,8 +117,13 @@ public class ServiceImpl implements Service {
 
         screenManager.register(screen);
 
-        runtime.prepare(this);
-        runtime.start(this);
+        status = ServiceStatus.PREPARING;
+
+        prepare();
+
+        status = ServiceStatus.STARTING;
+
+        startProcess();
 
         logger.info("Service &a" + name + "&7 is now starting&8... &8[&7Port&8: &a" + port + "&8, &7Group&8: &a" + group.getName() + "&8]");
         eventManager.call(new PreparedServiceStartingEvent(name));
@@ -143,11 +141,7 @@ public class ServiceImpl implements Service {
         eventManager.call(new ServiceStoppingEvent(name));
 
         return CompletableFuture.runAsync(() -> {
-            runtime.stop(this);
-
-            synchronized (this) {
-                status = ServiceStatus.STOPPED;
-            }
+            stopProcess();
 
             ((ServiceManagerImpl) serviceManager).removeService(this);
             screenManager.unregister(screen.name());
@@ -161,13 +155,12 @@ public class ServiceImpl implements Service {
                 eventManager.call(new ServiceStoppedEvent(name));
             }
 
+            synchronized (this) {
+                status = ServiceStatus.STOPPED;
+            }
+
             logger.info("Service &a" + name + " &7has been stopped");
         }, executorService);
-    }
-
-    @Override
-    public boolean executeCommand(String command) {
-        return runtime.executeCommand(this, command);
     }
 
     @Override
@@ -193,7 +186,7 @@ public class ServiceImpl implements Service {
         FileUtils.copyDirectory(sourcePath, targetPath);
     }
 
-    public void log(String log) {
+    protected void log(String log) {
         logs.add(log);
         screen.addLog(log);
 
@@ -206,4 +199,31 @@ public class ServiceImpl implements Service {
     public String getPropertyHolderName() {
         return name;
     }
+
+    protected String platformPluginName() {
+        final Platform platform = group.getPlatform();
+        final PlatformVersion version = group.getPlatformVersion();
+
+        if (platform.isBukkitBased()) {
+            return version.isLegacy()
+                    ? "potatocloud-plugin-spigot-legacy.jar"
+                    : "potatocloud-plugin-spigot.jar";
+        } else if (platform.isVelocityBased()) {
+            return "potatocloud-plugin-velocity.jar";
+        } else if (platform.isLimboBased()) {
+            return "potatocloud-plugin-limbo.jar";
+        } else {
+            logger.error("No Plugin found for platform " + platform.getName());
+            return "";
+        }
+    }
+
+    protected abstract void prepare();
+
+    protected abstract void startProcess();
+
+    protected abstract void stopProcess();
+
+    public abstract boolean alive();
+
 }

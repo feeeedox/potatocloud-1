@@ -1,20 +1,23 @@
-package net.potatocloud.node.service.runtime.local;
+package net.potatocloud.node.service.local;
 
+import net.potatocloud.api.event.EventManager;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.PrepareStep;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.common.FileUtils;
+import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.node.config.NodeConfig;
+import net.potatocloud.node.console.Console;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.PlatformPrepareSteps;
 import net.potatocloud.node.platform.PlatformUtils;
 import net.potatocloud.node.platform.cache.CacheManager;
-import net.potatocloud.node.service.ServiceImpl;
+import net.potatocloud.node.screen.ScreenManager;
+import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.config.ServicePerformanceFlags;
-import net.potatocloud.node.service.runtime.AbstractServiceRuntime;
 import net.potatocloud.node.template.TemplateManager;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
@@ -27,33 +30,51 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LocalRuntime extends AbstractServiceRuntime {
+public class LocalService extends AbstractService {
 
-    private final Logger logger;
-    private final NodeConfig config;
-    private final TemplateManager templateManager;
     private final DownloadManager downloadManager;
     private final CacheManager cacheManager;
 
     private Process process;
     private OSProcess osProcess;
+
     private BufferedWriter processWriter;
     private BufferedReader processReader;
 
-    public LocalRuntime(Logger logger, NodeConfig config, TemplateManager templateManager, DownloadManager downloadManager, CacheManager cacheManager) {
-        this.logger = logger;
-        this.config = config;
-        this.templateManager = templateManager;
+    public LocalService(
+            int serviceId,
+            int port,
+            ServiceGroup group,
+            NodeConfig config,
+            Logger logger,
+            NetworkServer server,
+            ScreenManager screenManager,
+            TemplateManager templateManager,
+            EventManager eventManager,
+            ServiceManager serviceManager,
+            Console console,
+            DownloadManager downloadManager,
+            CacheManager cacheManager
+    ) {
+        super(serviceId,
+                port,
+                group,
+                config,
+                logger,
+                server,
+                screenManager,
+                templateManager,
+                eventManager,
+                serviceManager,
+                console
+        );
+
         this.downloadManager = downloadManager;
         this.cacheManager = cacheManager;
     }
 
     @Override
-    public void prepare(ServiceImpl service) {
-        service.setStatus(ServiceStatus.PREPARING);
-
-        final Path directory = service.getDirectory();
-        final ServiceGroup group = service.getServiceGroup();
+    protected void prepare() {
         final Platform platform = group.getPlatform();
         final PlatformVersion version = group.getPlatformVersion();
 
@@ -63,7 +84,7 @@ public class LocalRuntime extends AbstractServiceRuntime {
             throw new RuntimeException("Failed to create service directory: " + directory, e);
         }
 
-        for (String template : service.getServiceGroup().getServiceTemplates()) {
+        for (String template : group.getServiceTemplates()) {
             templateManager.copyTemplate(template, directory);
         }
 
@@ -71,7 +92,7 @@ public class LocalRuntime extends AbstractServiceRuntime {
         try {
             Files.createDirectories(pluginsFolder);
 
-            final String pluginName = platformPluginName(service);
+            final String pluginName = platformPluginName();
             final Path dataDirectory = Path.of(config.getDataFolder());
 
             Files.copy(
@@ -80,7 +101,7 @@ public class LocalRuntime extends AbstractServiceRuntime {
                     StandardCopyOption.REPLACE_EXISTING
             );
         } catch (IOException e) {
-            throw new RuntimeException("Failed to set up plugins folder for service " + service.getName(), e);
+            throw new RuntimeException("Failed to set up plugins folder for service " + name, e);
         }
 
         downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.getPlatformVersionName()));
@@ -95,31 +116,28 @@ public class LocalRuntime extends AbstractServiceRuntime {
                     StandardCopyOption.REPLACE_EXISTING
             );
         } catch (IOException e) {
-            throw new RuntimeException("Failed to copy platform jar for service" + service.getName(), e);
+            throw new RuntimeException("Failed to copy platform jar for service" + name, e);
         }
 
         for (String stepName : platform.getPrepareSteps()) {
             final PrepareStep step = PlatformPrepareSteps.getStep(stepName);
 
             if (step != null) {
-                step.execute(service, platform, directory);
+                step.execute(this, platform, directory);
             }
         }
     }
 
     @Override
-    public void start(ServiceImpl service) {
-        service.setStatus(ServiceStatus.STARTING);
-
-        final List<String> startArguments = startArguments(service);
-        final Path directory = service.getDirectory();
+    protected void startProcess() {
+        final List<String> startArguments = startArguments();
 
         try {
             process = new ProcessBuilder(startArguments)
                     .directory(directory.toFile())
                     .start();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to start server process for service " + service.getName(), e);
+            throw new RuntimeException("Failed to start server process for service " + name, e);
         }
 
         osProcess = new SystemInfo().getOperatingSystem().getProcess((int) process.pid());
@@ -131,7 +149,7 @@ public class LocalRuntime extends AbstractServiceRuntime {
             try {
                 String line;
                 while (process.isAlive() && (line = processReader.readLine()) != null) {
-                    service.log(line);
+                    log(line);
                 }
             } catch (IOException ignored) {
             }
@@ -139,26 +157,23 @@ public class LocalRuntime extends AbstractServiceRuntime {
     }
 
     @Override
-    public void stop(ServiceImpl service) {
-        final ServiceGroup group = service.getServiceGroup();
-        final Path directory = service.getDirectory();
-
-        service.getProcessChecker().close();
+    protected void stopProcess() {
+        processChecker.close();
 
         if (process != null) {
-            executeCommand(service, "stop");
+            executeCommand("stop");
 
             try {
                 final boolean hasStopped = process.waitFor(config.getKillTimeout(), TimeUnit.SECONDS);
                 if (!hasStopped) {
-                    logger.debug("Service &a" + service.getName() + " &7did not stop in time, destroying process&8...");
+                    logger.debug("Service &a" + name + " &7did not stop in time, destroying process&8...");
 
                     process.destroyForcibly();
                     process.waitFor();
                 }
 
             } catch (Exception e) {
-                logger.error("Failed to stop service &a" + service.getName() + "&8: &7" + e.getMessage());
+                logger.error("Failed to stop service &a" + name + "&8: &7" + e.getMessage());
             }
 
             process = null;
@@ -170,31 +185,13 @@ public class LocalRuntime extends AbstractServiceRuntime {
     }
 
     @Override
-    public boolean executeCommand(ServiceImpl service, String command) {
-        if (!alive(service) || processWriter == null) {
-            return false;
-        }
-
-        try {
-            processWriter.write(command);
-            processWriter.newLine();
-            processWriter.flush();
-        } catch (IOException e) {
-            logger.error("Failed to send command to service " + service.getName());
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean alive(ServiceImpl service) {
+    public boolean alive() {
         return process != null && process.isAlive();
     }
 
     @Override
-    public int usedMemory(ServiceImpl service) {
-        if (!alive(service)) {
+    public int getUsedMemory() {
+        if (!alive()) {
             return 0;
         }
 
@@ -205,15 +202,30 @@ public class LocalRuntime extends AbstractServiceRuntime {
         return (int) (osProcess.getResidentSetSize() / 1024 / 1024);
     }
 
-    private List<String> startArguments(ServiceImpl service) {
-        final ServiceGroup group = service.getServiceGroup();
-        final Path directory = service.getDirectory();
+    @Override
+    public boolean executeCommand(String command) {
+        if (!alive() || processWriter == null) {
+            return false;
+        }
 
+        try {
+            processWriter.write(command);
+            processWriter.newLine();
+            processWriter.flush();
+        } catch (IOException e) {
+            logger.error("Failed to send command to service " + name);
+            return false;
+        }
+
+        return true;
+    }
+
+    private List<String> startArguments() {
         final List<String> args = new ArrayList<>();
         args.add(group.getJavaCommand());
         args.add("-Xms" + group.getMaxMemory() + "M");
         args.add("-Xmx" + group.getMaxMemory() + "M");
-        args.add("-Dpotatocloud.service.name=" + service.getName());
+        args.add("-Dpotatocloud.service.name=" + name);
         args.add("-Dpotatocloud.node.port=" + config.getNodePort());
 
         args.addAll(ServicePerformanceFlags.DEFAULT_FLAGS);
@@ -235,5 +247,4 @@ public class LocalRuntime extends AbstractServiceRuntime {
 
         return args;
     }
-
 }

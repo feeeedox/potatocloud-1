@@ -12,7 +12,7 @@ import net.potatocloud.node.command.CommandInfo;
 import net.potatocloud.node.command.SubCommand;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
-import net.potatocloud.node.service.ServiceImpl;
+import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
 import java.util.ArrayList;
@@ -241,8 +241,8 @@ public class ServiceCommand extends Command {
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
 
-                    if (service instanceof ServiceImpl serviceImpl) {
-                        final Screen screen = serviceImpl.getScreen();
+                    if (service instanceof AbstractService abstractService) {
+                        final Screen screen = abstractService.getScreen();
                         if (screen == null) {
                             logger.error("&cFailed to switch to screen of service " + service.getName());
                             return;
