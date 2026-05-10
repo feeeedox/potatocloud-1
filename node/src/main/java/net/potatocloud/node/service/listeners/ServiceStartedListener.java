@@ -43,6 +43,6 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
             abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));
         }
 
-        new ServiceMemoryUpdateTask(service, Node.getInstance().getServer()).start();
+        new ServiceMemoryUpdateTask(service, Node.getInstance().getServer());
     }
 }

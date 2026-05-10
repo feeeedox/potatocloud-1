@@ -4,6 +4,8 @@ import net.potatocloud.common.Closeable;
 
 public final class ServiceProcessChecker implements Closeable {
 
+    private static final int UPDATE_INTERVAL = 2000;
+
     private final Thread thread;
 
     public ServiceProcessChecker(AbstractService service) {
@@ -16,7 +18,7 @@ public final class ServiceProcessChecker implements Closeable {
                         break;
                     }
 
-                    Thread.sleep(2000);
+                    Thread.sleep(UPDATE_INTERVAL);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

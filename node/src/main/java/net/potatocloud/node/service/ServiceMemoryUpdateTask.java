@@ -1,20 +1,15 @@
 package net.potatocloud.node.service;
 
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.core.networking.packet.packets.service.ServiceMemoryUpdatePacket;
 
-@RequiredArgsConstructor
 public class ServiceMemoryUpdateTask {
 
     private static final int UPDATE_INTERVAL = 2000;
 
-    private final Service service;
-    private final NetworkServer server;
-
-    public void start() {
-        final Thread thread = new Thread(() -> {
+    public ServiceMemoryUpdateTask(Service service, NetworkServer server) {
+        Thread.startVirtualThread(() -> {
             while (service.isOnline()) {
 
                 // Send current memory to the connector to keep it updated
@@ -24,12 +19,9 @@ public class ServiceMemoryUpdateTask {
                 try {
                     Thread.sleep(UPDATE_INTERVAL);
                 } catch (InterruptedException e) {
-                    return;
+                    break;
                 }
             }
-        }, "ServiceMemoryUpdateTask-" + service.getName());
-
-        thread.setDaemon(true);
-        thread.start();
+        });
     }
 }

@@ -2,7 +2,6 @@ package net.potatocloud.node.service;
 
 import net.potatocloud.api.event.EventManager;
 import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.core.networking.NetworkServer;
