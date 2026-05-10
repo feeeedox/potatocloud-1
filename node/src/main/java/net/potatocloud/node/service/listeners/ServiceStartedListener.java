@@ -40,8 +40,8 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
         eventManager.call(new ServiceStartedEvent(packet.getServiceName()));
 
         if (service instanceof ServiceImpl serviceImpl) {
-            serviceImpl.setProcessChecker(new ServiceProcessChecker(serviceImpl));
-            serviceImpl.getProcessChecker().start();
+           // TODO serviceImpl.setProcessChecker(new ServiceProcessChecker(serviceImpl));
+            // serviceImpl.getProcessChecker().start();
         }
 
         new ServiceMemoryUpdateTask(service, Node.getInstance().getServer()).start();

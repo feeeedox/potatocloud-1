@@ -5,6 +5,7 @@ import net.potatocloud.api.service.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+// TODO recode to work on all runtimes and use virtual threads
 public class ServiceProcessOutputReader extends Thread {
 
     private final Process process;
@@ -31,7 +32,7 @@ public class ServiceProcessOutputReader extends Thread {
 
             while (process != null && process.isAlive() && (line = reader.readLine()) != null) {
                 if (service instanceof ServiceImpl impl) {
-                    impl.addLog(line);
+                    impl.log(line);
                 }
             }
         } catch (IOException ignored) {

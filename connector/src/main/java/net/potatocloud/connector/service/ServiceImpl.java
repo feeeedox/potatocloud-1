@@ -14,6 +14,7 @@ import net.potatocloud.core.networking.packet.packets.service.ServiceExecuteComm
 import net.potatocloud.core.networking.packet.packets.service.StopServicePacket;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
@@ -38,8 +39,10 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public void shutdown() {
+    public CompletableFuture<Void> shutdown() {
+        // TODO Response packets for shutdown rather than just fire and forget
         client.send(new StopServicePacket(name));
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.potatocloud.node.platform.PlatformManagerImpl;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.listeners.*;
+import net.potatocloud.node.service.runtime.LocalRuntime;
 import net.potatocloud.node.template.TemplateManager;
 import net.potatocloud.node.utils.NetworkUtils;
 
@@ -108,6 +109,8 @@ public class ServiceManagerImpl implements ServiceManager {
         final int port = getServicePort(group);
 
         final ServiceImpl service = new ServiceImpl(
+                // TODO do NOT create a new runtime for every service
+                new LocalRuntime(logger, config, templateManager, downloadManager, cacheManager),
                 serviceId,
                 port,
                 group,
@@ -116,9 +119,6 @@ public class ServiceManagerImpl implements ServiceManager {
                 server,
                 screenManager,
                 templateManager,
-                platformManager,
-                downloadManager,
-                cacheManager,
                 eventManager,
                 this,
                 console

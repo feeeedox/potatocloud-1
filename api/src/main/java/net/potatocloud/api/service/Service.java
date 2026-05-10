@@ -7,6 +7,7 @@ import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.utils.TimeFormatter;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public interface Service extends PropertyHolder {
@@ -149,8 +150,10 @@ public interface Service extends PropertyHolder {
 
     /**
      * Shuts down the service.
+     *
+     * @return a CompletableFuture that completes when the shutdown is done
      */
-    void shutdown();
+    CompletableFuture<Void> shutdown();
 
     /**
      * Executes a command on the service.

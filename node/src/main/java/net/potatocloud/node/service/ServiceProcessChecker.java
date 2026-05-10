@@ -1,43 +1,31 @@
 package net.potatocloud.node.service;
 
-import net.potatocloud.api.event.EventManager;
-import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
-import net.potatocloud.core.networking.NetworkServer;
-import net.potatocloud.node.Node;
+import net.potatocloud.common.Closeable;
 
-public class ServiceProcessChecker extends Thread {
+public final class ServiceProcessChecker implements Closeable {
 
-    private final ServiceImpl service;
+    private final Thread thread;
 
     public ServiceProcessChecker(ServiceImpl service) {
-        this.service = service;
-        setDaemon(true);
-        setName("ServiceProcessChecker-" + service.getName());
+        thread = Thread.startVirtualThread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted() && service.isOnline()) {
+                    if (!service.getRuntime().alive(service)) {
+                        service.getLogger().info("Service &a" + service.getName() + " &7seems to be offline&8...");
+                        service.shutdown();
+                        break;
+                    }
+
+                    Thread.sleep(2000);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 
     @Override
-    public void run() {
-        while (!isInterrupted() && service.isOnline() && service.getServerProcess() != null && service.getServerProcess().isAlive()) {
-            // if everything is fine, check again after 2 seconds
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-
-        if (!isInterrupted()) {
-            service.getLogger().info("Service &a" + service.getName() + " &7seems to be offline&8...");
-
-            final NetworkServer server = Node.getInstance().getServer();
-            final EventManager eventManager = Node.getInstance().getEventManager();
-
-            if (server != null && eventManager != null) {
-                eventManager.call(new ServiceStoppingEvent(service.getName()));
-            }
-
-            service.cleanup();
-        }
+    public void close() {
+        thread.interrupt();
     }
 }

@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 
 public final class FileUtils {
 
+    private FileUtils() {
+    }
+
     public static void deleteDirectory(Path directory) {
         if (Files.notExists(directory)) {
             return;

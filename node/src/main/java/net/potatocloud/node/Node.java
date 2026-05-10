@@ -7,6 +7,7 @@ import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.core.event.ServerEventManager;
@@ -232,7 +233,7 @@ public class Node extends CloudAPI {
 
             CompletableFuture.allOf(
                     serviceManager.getAllServices().stream()
-                            .map(service -> ((ServiceImpl) service).shutdownAsync())
+                            .map(Service::shutdown)
                             .toArray(CompletableFuture[]::new)
             ).join();
         }

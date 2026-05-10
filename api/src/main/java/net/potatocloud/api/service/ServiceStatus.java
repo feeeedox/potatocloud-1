@@ -3,7 +3,12 @@ package net.potatocloud.api.service;
 public enum ServiceStatus {
 
     /**
-     * The service is starting.
+     * The service is preparing files, templates, and environment.
+     */
+    PREPARING,
+
+    /**
+     * The service process is starting.
      */
     STARTING,
 
@@ -18,8 +23,7 @@ public enum ServiceStatus {
     STOPPING,
 
     /**
-     * The service is stopped.
+     * The service is fully stopped.
      */
     STOPPED,
-
 }
