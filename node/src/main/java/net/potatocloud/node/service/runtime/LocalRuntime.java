@@ -13,7 +13,6 @@ import net.potatocloud.node.platform.PlatformPrepareSteps;
 import net.potatocloud.node.platform.PlatformUtils;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.service.ServiceImpl;
-import net.potatocloud.node.service.ServiceProcessOutputReader;
 import net.potatocloud.node.service.config.ServicePerformanceFlags;
 import net.potatocloud.node.template.TemplateManager;
 import oshi.SystemInfo;
@@ -39,7 +38,6 @@ public class LocalRuntime extends AbstractServiceRuntime {
     private OSProcess osProcess;
     private BufferedWriter processWriter;
     private BufferedReader processReader;
-    private ServiceProcessOutputReader outputReader;
 
     public LocalRuntime(Logger logger, NodeConfig config, TemplateManager templateManager, DownloadManager downloadManager, CacheManager cacheManager) {
         this.logger = logger;
@@ -128,8 +126,15 @@ public class LocalRuntime extends AbstractServiceRuntime {
         processWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
         processReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-        outputReader = new ServiceProcessOutputReader(process, processReader, service);
-        outputReader.start();
+        Thread.startVirtualThread(() -> {
+            try {
+                String line;
+                while (process.isAlive() && (line = processReader.readLine()) != null) {
+                    service.log(line);
+                }
+            } catch (IOException ignored) {
+            }
+        });
     }
 
     @Override
