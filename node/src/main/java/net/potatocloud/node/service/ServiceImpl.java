@@ -38,32 +38,36 @@ public class ServiceImpl implements Service {
     private final NodeConfig config;
     private final Logger logger;
 
-    private final List<String> logs;
+    private final String name;
 
-    private final NetworkServer server;
-    private final ScreenManager screenManager;
-    private final TemplateManager templateManager;
-
-    private final EventManager eventManager;
-    private final ServiceManager serviceManager;
-    private final Console console;
-
-    private final Map<String, Property<?>> propertyMap;
-    private final Screen screen;
+    private final ServiceRuntime runtime;
 
     @Setter
-    private int maxPlayers;
+    private ServiceProcessChecker processChecker;
+
+    private final ExecutorService executorService;
 
     @Setter
     private ServiceStatus status = ServiceStatus.STOPPED;
 
     private long startTimestamp;
 
-    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+    private final NetworkServer server;
+    private final EventManager eventManager;
+    private final ServiceManager serviceManager;
+    private final Console console;
 
+    private final ScreenManager screenManager;
+    private final Screen screen;
+    private final List<String> logs = new ArrayList<>();
+
+    private final TemplateManager templateManager;
     private final Path directory;
 
-    private final ServiceRuntime runtime;
+    private final Map<String, Property<?>> propertyMap;
+
+    @Setter
+    private int maxPlayers;
 
     public ServiceImpl(
             ServiceRuntime runtime,
@@ -85,25 +89,21 @@ public class ServiceImpl implements Service {
         this.group = group;
         this.config = config;
         this.logger = logger;
-        this.logs = new ArrayList<>();
+
         this.server = server;
-        this.screenManager = screenManager;
-        this.templateManager = templateManager;
         this.eventManager = eventManager;
         this.serviceManager = serviceManager;
         this.console = console;
-
+        this.screenManager = screenManager;
+        this.templateManager = templateManager;
+        this.name = group.getName() + config.getSplitter() + serviceId;
+        this.screen = new Screen(name);
+        this.directory = group.isStatic()
+                ? Path.of(config.getStaticFolder()).resolve(name)
+                : Path.of(config.getTempServicesFolder()).resolve(name + "-" + UUID.randomUUID());
         this.maxPlayers = group.getMaxPlayers();
         this.propertyMap = new HashMap<>(group.getPropertyMap());
-        this.screen = new Screen(getName());
-        this.directory = group.isStatic()
-                ? Path.of(config.getStaticFolder()).resolve(getName())
-                : Path.of(config.getTempServicesFolder()).resolve(getName() + "-" + UUID.randomUUID());
-    }
-
-    @Override
-    public String getName() {
-        return group.getName() + config.getSplitter() + serviceId;
+        this.executorService = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @Override
@@ -127,8 +127,8 @@ public class ServiceImpl implements Service {
         runtime.prepare(this);
         runtime.start(this);
 
-        logger.info("Service &a" + getName() + "&7 is now starting&8... &8[&7Port&8: &a" + port + "&8, &7Group&8: &a" + group.getName() + "&8]");
-        eventManager.call(new PreparedServiceStartingEvent(getName()));
+        logger.info("Service &a" + name + "&7 is now starting&8... &8[&7Port&8: &a" + port + "&8, &7Group&8: &a" + group.getName() + "&8]");
+        eventManager.call(new PreparedServiceStartingEvent(name));
     }
 
     @Override
@@ -139,8 +139,8 @@ public class ServiceImpl implements Service {
 
         status = ServiceStatus.STOPPING;
 
-        logger.info("Service &a" + getName() + "&7 is now stopping&8...");
-        eventManager.call(new ServiceStoppingEvent(getName()));
+        logger.info("Service &a" + name + "&7 is now stopping&8...");
+        eventManager.call(new ServiceStoppingEvent(name));
 
         return CompletableFuture.runAsync(() -> {
             runtime.stop(this);
@@ -152,17 +152,16 @@ public class ServiceImpl implements Service {
             ((ServiceManagerImpl) serviceManager).removeService(this);
             screenManager.unregister(screen.name());
 
-            if (screenManager.getCurrentScreen().name().equals(getName())) {
+            if (screenManager.getCurrentScreen().name().equals(name)) {
                 screenManager.switchTo(Screen.NODE_SCREEN);
             }
 
             if (server != null) {
-                server.generateBroadcast().broadcast(new ServiceRemovePacket(getName(), getPort()));
-
-                eventManager.call(new ServiceStoppedEvent(getName()));
+                server.generateBroadcast().broadcast(new ServiceRemovePacket(name, getPort()));
+                eventManager.call(new ServiceStoppedEvent(name));
             }
 
-            logger.info("Service &a" + getName() + " &7has been stopped");
+            logger.info("Service &a" + name + " &7has been stopped");
         }, executorService);
     }
 
@@ -173,11 +172,10 @@ public class ServiceImpl implements Service {
 
     @Override
     public void copy(String template, String filter) {
-        final Path directory = getDirectory();
         final Path templatesDirectory = Path.of(config.getTemplatesFolder());
 
-        Path targetPath = templatesDirectory.resolve(template);
         Path sourcePath = directory;
+        Path targetPath = templatesDirectory.resolve(template);
 
         if (filter != null && filter.startsWith("/")) {
             sourcePath = directory.resolve(filter.substring(1));
@@ -189,7 +187,7 @@ public class ServiceImpl implements Service {
         }
 
         if (!Files.exists(targetPath)) {
-            templateManager.createTemplate(targetPath.toFile().getName());
+            templateManager.createTemplate(targetPath.getFileName().toString());
         }
 
         FileUtils.copyDirectory(sourcePath, targetPath);
@@ -199,13 +197,13 @@ public class ServiceImpl implements Service {
         logs.add(log);
         screen.addLog(log);
 
-        if (screenManager.getCurrentScreen().name().equals(getName())) {
+        if (screenManager.getCurrentScreen().name().equals(name)) {
             console.println(log);
         }
     }
 
     @Override
     public String getPropertyHolderName() {
-        return getName();
+        return name;
     }
 }

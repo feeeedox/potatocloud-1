@@ -143,7 +143,7 @@ public class LocalRuntime extends AbstractServiceRuntime {
         final ServiceGroup group = service.getServiceGroup();
         final Path directory = service.getDirectory();
 
-        // TODO Process Checker stop
+        service.getProcessChecker().close();
 
         if (process != null) {
             executeCommand(service, "stop");
