@@ -26,6 +26,7 @@ import net.potatocloud.node.platform.PlatformUtils;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
+import net.potatocloud.node.service.config.ServicePerformanceFlags;
 import net.potatocloud.node.template.TemplateManager;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;

@@ -1,4 +1,4 @@
-package net.potatocloud.node.service;
+package net.potatocloud.node.service.config;
 
 import java.util.List;
 

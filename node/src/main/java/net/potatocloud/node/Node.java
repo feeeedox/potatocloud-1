@@ -33,7 +33,7 @@ import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.properties.NodePropertiesHolder;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
-import net.potatocloud.node.service.ServiceDefaultFiles;
+import net.potatocloud.node.service.config.ServiceDefaultFiles;
 import net.potatocloud.node.service.ServiceImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 import net.potatocloud.node.service.start.ServiceStartScheduler;
