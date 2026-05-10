@@ -14,7 +14,10 @@ import net.potatocloud.core.networking.packet.packets.player.CloudPlayerRemovePa
 import net.potatocloud.core.networking.packet.packets.player.CloudPlayerUpdatePacket;
 import net.potatocloud.core.networking.packet.packets.player.RequestCloudPlayersPacket;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 public class CloudPlayerManagerImpl implements CloudPlayerManager {

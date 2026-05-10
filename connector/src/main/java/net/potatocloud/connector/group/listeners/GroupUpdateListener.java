@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.property.Property;
+import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.core.networking.NetworkConnection;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
-import net.potatocloud.common.PropertyUtil;
 
 @RequiredArgsConstructor
 public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {

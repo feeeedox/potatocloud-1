@@ -1,6 +1,9 @@
 package net.potatocloud.api.player.impl;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.property.Property;
 

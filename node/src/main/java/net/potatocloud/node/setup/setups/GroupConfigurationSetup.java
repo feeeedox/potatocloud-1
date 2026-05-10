@@ -9,8 +9,8 @@ import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.ScreenManager;
-import net.potatocloud.node.setup.answer.AnswerResult;
 import net.potatocloud.node.setup.Setup;
+import net.potatocloud.node.setup.answer.AnswerResult;
 import net.potatocloud.node.utils.ProxyUtils;
 
 import java.util.List;
