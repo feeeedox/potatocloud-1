@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
+import net.potatocloud.core.networking.packet.request.RequestPacket;
+import net.potatocloud.core.networking.packet.request.ResponsePacket;
 
 public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
@@ -15,6 +17,15 @@ public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
         // Write the packet id and packet data into the buffer
         buf.writeInt(packet.getId());
+
+        if (packet instanceof RequestPacket requestPacket) {
+            buf.writeInt(requestPacket.requestId());
+        } else if (packet instanceof ResponsePacket responsePacket) {
+            buf.writeInt(responsePacket.requestId());
+        } else {
+            buf.writeInt(0);
+        }
+
         packet.write(new PacketBuffer(buf));
 
         // Payload length

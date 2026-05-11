@@ -18,9 +18,12 @@ import net.potatocloud.core.networking.packet.Packet;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.PacketManager;
 import net.potatocloud.core.networking.packet.PacketRegistry;
+import net.potatocloud.core.networking.packet.request.RequestPacket;
+import net.potatocloud.core.networking.packet.request.ResponsePacket;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @RequiredArgsConstructor
@@ -77,6 +80,11 @@ public class NettyNetworkClient implements NetworkClient {
     @Override
     public <T extends Packet> void on(Class<T> packetClass, PacketListener<T> listener) {
         packetManager.on(packetClass, listener);
+    }
+
+    @Override
+    public <T extends ResponsePacket> CompletableFuture<T> request(RequestPacket packet, Class<T> type) {
+        return packetManager.request(connection, packet, type);
     }
 
     @Override
