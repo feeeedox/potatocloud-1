@@ -135,9 +135,8 @@ public class Node extends CloudAPI {
         server.start(config.getNodeHost(), config.getNodePort());
         logger.info("Network server started using &aNetty &7on &a" + config.getNodeHost() + "&8:&a" + config.getNodePort());
 
-        // TODO: Maybe move this somewhere else
         // Handle logs from Connector
-        server.on(LogMessagePacket.class, (_, packet) -> logger.log(Logger.Level.valueOf(packet.getLevel()), packet.getMessage()));
+        server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().getLevel()), ctx.packet().getMessage()));
 
         eventManager = new ServerEventManager(server);
         propertiesHolder = new NodePropertiesHolder(server);
