@@ -5,7 +5,7 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.common.PropertyUtil;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
 
@@ -15,7 +15,8 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
     private final ServiceGroupManager groupManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, GroupUpdatePacket packet) {
+    public void handle(PacketContext<GroupUpdatePacket> ctx) {
+        final GroupUpdatePacket packet = ctx.packet();
         final ServiceGroup group = groupManager.getServiceGroup(packet.getName());
         if (group == null) {
             return;

@@ -1,5 +1,10 @@
 package net.potatocloud.core.networking.packet;
 
+import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.request.PendingRequest;
+import net.potatocloud.core.networking.packet.request.RequestPacket;
+import net.potatocloud.core.networking.packet.request.ResponsePacket;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -7,11 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
-import net.potatocloud.core.networking.NetworkConnection;
-import net.potatocloud.core.networking.packet.request.PendingRequest;
-import net.potatocloud.core.networking.packet.request.RequestPacket;
-import net.potatocloud.core.networking.packet.request.ResponsePacket;
 
 public final class PacketManager {
 
@@ -29,8 +29,8 @@ public final class PacketManager {
         return supplier != null ? supplier.get() : null;
     }
 
-    public <T extends Packet> void on(Class<T> packetClass, PacketListener<T> listener) {
-        listeners.computeIfAbsent(packetClass, _ -> new CopyOnWriteArrayList<>()).add(listener);
+    public <T extends Packet> void on(Class<T> type, PacketListener<T> listener) {
+        listeners.computeIfAbsent(type, _ -> new CopyOnWriteArrayList<>()).add(listener);
     }
 
     public <T extends ResponsePacket> CompletableFuture<T> request(NetworkConnection connection, RequestPacket packet, Class<T> type) {
@@ -48,7 +48,7 @@ public final class PacketManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Packet> void onPacket(NetworkConnection connection, T packet) {
+    public <T extends Packet> void dispatch(NetworkConnection connection, T packet) {
         if (packet instanceof ResponsePacket response) {
             final int id = response.requestId();
             final PendingRequest<?> pendingRequest = pending.get(id);
@@ -66,11 +66,20 @@ public final class PacketManager {
             return;
         }
 
-        final List<PacketListener<? extends Packet>> packetListeners = listeners.get(packet.getClass());
-        if (packetListeners != null) {
-            for (PacketListener<? extends Packet> listener : packetListeners) {
-                ((PacketListener<T>) listener).onPacket(connection, packet);
-            }
+        final List<PacketListener<? extends Packet>> list = listeners.get(packet.getClass());
+        if (list == null) {
+            return;
+        }
+
+        int requestId = 0;
+        if (packet instanceof RequestPacket req) {
+            requestId = req.requestId();
+        }
+
+        final PacketContext<T> ctx = new PacketContext<>(connection, packet, requestId);
+
+        for (PacketListener<? extends Packet> handler : list) {
+            ((PacketListener<T>) handler).handle(ctx);
         }
     }
 }

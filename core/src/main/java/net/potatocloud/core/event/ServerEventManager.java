@@ -11,12 +11,12 @@ public class ServerEventManager extends BaseEventManager {
     public ServerEventManager(NetworkServer server) {
         this.server = server;
 
-        server.on(EventPacket.class, (connection, packet) -> {
-            final Event event = EventSerializer.deserialize(packet);
+        server.on(EventPacket.class, ctx -> {
+            final Event event = EventSerializer.deserialize(ctx.packet());
             if (event != null) {
                 callLocal(event);
 
-                server.generateBroadcast().exclude(connection).broadcast(packet);
+                server.generateBroadcast().exclude(ctx.connection()).broadcast(ctx.packet());
             }
         });
     }

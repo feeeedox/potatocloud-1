@@ -40,7 +40,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             server.getConnectedSessions().stream()
                     .filter(conn -> conn instanceof NettyNetworkConnection nettyConn && nettyConn.getChannel().equals(ctx.channel()))
                     .findFirst()
-                    .ifPresent(connection -> packetManager.onPacket(connection, packet));
+                    .ifPresent(connection -> packetManager.dispatch(connection, packet));
         }
     }
 }

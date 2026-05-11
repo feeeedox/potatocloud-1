@@ -2,7 +2,7 @@ package net.potatocloud.node.player.listeners;
 
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.player.CloudPlayer;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.player.CloudPlayerRemovePacket;
 import net.potatocloud.node.Node;
@@ -14,17 +14,19 @@ public class CloudPlayerRemoveListener implements PacketListener<CloudPlayerRemo
     private final CloudPlayerManagerImpl playerManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, CloudPlayerRemovePacket packet) {
+    public void handle(PacketContext<CloudPlayerRemovePacket> ctx) {
+        final CloudPlayerRemovePacket packet = ctx.packet();
         final CloudPlayer player = playerManager.getCloudPlayer(packet.getPlayerUniqueId());
         if (player == null) {
             return;
         }
+
         playerManager.unregisterPlayer(player);
 
         final Node node = Node.getInstance();
 
         node.getServer().getConnectedSessions().stream()
-                .filter(networkConnection -> !networkConnection.equals(connection))
+                .filter(networkConnection -> !networkConnection.equals(ctx.connection()))
                 .forEach(networkConnection -> networkConnection.send(packet));
 
         if (node.getConfig().isLogPlayerConnections() && !node.isStopping()) {

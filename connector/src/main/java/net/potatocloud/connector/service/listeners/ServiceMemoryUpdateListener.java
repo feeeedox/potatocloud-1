@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.connector.service.ServiceImpl;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.service.ServiceMemoryUpdatePacket;
 
@@ -14,7 +14,8 @@ public class ServiceMemoryUpdateListener implements PacketListener<ServiceMemory
     private final ServiceManager serviceManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, ServiceMemoryUpdatePacket packet) {
+    public void handle(PacketContext<ServiceMemoryUpdatePacket> ctx) {
+        final ServiceMemoryUpdatePacket packet = ctx.packet();
         final Service service = serviceManager.getService(packet.getServiceName());
         if (service == null) {
             return;

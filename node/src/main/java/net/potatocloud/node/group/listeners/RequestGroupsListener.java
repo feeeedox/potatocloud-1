@@ -3,7 +3,7 @@ package net.potatocloud.node.group.listeners;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.group.GroupAddPacket;
 import net.potatocloud.core.networking.packet.packets.group.RequestGroupsPacket;
@@ -14,9 +14,9 @@ public class RequestGroupsListener implements PacketListener<RequestGroupsPacket
     private final ServiceGroupManager groupManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, RequestGroupsPacket packet) {
+    public void handle(PacketContext<RequestGroupsPacket> ctx) {
         for (ServiceGroup group : groupManager.getAllServiceGroups()) {
-            connection.send(new GroupAddPacket(
+            ctx.connection().send(new GroupAddPacket(
                     group.getName(),
                     group.getPlatformName(),
                     group.getPlatformVersionName(),

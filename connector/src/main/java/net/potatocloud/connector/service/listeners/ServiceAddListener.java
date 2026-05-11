@@ -6,7 +6,7 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.connector.service.ServiceImpl;
 import net.potatocloud.connector.service.ServiceManagerImpl;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.service.ServiceAddPacket;
 
@@ -19,7 +19,9 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
     private final ServiceManagerImpl serviceManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, ServiceAddPacket packet) {
+    public void handle(PacketContext<ServiceAddPacket> ctx) {
+        final ServiceAddPacket packet = ctx.packet();
+
         final Service service = new ServiceImpl(
                 packet.getName(),
                 packet.getServiceId(),

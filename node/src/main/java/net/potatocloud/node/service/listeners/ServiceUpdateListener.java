@@ -6,8 +6,8 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.common.PropertyUtil;
-import net.potatocloud.core.networking.NetworkConnection;
 import net.potatocloud.core.networking.NetworkServer;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.service.ServiceUpdatePacket;
 
@@ -18,7 +18,8 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
     private final NetworkServer server;
 
     @Override
-    public void onPacket(NetworkConnection connection, ServiceUpdatePacket packet) {
+    public void handle(PacketContext<ServiceUpdatePacket> ctx) {
+        final ServiceUpdatePacket packet = ctx.packet();
         final Service service = serviceManager.getService(packet.getServiceName());
         if (service == null) {
             return;
@@ -31,6 +32,6 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
             PropertyUtil.setPropertyUnchecked(service, property);
         }
 
-        server.generateBroadcast().exclude(connection).broadcast(packet);
+        server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
     }
 }

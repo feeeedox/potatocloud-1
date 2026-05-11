@@ -21,25 +21,27 @@ public class NodePropertiesHolder implements PropertyHolder {
     public NodePropertiesHolder(NetworkServer server) {
         this.server = server;
 
-        server.on(RequestPropertiesPacket.class, (connection, packet) -> {
-            propertyMap.values().forEach(property -> connection.send(new PropertyAddPacket(property)));
+        server.on(RequestPropertiesPacket.class, ctx -> {
+            propertyMap.values().forEach(property -> ctx.connection().send(new PropertyAddPacket(property)));
         });
 
-        server.on(PropertyAddPacket.class, (connection, packet) -> {
+        server.on(PropertyAddPacket.class, ctx -> {
+            final PropertyAddPacket packet = ctx.packet();
+
             propertyMap.put(packet.getProperty().getName(), packet.getProperty());
 
             // Add the property on all other connectors as well
-            server.generateBroadcast().exclude(connection).broadcast(packet);
+            server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
         });
 
-        server.on(PropertyUpdatePacket.class, (connection, packet) -> {
-            final Property<?> property = propertyMap.get(packet.getName());
+        server.on(PropertyUpdatePacket.class, ctx -> {
+            final Property<?> property = propertyMap.get(ctx.packet().getName());
             if (property != null) {
-                property.setValueObject(packet.getValue());
+                property.setValueObject(ctx.packet().getValue());
             }
 
             // Update the property on all other connectors as well
-            server.generateBroadcast().exclude(connection).broadcast(packet);
+            server.generateBroadcast().exclude(ctx.connection()).broadcast(ctx.packet());
         });
     }
 

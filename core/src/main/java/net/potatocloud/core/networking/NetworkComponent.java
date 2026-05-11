@@ -6,6 +6,6 @@ import net.potatocloud.core.networking.packet.PacketListener;
 
 public interface NetworkComponent extends Closeable {
 
-    <T extends Packet> void on(Class<T> packetClass, PacketListener<T> listener);
+    <T extends Packet> void on(Class<T> packetClass, PacketListener<T> context);
 
 }

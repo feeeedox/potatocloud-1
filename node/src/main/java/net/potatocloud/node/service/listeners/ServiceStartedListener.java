@@ -8,7 +8,7 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.api.utils.TimeFormatter;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.service.ServiceStartedPacket;
 import net.potatocloud.node.Node;
@@ -24,7 +24,8 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
     private final EventManager eventManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, ServiceStartedPacket packet) {
+    public void handle(PacketContext<ServiceStartedPacket> ctx) {
+        final ServiceStartedPacket packet = ctx.packet();
         final Service service = serviceManager.getService(packet.getServiceName());
         if (service == null) {
             return;

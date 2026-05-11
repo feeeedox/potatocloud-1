@@ -5,7 +5,7 @@ import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.connector.player.CloudPlayerManagerImpl;
-import net.potatocloud.core.networking.NetworkConnection;
+import net.potatocloud.core.networking.packet.PacketContext;
 import net.potatocloud.core.networking.packet.PacketListener;
 import net.potatocloud.core.networking.packet.packets.player.CloudPlayerUpdatePacket;
 
@@ -15,7 +15,8 @@ public class CloudPlayerUpdateListener implements PacketListener<CloudPlayerUpda
     private final CloudPlayerManagerImpl playerManager;
 
     @Override
-    public void onPacket(NetworkConnection connection, CloudPlayerUpdatePacket packet) {
+    public void handle(PacketContext<CloudPlayerUpdatePacket> ctx) {
+        final CloudPlayerUpdatePacket packet = ctx.packet();
         final CloudPlayerImpl player = (CloudPlayerImpl) playerManager.getCloudPlayer(packet.getPlayerUniqueId());
         if (player == null) {
             return;

@@ -15,7 +15,6 @@ import net.potatocloud.node.platform.PlatformManagerImpl;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.listeners.*;
-import net.potatocloud.node.service.local.LocalService;
 import net.potatocloud.node.template.TemplateManager;
 import net.potatocloud.node.utils.NetworkUtils;
 

@@ -33,9 +33,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
         client.on(ServiceAddPacket.class, new ServiceAddListener(this));
 
-        client.on(ServiceRemovePacket.class, (connection, packet) -> {
-            services.remove(getService(packet.getServiceName()));
-        });
+        client.on(ServiceRemovePacket.class, ctx -> services.remove(getService(ctx.packet().getServiceName())));
 
         client.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this));
 

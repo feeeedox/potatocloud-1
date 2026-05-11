@@ -11,8 +11,8 @@ public class ClientEventManager extends BaseEventManager {
     public ClientEventManager(NetworkClient client) {
         this.client = client;
 
-        client.on(EventPacket.class, (connection, packet) -> {
-            final Event event = EventSerializer.deserialize(packet);
+        client.on(EventPacket.class, ctx -> {
+            final Event event = EventSerializer.deserialize(ctx.packet());
             if (event != null) {
                 callLocal(event);
             }

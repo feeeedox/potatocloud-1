@@ -15,7 +15,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Packet packet) {
-            packetManager.onPacket(client.getConnection(), packet);
+            packetManager.dispatch(client.getConnection(), packet);
         }
     }
 }
