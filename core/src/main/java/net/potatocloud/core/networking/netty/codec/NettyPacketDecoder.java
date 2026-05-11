@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 import net.potatocloud.core.networking.packet.PacketManager;
-import net.potatocloud.core.networking.packet.PacketToBigException;
+import net.potatocloud.core.networking.packet.exception.PacketToBigException;
 
 import java.util.List;
 

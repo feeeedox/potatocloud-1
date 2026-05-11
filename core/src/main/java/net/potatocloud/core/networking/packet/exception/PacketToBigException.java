@@ -1,4 +1,4 @@
-package net.potatocloud.core.networking.packet;
+package net.potatocloud.core.networking.packet.exception;
 
 public class PacketToBigException extends Exception {
 
