@@ -45,7 +45,7 @@ public final class PacketRegistry {
         manager.register(203, CloudPlayerConnectPacket.class, CloudPlayerConnectPacket::new);
         manager.register(204, RequestCloudPlayersPacket.class, RequestCloudPlayersPacket::new);
 
-        manager.register(300, EventPacket.class, EventPacket::new);
+        manager.register(300, EventPacket.class, EventPacket.CODEC);
 
         manager.register(400, PlatformAddPacket.class, PlatformAddPacket::new);
         manager.register(401, PlatformRemovePacket.class, PlatformRemovePacket::new);

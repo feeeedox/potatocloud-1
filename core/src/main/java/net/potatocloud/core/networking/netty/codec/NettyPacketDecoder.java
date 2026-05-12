@@ -44,20 +44,19 @@ public class NettyPacketDecoder extends ByteToMessageDecoder {
         final int packetId = in.readInt();
         final int requestId = in.readInt();
 
-        final Packet packet = packetManager.createPacket(packetId);
-        if (packet == null) {
+        final Packet.Codec<?> codec = packetManager.codec(packetId);
+        if (codec == null) {
             in.skipBytes(length - 8);
             return;
         }
+
+        final Packet packet = codec.decode(new PacketBuffer(in));
 
         if (packet instanceof RequestPacket requestPacket) {
             packetManager.requestId(requestPacket, requestId);
         } else if (packet instanceof ResponsePacket responsePacket) {
             packetManager.requestId(responsePacket, requestId);
         }
-
-        // Let the packet read its content
-        packet.read(new PacketBuffer(in));
 
         out.add(packet);
     }

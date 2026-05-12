@@ -4,8 +4,9 @@ import net.potatocloud.core.networking.netty.PacketBuffer;
 
 public interface Packet {
 
-    void write(PacketBuffer buf);
+    interface Codec<T extends Packet> {
+        void encode(T packet, PacketBuffer buf);
 
-    void read(PacketBuffer buf);
-
+        T decode(PacketBuffer buf);
+    }
 }

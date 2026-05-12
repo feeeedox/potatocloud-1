@@ -1,28 +1,27 @@
 package net.potatocloud.core.networking.packet.packets.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class EventPacket implements Packet {
+public record EventPacket(
+        String eventClass,
+        String eventJson
+) implements Packet {
 
-    private String eventClass;
-    private String json;
+    public static final Codec<EventPacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(eventClass);
-        buf.writeString(json);
-    }
+        @Override
+        public void encode(EventPacket packet, PacketBuffer buf) {
+            buf.writeString(packet.eventClass());
+            buf.writeString(packet.eventJson());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        eventClass = buf.readString();
-        json = buf.readString();
-    }
+        @Override
+        public EventPacket decode(PacketBuffer buf) {
+            return new EventPacket(
+                    buf.readString(),
+                    buf.readString()
+            );
+        }
+    };
 }

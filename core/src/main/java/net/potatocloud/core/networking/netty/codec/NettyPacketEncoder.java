@@ -33,7 +33,7 @@ public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
             buf.writeInt(0);
         }
 
-        packet.write(new PacketBuffer(buf));
+        packetManager.codec(packetManager.packetId(packet)).encode(packet, new PacketBuffer(buf));
 
         // Payload length
         out.writeInt(buf.readableBytes());
