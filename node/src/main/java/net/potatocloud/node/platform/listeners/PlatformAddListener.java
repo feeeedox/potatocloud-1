@@ -13,6 +13,6 @@ public class PlatformAddListener implements PacketListener<PlatformAddPacket> {
 
     @Override
     public void handle(PacketContext<PlatformAddPacket> ctx) {
-        platformManager.addPlatform(ctx.packet().getPlatform());
+        platformManager.addPlatform(ctx.packet().platform());
     }
 }

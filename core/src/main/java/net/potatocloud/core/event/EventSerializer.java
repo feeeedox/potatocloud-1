@@ -14,10 +14,10 @@ public class EventSerializer {
 
     public static Event deserialize(EventPacket packet) {
         try {
-            final Class<?> clazz = Class.forName(packet.getEventClass());
-            return (Event) gson.fromJson(packet.getJson(), clazz);
+            final Class<?> clazz = Class.forName(packet.eventClass());
+            return (Event) gson.fromJson(packet.eventJson(), clazz);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize event: " + packet.getEventClass(), e);
+            throw new RuntimeException("Failed to deserialize event: " + packet.eventClass(), e);
         }
     }
 }

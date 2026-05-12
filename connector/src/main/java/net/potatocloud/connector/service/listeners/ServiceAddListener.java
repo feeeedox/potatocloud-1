@@ -23,14 +23,14 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
         final ServiceAddPacket packet = ctx.packet();
 
         final Service service = new ServiceImpl(
-                packet.getName(),
-                packet.getServiceId(),
-                packet.getPort(),
-                packet.getStartTimestamp(),
-                CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(packet.getGroupName()),
-                packet.getPropertyMap(),
-                ServiceStatus.valueOf(packet.getStatus()),
-                packet.getMaxPlayers(),
+                packet.serviceName(),
+                packet.serviceId(),
+                packet.port(),
+                packet.startTimestamp(),
+                CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(packet.groupName()),
+                packet.propertyMap(),
+                ServiceStatus.valueOf(packet.status()),
+                packet.maxPlayers(),
                 0
         );
 
@@ -39,7 +39,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
             serviceManager.addService(service);
         }
 
-        final String requestId = packet.getRequestId();
+        final String requestId = packet.requestId();
         if (requestId == null) {
             return;
         }

@@ -14,7 +14,7 @@ public class StopServiceListener implements PacketListener<StopServicePacket> {
 
     @Override
     public void handle(PacketContext<StopServicePacket> ctx) {
-        final Service service = serviceManager.getService(ctx.packet().getServiceName());
+        final Service service = serviceManager.getService(ctx.packet().serviceName());
         if (service == null) {
             return;
         }

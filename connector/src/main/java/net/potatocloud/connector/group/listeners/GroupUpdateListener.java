@@ -17,27 +17,27 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
     @Override
     public void handle(PacketContext<GroupUpdatePacket> ctx) {
         final GroupUpdatePacket packet = ctx.packet();
-        final ServiceGroup group = groupManager.getServiceGroup(packet.getName());
+        final ServiceGroup group = groupManager.getServiceGroup(packet.groupName());
         if (group == null) {
             return;
         }
 
-        group.setMinOnlineCount(packet.getMinOnlineCount());
-        group.setMaxOnlineCount(packet.getMaxOnlineCount());
-        group.setMaxPlayers(packet.getMaxPlayers());
-        group.setMaxMemory(packet.getMaxMemory());
-        group.setFallback(packet.isFallback());
-        group.setStartPriority(packet.getStartPriority());
-        group.setStartPercentage(packet.getStartPercentage());
+        group.setMinOnlineCount(packet.minOnlineCount());
+        group.setMaxOnlineCount(packet.maxOnlineCount());
+        group.setMaxPlayers(packet.maxPlayers());
+        group.setMaxMemory(packet.maxMemory());
+        group.setFallback(packet.fallback());
+        group.setStartPriority(packet.startPriority());
+        group.setStartPercentage(packet.startPercentage());
 
         group.getServiceTemplates().clear();
-        packet.getServiceTemplates().forEach(group::addServiceTemplate);
+        packet.serviceTemplates().forEach(group::addServiceTemplate);
 
         group.getCustomJvmFlags().clear();
-        packet.getCustomJvmFlags().forEach(group::addCustomJvmFlag);
+        packet.customJvmFlags().forEach(group::addCustomJvmFlag);
 
         group.getPropertyMap().clear();
-        for (Property<?> property : packet.getPropertyMap().values()) {
+        for (Property<?> property : packet.propertyMap().values()) {
             PropertyUtil.setPropertyUnchecked(group, property);
         }
     }

@@ -23,40 +23,40 @@ public final class PacketRegistry {
     }
 
     public static void registerPackets(PacketManager manager) {
-        manager.register(0, ServiceAddPacket.class, ServiceAddPacket::new);
-        manager.register(1, ServiceRemovePacket.class, ServiceRemovePacket::new);
-        manager.register(2, ServiceUpdatePacket.class, ServiceUpdatePacket::new);
-        manager.register(3, ServiceStartedPacket.class, ServiceStartedPacket::new);
-        manager.register(4, RequestServicesPacket.class, RequestServicesPacket::new);
-        manager.register(5, StartServicePacket.class, StartServicePacket::new);
-        manager.register(6, StopServicePacket.class, StopServicePacket::new);
-        manager.register(7, ServiceExecuteCommandPacket.class, ServiceExecuteCommandPacket::new);
-        manager.register(8, ServiceCopyPacket.class, ServiceCopyPacket::new);
-        manager.register(9, ServiceMemoryUpdatePacket.class, ServiceMemoryUpdatePacket::new);
+        manager.register(0, ServiceAddPacket.class, ServiceAddPacket.CODEC);
+        manager.register(1, ServiceRemovePacket.class, ServiceRemovePacket.CODEC);
+        manager.register(2, ServiceUpdatePacket.class, ServiceUpdatePacket.CODEC);
+        manager.register(3, ServiceStartedPacket.class, ServiceStartedPacket.CODEC);
+        manager.register(4, RequestServicesPacket.class, RequestServicesPacket.CODEC);
+        manager.register(5, StartServicePacket.class, StartServicePacket.CODEC);
+        manager.register(6, StopServicePacket.class, StopServicePacket.CODEC);
+        manager.register(7, ServiceExecuteCommandPacket.class, ServiceExecuteCommandPacket.CODEC);
+        manager.register(8, ServiceCopyPacket.class, ServiceCopyPacket.CODEC);
+        manager.register(9, ServiceMemoryUpdatePacket.class, ServiceMemoryUpdatePacket.CODEC);
 
-        manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket::new);
-        manager.register(101, GroupAddPacket.class, GroupAddPacket::new);
-        manager.register(102, GroupUpdatePacket.class, GroupUpdatePacket::new);
-        manager.register(104, GroupDeletePacket.class, GroupDeletePacket::new);
+        manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket.CODEC);
+        manager.register(101, GroupAddPacket.class, GroupAddPacket.CODEC);
+        manager.register(102, GroupUpdatePacket.class, GroupUpdatePacket.CODEC);
+        manager.register(104, GroupDeletePacket.class, GroupDeletePacket.CODEC);
 
-        manager.register(200, CloudPlayerAddPacket.class, CloudPlayerAddPacket::new);
-        manager.register(201, CloudPlayerRemovePacket.class, CloudPlayerRemovePacket::new);
-        manager.register(202, CloudPlayerUpdatePacket.class, CloudPlayerUpdatePacket::new);
-        manager.register(203, CloudPlayerConnectPacket.class, CloudPlayerConnectPacket::new);
-        manager.register(204, RequestCloudPlayersPacket.class, RequestCloudPlayersPacket::new);
+        manager.register(200, CloudPlayerAddPacket.class, CloudPlayerAddPacket.CODEC);
+        manager.register(201, CloudPlayerRemovePacket.class, CloudPlayerRemovePacket.CODEC);
+        manager.register(202, CloudPlayerUpdatePacket.class, CloudPlayerUpdatePacket.CODEC);
+        manager.register(203, CloudPlayerConnectPacket.class, CloudPlayerConnectPacket.CODEC);
+        manager.register(204, RequestCloudPlayersPacket.class, RequestCloudPlayersPacket.CODEC);
 
         manager.register(300, EventPacket.class, EventPacket.CODEC);
 
-        manager.register(400, PlatformAddPacket.class, PlatformAddPacket::new);
-        manager.register(401, PlatformRemovePacket.class, PlatformRemovePacket::new);
-        manager.register(402, RequestPlatformsPacket.class, RequestPlatformsPacket::new);
-        manager.register(403, PlatformUpdatePacket.class, PlatformUpdatePacket::new);
+        manager.register(400, PlatformAddPacket.class, PlatformAddPacket.CODEC);
+        manager.register(401, PlatformRemovePacket.class, PlatformRemovePacket.CODEC);
+        manager.register(402, RequestPlatformsPacket.class, RequestPlatformsPacket.CODEC);
+        manager.register(403, PlatformUpdatePacket.class, PlatformUpdatePacket.CODEC);
 
-        manager.register(500, RequestPropertiesPacket.class, RequestPropertiesPacket::new);
-        manager.register(501, PropertyUpdatePacket.class, PropertyUpdatePacket::new);
-        manager.register(502, PropertyRemovePacket.class, PropertyRemovePacket::new);
-        manager.register(503, PropertyAddPacket.class, PropertyAddPacket::new);
+        manager.register(500, RequestPropertiesPacket.class, RequestPropertiesPacket.CODEC);
+        manager.register(501, PropertyUpdatePacket.class, PropertyUpdatePacket.CODEC);
+        manager.register(502, PropertyRemovePacket.class, PropertyRemovePacket.CODEC);
+        manager.register(503, PropertyAddPacket.class, PropertyAddPacket.CODEC);
 
-        manager.register(600, LogMessagePacket.class, LogMessagePacket::new);
+        manager.register(600, LogMessagePacket.class, LogMessagePacket.CODEC);
     }
 }

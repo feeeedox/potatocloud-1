@@ -19,20 +19,20 @@ public class GroupAddListener implements PacketListener<GroupAddPacket> {
         final GroupAddPacket packet = ctx.packet();
 
         groupManager.addServiceGroup(new ServiceGroupImpl(
-                packet.getName(),
-                packet.getPlatformName(),
-                packet.getPlatformVersionName(),
-                packet.getJavaCommand(),
-                packet.getCustomJvmFlags(),
-                packet.getMaxPlayers(),
-                packet.getMaxMemory(),
-                packet.getMinOnlineCount(),
-                packet.getMaxOnlineCount(),
+                packet.groupName(),
+                packet.platformName(),
+                packet.platformVersion(),
+                packet.javaCommand(),
+                packet.customJvmFlags(),
+                packet.maxPlayers(),
+                packet.maxMemory(),
+                packet.minOnlineCount(),
+                packet.maxOnlineCount(),
                 packet.isStatic(),
-                packet.isFallback(),
-                packet.getStartPriority(),
-                packet.getStartPercentage(),
-                packet.getPropertyMap()
+                packet.fallback(),
+                packet.startPriority(),
+                packet.startPercentage(),
+                packet.propertyMap()
         ));
 
         server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);

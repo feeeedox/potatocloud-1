@@ -26,19 +26,19 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
     @Override
     public void handle(PacketContext<ServiceStartedPacket> ctx) {
         final ServiceStartedPacket packet = ctx.packet();
-        final Service service = serviceManager.getService(packet.getServiceName());
+        final Service service = serviceManager.getService(packet.serviceName());
         if (service == null) {
             return;
         }
 
-        logger.info("Service &a" + packet.getServiceName() + "&7 is now &aonline");
+        logger.info("Service &a" + packet.serviceName() + "&7 is now &aonline");
 
-        logger.debug("Startup of &a" + packet.getServiceName() + "&7 took " + TimeFormatter.formatAsDuration(System.currentTimeMillis() - service.getStartTimestamp()));
+        logger.debug("Startup of &a" + packet.serviceName() + "&7 took " + TimeFormatter.formatAsDuration(System.currentTimeMillis() - service.getStartTimestamp()));
 
         service.setStatus(ServiceStatus.RUNNING);
         service.update();
 
-        eventManager.call(new ServiceStartedEvent(packet.getServiceName()));
+        eventManager.call(new ServiceStartedEvent(packet.serviceName()));
 
         if (service instanceof AbstractService abstractService) {
             abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));

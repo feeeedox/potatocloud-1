@@ -28,16 +28,16 @@ public class NodePropertiesHolder implements PropertyHolder {
         server.on(PropertyAddPacket.class, ctx -> {
             final PropertyAddPacket packet = ctx.packet();
 
-            propertyMap.put(packet.getProperty().getName(), packet.getProperty());
+            propertyMap.put(packet.property().getName(), packet.property());
 
             // Add the property on all other connectors as well
             server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
         });
 
         server.on(PropertyUpdatePacket.class, ctx -> {
-            final Property<?> property = propertyMap.get(ctx.packet().getName());
+            final Property<?> property = propertyMap.get(ctx.packet().propertyName());
             if (property != null) {
-                property.setValueObject(ctx.packet().getValue());
+                property.setValueObject(ctx.packet().propertyValue());
             }
 
             // Update the property on all other connectors as well

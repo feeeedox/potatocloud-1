@@ -16,13 +16,13 @@ public class ServiceMemoryUpdateListener implements PacketListener<ServiceMemory
     @Override
     public void handle(PacketContext<ServiceMemoryUpdatePacket> ctx) {
         final ServiceMemoryUpdatePacket packet = ctx.packet();
-        final Service service = serviceManager.getService(packet.getServiceName());
+        final Service service = serviceManager.getService(packet.serviceName());
         if (service == null) {
             return;
         }
 
         if (service instanceof ServiceImpl serviceImpl) {
-            serviceImpl.setUsedMemory(packet.getUsedMemory());
+            serviceImpl.setUsedMemory(packet.usedMemory());
         }
     }
 }

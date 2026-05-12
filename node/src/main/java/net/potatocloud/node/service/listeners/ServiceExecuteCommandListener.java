@@ -14,10 +14,10 @@ public class ServiceExecuteCommandListener implements PacketListener<ServiceExec
 
     @Override
     public void handle(PacketContext<ServiceExecuteCommandPacket> ctx) {
-        final Service service = serviceManager.getService(ctx.packet().getServiceName());
+        final Service service = serviceManager.getService(ctx.packet().serviceName());
         if (service == null) {
             return;
         }
-        service.executeCommand(ctx.packet().getCommand());
+        service.executeCommand(ctx.packet().command());
     }
 }

@@ -24,13 +24,13 @@ public class ConnectorPropertiesHolder implements PropertyHolder {
         client.send(new RequestPropertiesPacket());
 
         client.on(PropertyAddPacket.class, ctx -> {
-            propertyMap.put(ctx.packet().getProperty().getName(), ctx.packet().getProperty());
+            propertyMap.put(ctx.packet().property().getName(), ctx.packet().property());
         });
 
         client.on(PropertyUpdatePacket.class, ctx -> {
-            final Property<?> property = propertyMap.get(ctx.packet().getName());
+            final Property<?> property = propertyMap.get(ctx.packet().propertyName());
             if (property != null) {
-                property.setValueObject(ctx.packet().getValue());
+                property.setValueObject(ctx.packet().propertyValue());
             }
         });
     }

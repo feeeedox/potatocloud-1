@@ -20,7 +20,7 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
     @Override
     public void handle(PacketContext<CloudPlayerAddPacket> ctx) {
         final CloudPlayerAddPacket packet = ctx.packet();
-        final CloudPlayer player = new CloudPlayerImpl(packet.getUsername(), packet.getUniqueId(), packet.getConnectedProxyName());
+        final CloudPlayer player = new CloudPlayerImpl(packet.username(), packet.uniqueId(), packet.connectedProxyName());
 
         playerManager.registerPlayer(player);
 

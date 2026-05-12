@@ -16,7 +16,7 @@ public class StartServiceListener implements PacketListener<StartServicePacket> 
 
     @Override
     public void handle(PacketContext<StartServicePacket> ctx) {
-        final ServiceGroup group = groupManager.getServiceGroup(ctx.packet().getGroupName());
+        final ServiceGroup group = groupManager.getServiceGroup(ctx.packet().groupName());
         if (group == null) {
             return;
         }
@@ -26,6 +26,6 @@ public class StartServiceListener implements PacketListener<StartServicePacket> 
             return;
         }
 
-        serviceManager.startServiceInternal(group.getName(), ctx.packet().getRequestId());
+        serviceManager.startServiceInternal(group.getName(), ctx.packet().requestId());
     }
 }

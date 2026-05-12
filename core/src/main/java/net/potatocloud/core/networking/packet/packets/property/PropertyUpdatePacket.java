@@ -3,14 +3,14 @@ package net.potatocloud.core.networking.packet.packets.property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-public record PropertyUpdatePacket(String propertyName, Object value) implements Packet {
+public record PropertyUpdatePacket(String propertyName, Object propertyValue) implements Packet {
 
     public static final Codec<PropertyUpdatePacket> CODEC = new Codec<>() {
 
         @Override
         public void encode(PropertyUpdatePacket packet, PacketBuffer buf) {
             buf.writeString(packet.propertyName());
-            buf.writeObject(packet.value());
+            buf.writeObject(packet.propertyValue());
         }
 
         @Override

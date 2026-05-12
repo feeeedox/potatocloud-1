@@ -15,10 +15,10 @@ public class ServiceCopyListener implements PacketListener<ServiceCopyPacket> {
     @Override
     public void handle(PacketContext<ServiceCopyPacket> ctx) {
         final ServiceCopyPacket packet = ctx.packet();
-        final Service service = serviceManager.getService(packet.getServiceName());
+        final Service service = serviceManager.getService(packet.serviceName());
         if (service == null) {
             return;
         }
-        service.copy(packet.getTemplateName(), packet.getFilter());
+        service.copy(packet.templateName(), packet.filter());
     }
 }

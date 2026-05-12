@@ -76,11 +76,11 @@ public class VelocityPlugin implements PlatformPlugin {
         });
 
         api.getClient().on(CloudPlayerConnectPacket.class, ctx -> {
-            connectPlayer(ctx.packet().getPlayerUsername(), ctx.packet().getServiceName());
+            connectPlayer(ctx.packet().playerUsername(), ctx.packet().serviceName());
         });
 
         api.getClient().on(ServiceRemovePacket.class, ctx -> {
-            server.unregisterServer(new ServerInfo(ctx.packet().getServiceName(), new InetSocketAddress("0.0.0.0", ctx.packet().getServicePort())));
+            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress("0.0.0.0", ctx.packet().servicePort())));
         });
     }
 

@@ -16,7 +16,7 @@ public class CloudPlayerRemoveListener implements PacketListener<CloudPlayerRemo
     @Override
     public void handle(PacketContext<CloudPlayerRemovePacket> ctx) {
         final CloudPlayerRemovePacket packet = ctx.packet();
-        final CloudPlayer player = playerManager.getCloudPlayer(packet.getPlayerUniqueId());
+        final CloudPlayer player = playerManager.getCloudPlayer(packet.playerUniqueId());
         if (player == null) {
             return;
         }

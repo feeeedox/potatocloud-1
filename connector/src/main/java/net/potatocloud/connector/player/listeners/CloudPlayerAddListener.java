@@ -17,11 +17,11 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
         final CloudPlayerAddPacket packet = ctx.packet();
 
         playerManager.registerPlayerLocal(new CloudPlayerImpl(
-                packet.getUsername(),
-                packet.getUniqueId(),
-                packet.getConnectedProxyName(),
-                packet.getConnectedServiceName(),
-                packet.getPropertyMap()
+                packet.username(),
+                packet.uniqueId(),
+                packet.connectedProxyName(),
+                packet.connectedServiceName(),
+                packet.propertyMap()
         ));
     }
 }
