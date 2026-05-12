@@ -50,10 +50,10 @@ public class NettyPacketDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        if (packet instanceof RequestPacket req) {
-            req.requestId(requestId);
-        } else if (packet instanceof ResponsePacket res) {
-            res.requestId(requestId);
+        if (packet instanceof RequestPacket requestPacket) {
+            packetManager.requestId(requestPacket, requestId);
+        } else if (packet instanceof ResponsePacket responsePacket) {
+            packetManager.requestId(responsePacket, requestId);
         }
 
         // Let the packet read its content

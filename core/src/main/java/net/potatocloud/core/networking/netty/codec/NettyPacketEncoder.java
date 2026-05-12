@@ -26,9 +26,9 @@ public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
         buf.writeInt(packetManager.packetId(packet));
 
         if (packet instanceof RequestPacket requestPacket) {
-            buf.writeInt(requestPacket.requestId());
+            buf.writeInt(packetManager.requestId(requestPacket));
         } else if (packet instanceof ResponsePacket responsePacket) {
-            buf.writeInt(responsePacket.requestId());
+            buf.writeInt(packetManager.requestId(responsePacket));
         } else {
             buf.writeInt(0);
         }
