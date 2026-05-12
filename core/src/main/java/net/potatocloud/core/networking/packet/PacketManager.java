@@ -16,17 +16,29 @@ import java.util.function.Supplier;
 public final class PacketManager {
 
     private final Map<Integer, Supplier<? extends Packet>> packets = new ConcurrentHashMap<>();
+    private final Map<Class<? extends Packet>, Integer> packetIds = new ConcurrentHashMap<>();
+
     private final Map<Class<? extends Packet>, CopyOnWriteArrayList<PacketListener<? extends Packet>>> listeners = new ConcurrentHashMap<>();
     private final Map<Integer, PendingRequest<?>> pending = new ConcurrentHashMap<>();
     private final AtomicInteger requestCounter = new AtomicInteger(1);
 
-    public void register(int id, Supplier<? extends Packet> supplier) {
+    public <T extends Packet> void register(int id, Class<T> clazz, Supplier<? extends Packet> supplier) {
         packets.put(id, supplier);
+        packetIds.put(clazz, id);
     }
 
     public Packet createPacket(int id) {
         final Supplier<? extends Packet> supplier = packets.get(id);
         return supplier != null ? supplier.get() : null;
+    }
+
+    public int packetId(Packet packet) {
+        final Integer id = packetIds.get(packet.getClass());
+        if (id == null) {
+            throw new IllegalStateException("Packet not registered: " + packet.getClass().getName());
+        }
+
+        return id;
     }
 
     public <T extends Packet> void on(Class<T> type, PacketListener<T> listener) {

@@ -5,10 +5,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
+import net.potatocloud.core.networking.packet.PacketManager;
 import net.potatocloud.core.networking.packet.request.RequestPacket;
 import net.potatocloud.core.networking.packet.request.ResponsePacket;
 
 public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
+
+    private final PacketManager packetManager;
+
+    public NettyPacketEncoder(PacketManager packetManager) {
+        this.packetManager = packetManager;
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
@@ -16,7 +23,7 @@ public class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
         final ByteBuf buf = ctx.alloc().buffer();
 
         // Write the packet id and packet data into the buffer
-        buf.writeInt(packet.getId());
+        buf.writeInt(packetManager.packetId(packet));
 
         if (packet instanceof RequestPacket requestPacket) {
             buf.writeInt(requestPacket.requestId());

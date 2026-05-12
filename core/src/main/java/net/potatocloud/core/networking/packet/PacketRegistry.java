@@ -17,43 +17,46 @@ import net.potatocloud.core.networking.packet.packets.property.PropertyUpdatePac
 import net.potatocloud.core.networking.packet.packets.property.RequestPropertiesPacket;
 import net.potatocloud.core.networking.packet.packets.service.*;
 
-public class PacketRegistry {
+public final class PacketRegistry {
+
+    private PacketRegistry() {
+    }
 
     public static void registerPackets(PacketManager manager) {
-        manager.register(PacketIds.SERVICE_ADD, ServiceAddPacket::new);
-        manager.register(PacketIds.SERVICE_REMOVE, ServiceRemovePacket::new);
-        manager.register(PacketIds.SERVICE_UPDATE, ServiceUpdatePacket::new);
-        manager.register(PacketIds.SERVICE_STARTED, ServiceStartedPacket::new);
-        manager.register(PacketIds.REQUEST_SERVICES, RequestServicesPacket::new);
-        manager.register(PacketIds.START_SERVICE, StartServicePacket::new);
-        manager.register(PacketIds.STOP_SERVICE, StopServicePacket::new);
-        manager.register(PacketIds.SERVICE_EXECUTE_COMMAND, ServiceExecuteCommandPacket::new);
-        manager.register(PacketIds.SERVICE_COPY, ServiceCopyPacket::new);
-        manager.register(PacketIds.SERVICE_MEMORY_UPDATE, ServiceMemoryUpdatePacket::new);
+        manager.register(0, ServiceAddPacket.class, ServiceAddPacket::new);
+        manager.register(1, ServiceRemovePacket.class, ServiceRemovePacket::new);
+        manager.register(2, ServiceUpdatePacket.class, ServiceUpdatePacket::new);
+        manager.register(3, ServiceStartedPacket.class, ServiceStartedPacket::new);
+        manager.register(4, RequestServicesPacket.class, RequestServicesPacket::new);
+        manager.register(5, StartServicePacket.class, StartServicePacket::new);
+        manager.register(6, StopServicePacket.class, StopServicePacket::new);
+        manager.register(7, ServiceExecuteCommandPacket.class, ServiceExecuteCommandPacket::new);
+        manager.register(8, ServiceCopyPacket.class, ServiceCopyPacket::new);
+        manager.register(9, ServiceMemoryUpdatePacket.class, ServiceMemoryUpdatePacket::new);
 
-        manager.register(PacketIds.REQUEST_GROUPS, RequestGroupsPacket::new);
-        manager.register(PacketIds.GROUP_ADD, GroupAddPacket::new);
-        manager.register(PacketIds.GROUP_UPDATE, GroupUpdatePacket::new);
-        manager.register(PacketIds.GROUP_DELETE, GroupDeletePacket::new);
+        manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket::new);
+        manager.register(101, GroupAddPacket.class, GroupAddPacket::new);
+        manager.register(102, GroupUpdatePacket.class, GroupUpdatePacket::new);
+        manager.register(104, GroupDeletePacket.class, GroupDeletePacket::new);
 
-        manager.register(PacketIds.PLAYER_ADD, CloudPlayerAddPacket::new);
-        manager.register(PacketIds.PLAYER_REMOVE, CloudPlayerRemovePacket::new);
-        manager.register(PacketIds.PLAYER_UPDATE, CloudPlayerUpdatePacket::new);
-        manager.register(PacketIds.PLAYER_CONNECT, CloudPlayerConnectPacket::new);
-        manager.register(PacketIds.REQUEST_PLAYERS, RequestCloudPlayersPacket::new);
+        manager.register(200, CloudPlayerAddPacket.class, CloudPlayerAddPacket::new);
+        manager.register(201, CloudPlayerRemovePacket.class, CloudPlayerRemovePacket::new);
+        manager.register(202, CloudPlayerUpdatePacket.class, CloudPlayerUpdatePacket::new);
+        manager.register(203, CloudPlayerConnectPacket.class, CloudPlayerConnectPacket::new);
+        manager.register(204, RequestCloudPlayersPacket.class, RequestCloudPlayersPacket::new);
 
-        manager.register(PacketIds.EVENT, EventPacket::new);
+        manager.register(300, EventPacket.class, EventPacket::new);
 
-        manager.register(PacketIds.PLATFORM_ADD, PlatformAddPacket::new);
-        manager.register(PacketIds.PLATFORM_REMOVE, PlatformRemovePacket::new);
-        manager.register(PacketIds.REQUEST_PLATFORMS, RequestPlatformsPacket::new);
-        manager.register(PacketIds.PLATFORM_UPDATE, PlatformUpdatePacket::new);
+        manager.register(400, PlatformAddPacket.class, PlatformAddPacket::new);
+        manager.register(401, PlatformRemovePacket.class, PlatformRemovePacket::new);
+        manager.register(402, RequestPlatformsPacket.class, RequestPlatformsPacket::new);
+        manager.register(403, PlatformUpdatePacket.class, PlatformUpdatePacket::new);
 
-        manager.register(PacketIds.REQUEST_PROPERTIES, RequestPropertiesPacket::new);
-        manager.register(PacketIds.PROPERTY_ADD, PropertyAddPacket::new);
-        manager.register(PacketIds.PROPERTY_REMOVE, PropertyRemovePacket::new);
-        manager.register(PacketIds.PROPERTY_UPDATE, PropertyUpdatePacket::new);
+        manager.register(500, RequestPropertiesPacket.class, RequestPropertiesPacket::new);
+        manager.register(501, PropertyUpdatePacket.class, PropertyUpdatePacket::new);
+        manager.register(502, PropertyRemovePacket.class, PropertyRemovePacket::new);
+        manager.register(503, PropertyAddPacket.class, PropertyAddPacket::new);
 
-        manager.register(PacketIds.LOG_MESSAGE, LogMessagePacket::new);
+        manager.register(600, LogMessagePacket.class, LogMessagePacket::new);
     }
 }

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 @Data
 @NoArgsConstructor
@@ -25,8 +24,4 @@ public class PropertyAddPacket implements Packet {
         property = buf.readProperty();
     }
 
-    @Override
-    public int getId() {
-        return PacketIds.PROPERTY_ADD;
-    }
 }

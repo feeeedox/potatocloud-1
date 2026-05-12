@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 @Data
 @NoArgsConstructor
@@ -15,11 +14,6 @@ public class ServiceCopyPacket implements Packet {
     private String serviceName;
     private String templateName;
     private String filter;
-
-    @Override
-    public int getId() {
-        return PacketIds.SERVICE_COPY;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

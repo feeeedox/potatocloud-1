@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 @Data
 @AllArgsConstructor
@@ -14,11 +13,6 @@ public class ServiceMemoryUpdatePacket implements Packet {
 
     private String serviceName;
     private int usedMemory;
-
-    @Override
-    public int getId() {
-        return PacketIds.SERVICE_MEMORY_UPDATE;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

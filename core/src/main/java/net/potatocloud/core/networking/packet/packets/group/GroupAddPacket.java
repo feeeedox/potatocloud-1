@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 import java.util.List;
 import java.util.Map;
@@ -31,11 +30,6 @@ public class GroupAddPacket implements Packet {
     private int startPercentage;
     private List<String> serviceTemplates;
     private Map<String, Property<?>> propertyMap;
-
-    @Override
-    public int getId() {
-        return PacketIds.GROUP_ADD;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

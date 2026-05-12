@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 @Data
 @NoArgsConstructor
@@ -14,11 +13,6 @@ public class ServiceExecuteCommandPacket implements Packet {
 
     private String serviceName;
     private String command;
-
-    @Override
-    public int getId() {
-        return PacketIds.SERVICE_EXECUTE_COMMAND;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

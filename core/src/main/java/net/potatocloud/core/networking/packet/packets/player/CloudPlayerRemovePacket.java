@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 import java.util.UUID;
 
@@ -15,11 +14,6 @@ import java.util.UUID;
 public class CloudPlayerRemovePacket implements Packet {
 
     private UUID playerUniqueId;
-
-    @Override
-    public int getId() {
-        return PacketIds.PLAYER_REMOVE;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

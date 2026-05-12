@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 @Data
 @NoArgsConstructor
@@ -14,11 +13,6 @@ public class LogMessagePacket implements Packet {
 
     private String level;
     private String message;
-
-    @Override
-    public int getId() {
-        return PacketIds.LOG_MESSAGE;
-    }
 
     @Override
     public void write(PacketBuffer buf) {

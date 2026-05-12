@@ -15,10 +15,10 @@ public class NettyNetworkClientInitializer extends ChannelInitializer<SocketChan
     private final NettyNetworkClient client;
 
     @Override
-    protected void initChannel(SocketChannel channel) throws Exception {
+    protected void initChannel(SocketChannel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast(new NettyPacketDecoder(packetManager));
-        pipeline.addLast(new NettyPacketEncoder());
+        pipeline.addLast(new NettyPacketEncoder(client.getPacketManager()));
         pipeline.addLast(new NettyClientHandler(packetManager, client));
     }
 }

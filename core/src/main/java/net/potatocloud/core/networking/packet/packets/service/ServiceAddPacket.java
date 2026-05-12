@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
-import net.potatocloud.core.networking.packet.PacketIds;
 
 import java.util.Map;
 
@@ -24,11 +23,6 @@ public class ServiceAddPacket implements Packet {
     private String status;
     private int maxPlayers;
     private String requestId;
-
-    @Override
-    public int getId() {
-        return PacketIds.SERVICE_ADD;
-    }
 
     @Override
     public void write(PacketBuffer buf) {
