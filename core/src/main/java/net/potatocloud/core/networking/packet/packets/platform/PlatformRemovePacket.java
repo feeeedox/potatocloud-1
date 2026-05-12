@@ -1,25 +1,20 @@
 package net.potatocloud.core.networking.packet.packets.platform;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PlatformRemovePacket implements Packet {
+public record PlatformRemovePacket(String platformName) implements Packet {
 
-    private String platformName;
+    public static final Codec<PlatformRemovePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(platformName);
-    }
+        @Override
+        public void encode(PlatformRemovePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.platformName());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        platformName = buf.readString();
-    }
+        @Override
+        public PlatformRemovePacket decode(PacketBuffer buf) {
+            return new PlatformRemovePacket(buf.readString());
+        }
+    };
 }

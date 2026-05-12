@@ -1,28 +1,22 @@
 package net.potatocloud.core.networking.packet.packets.logging;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class LogMessagePacket implements Packet {
+public record LogMessagePacket(String level, String message) implements Packet {
 
-    private String level;
-    private String message;
+    public static final Codec<LogMessagePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(level);
-        buf.writeString(message);
-    }
+        @Override
+        public void encode(LogMessagePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.level());
+            buf.writeString(packet.message());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        level = buf.readString();
-        message = buf.readString();
-    }
+        @Override
+        public LogMessagePacket decode(PacketBuffer buf) {
+            return new LogMessagePacket(buf.readString(), buf.readString());
+        }
+    };
 }
+

@@ -1,25 +1,20 @@
 package net.potatocloud.core.networking.packet.packets.property;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PropertyRemovePacket implements Packet {
+public record PropertyRemovePacket(String propertyName) implements Packet {
 
-    private String name;
+    public static final Codec<PropertyRemovePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(name);
-    }
+        @Override
+        public void encode(PropertyRemovePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.propertyName());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        name = buf.readString();
-    }
+        @Override
+        public PropertyRemovePacket decode(PacketBuffer buf) {
+            return new PropertyRemovePacket(buf.readString());
+        }
+    };
 }

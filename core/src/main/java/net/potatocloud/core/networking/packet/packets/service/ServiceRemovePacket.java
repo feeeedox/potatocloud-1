@@ -1,28 +1,21 @@
 package net.potatocloud.core.networking.packet.packets.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ServiceRemovePacket implements Packet {
+public record ServiceRemovePacket(String serviceName, int servicePort) implements Packet {
 
-    private String serviceName;
-    private int servicePort;
+    public static final Codec<ServiceRemovePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(serviceName);
-        buf.writeInt(servicePort);
-    }
+        @Override
+        public void encode(ServiceRemovePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.serviceName());
+            buf.writeInt(packet.servicePort());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        serviceName = buf.readString();
-        servicePort = buf.readInt();
-    }
+        @Override
+        public ServiceRemovePacket decode(PacketBuffer buf) {
+            return new ServiceRemovePacket(buf.readString(), buf.readInt());
+        }
+    };
 }

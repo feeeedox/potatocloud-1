@@ -1,8 +1,5 @@
 package net.potatocloud.core.networking.packet.packets.player;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
@@ -10,32 +7,34 @@ import net.potatocloud.core.networking.packet.Packet;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CloudPlayerAddPacket implements Packet {
+public record CloudPlayerAddPacket(
+        String username,
+        UUID uniqueId,
+        String connectedProxyName,
+        String connectedServiceName,
+        Map<String, Property<?>> propertyMap
+) implements Packet {
 
-    private String username;
-    private UUID uniqueId;
-    private String connectedProxyName;
-    private String connectedServiceName;
-    private Map<String, Property<?>> propertyMap;
+    public static final Codec<CloudPlayerAddPacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(username);
-        buf.writeString(uniqueId.toString());
-        buf.writeString(connectedProxyName);
-        buf.writeString(connectedServiceName);
-        buf.writePropertyMap(propertyMap);
-    }
+        @Override
+        public void encode(CloudPlayerAddPacket packet, PacketBuffer buf) {
+            buf.writeString(packet.username());
+            buf.writeString(packet.uniqueId().toString());
+            buf.writeString(packet.connectedProxyName());
+            buf.writeString(packet.connectedServiceName());
+            buf.writePropertyMap(packet.propertyMap());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        username = buf.readString();
-        uniqueId = UUID.fromString(buf.readString());
-        connectedProxyName = buf.readString();
-        connectedServiceName = buf.readString();
-        propertyMap = buf.readPropertyMap();
-    }
+        @Override
+        public CloudPlayerAddPacket decode(PacketBuffer buf) {
+            return new CloudPlayerAddPacket(
+                    buf.readString(),
+                    UUID.fromString(buf.readString()),
+                    buf.readString(),
+                    buf.readString(),
+                    buf.readPropertyMap()
+            );
+        }
+    };
 }

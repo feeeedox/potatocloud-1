@@ -1,28 +1,21 @@
 package net.potatocloud.core.networking.packet.packets.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ServiceExecuteCommandPacket implements Packet {
+public record ServiceExecuteCommandPacket(String serviceName, String command) implements Packet {
 
-    private String serviceName;
-    private String command;
+    public static final Codec<ServiceExecuteCommandPacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(serviceName);
-        buf.writeString(command);
-    }
+        @Override
+        public void encode(ServiceExecuteCommandPacket packet, PacketBuffer buf) {
+            buf.writeString(packet.serviceName());
+            buf.writeString(packet.command());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        serviceName = buf.readString();
-        command = buf.readString();
-    }
+        @Override
+        public ServiceExecuteCommandPacket decode(PacketBuffer buf) {
+            return new ServiceExecuteCommandPacket(buf.readString(), buf.readString());
+        }
+    };
 }

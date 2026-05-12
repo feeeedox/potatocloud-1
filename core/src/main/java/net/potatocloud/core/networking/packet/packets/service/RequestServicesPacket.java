@@ -1,19 +1,19 @@
 package net.potatocloud.core.networking.packet.packets.service;
 
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@NoArgsConstructor
-public class RequestServicesPacket implements Packet {
+public record RequestServicesPacket() implements Packet {
 
-    @Override
-    public void write(PacketBuffer buf) {
+    public static final Codec<RequestServicesPacket> CODEC = new Codec<>() {
 
-    }
+        @Override
+        public void encode(RequestServicesPacket packet, PacketBuffer buf) {
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-
-    }
+        @Override
+        public RequestServicesPacket decode(PacketBuffer buf) {
+            return new RequestServicesPacket();
+        }
+    };
 }

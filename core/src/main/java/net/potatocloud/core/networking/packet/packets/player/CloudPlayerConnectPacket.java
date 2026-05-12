@@ -1,28 +1,21 @@
 package net.potatocloud.core.networking.packet.packets.player;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CloudPlayerConnectPacket implements Packet {
+public record CloudPlayerConnectPacket(String playerUsername, String serviceName) implements Packet {
 
-    private String playerUsername;
-    private String serviceName;
+    public static final Codec<CloudPlayerConnectPacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(playerUsername);
-        buf.writeString(serviceName);
-    }
+        @Override
+        public void encode(CloudPlayerConnectPacket packet, PacketBuffer buf) {
+            buf.writeString(packet.playerUsername());
+            buf.writeString(packet.serviceName());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        playerUsername = buf.readString();
-        serviceName = buf.readString();
-    }
+        @Override
+        public CloudPlayerConnectPacket decode(PacketBuffer buf) {
+            return new CloudPlayerConnectPacket(buf.readString(), buf.readString());
+        }
+    };
 }

@@ -3,15 +3,17 @@ package net.potatocloud.core.networking.packet.packets.platform;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-public class RequestPlatformsPacket implements Packet {
+public record RequestPlatformsPacket() implements Packet {
 
-    @Override
-    public void write(PacketBuffer buf) {
+    public static final Codec<RequestPlatformsPacket> CODEC = new Codec<>() {
 
-    }
+        @Override
+        public void encode(RequestPlatformsPacket packet, PacketBuffer buf) {
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-
-    }
+        @Override
+        public RequestPlatformsPacket decode(PacketBuffer buf) {
+            return new RequestPlatformsPacket();
+        }
+    };
 }

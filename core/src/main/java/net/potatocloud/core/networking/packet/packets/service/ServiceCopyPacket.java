@@ -1,31 +1,22 @@
 package net.potatocloud.core.networking.packet.packets.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ServiceCopyPacket implements Packet {
+public record ServiceCopyPacket(String serviceName, String templateName, String filter) implements Packet {
 
-    private String serviceName;
-    private String templateName;
-    private String filter;
+    public static final Codec<ServiceCopyPacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(serviceName);
-        buf.writeString(templateName);
-        buf.writeString(filter);
-    }
+        @Override
+        public void encode(ServiceCopyPacket packet, PacketBuffer buf) {
+            buf.writeString(packet.serviceName());
+            buf.writeString(packet.templateName());
+            buf.writeString(packet.filter());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        serviceName = buf.readString();
-        templateName = buf.readString();
-        filter = buf.readString();
-    }
+        @Override
+        public ServiceCopyPacket decode(PacketBuffer buf) {
+            return new ServiceCopyPacket(buf.readString(), buf.readString(), buf.readString());
+        }
+    };
 }

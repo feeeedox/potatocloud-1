@@ -1,27 +1,22 @@
 package net.potatocloud.core.networking.packet.packets.player;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CloudPlayerRemovePacket implements Packet {
+public record CloudPlayerRemovePacket(UUID playerUniqueId) implements Packet {
 
-    private UUID playerUniqueId;
+    public static final Codec<CloudPlayerRemovePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(playerUniqueId.toString());
-    }
+        @Override
+        public void encode(CloudPlayerRemovePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.playerUniqueId().toString());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        playerUniqueId = UUID.fromString(buf.readString());
-    }
+        @Override
+        public CloudPlayerRemovePacket decode(PacketBuffer buf) {
+            return new CloudPlayerRemovePacket(UUID.fromString(buf.readString()));
+        }
+    };
 }

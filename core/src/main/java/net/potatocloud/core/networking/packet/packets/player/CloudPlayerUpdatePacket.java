@@ -1,8 +1,5 @@
 package net.potatocloud.core.networking.packet.packets.player;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
@@ -10,29 +7,31 @@ import net.potatocloud.core.networking.packet.Packet;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CloudPlayerUpdatePacket implements Packet {
+public record CloudPlayerUpdatePacket(
+        UUID playerUniqueId,
+        String connectedProxyName,
+        String connectedServiceName,
+        Map<String, Property<?>> propertyMap
+) implements Packet {
 
-    private UUID playerUniqueId;
-    private String connectedProxyName;
-    private String connectedServiceName;
-    private Map<String, Property<?>> propertyMap;
+    public static final Codec<CloudPlayerUpdatePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(playerUniqueId.toString());
-        buf.writeString(connectedProxyName);
-        buf.writeString(connectedServiceName);
-        buf.writePropertyMap(propertyMap);
-    }
+        @Override
+        public void encode(CloudPlayerUpdatePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.playerUniqueId().toString());
+            buf.writeString(packet.connectedProxyName());
+            buf.writeString(packet.connectedServiceName());
+            buf.writePropertyMap(packet.propertyMap());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        playerUniqueId = UUID.fromString(buf.readString());
-        connectedProxyName = buf.readString();
-        connectedServiceName = buf.readString();
-        propertyMap = buf.readPropertyMap();
-    }
+        @Override
+        public CloudPlayerUpdatePacket decode(PacketBuffer buf) {
+            return new CloudPlayerUpdatePacket(
+                    UUID.fromString(buf.readString()),
+                    buf.readString(),
+                    buf.readString(),
+                    buf.readPropertyMap()
+            );
+        }
+    };
 }

@@ -1,19 +1,19 @@
 package net.potatocloud.core.networking.packet.packets.player;
 
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@NoArgsConstructor
-public class RequestCloudPlayersPacket implements Packet {
+public record RequestCloudPlayersPacket() implements Packet {
 
-    @Override
-    public void write(PacketBuffer buf) {
+    public static final Codec<RequestCloudPlayersPacket> CODEC = new Codec<>() {
 
-    }
+        @Override
+        public void encode(RequestCloudPlayersPacket packet, PacketBuffer buf) {
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-
-    }
+        @Override
+        public RequestCloudPlayersPacket decode(PacketBuffer buf) {
+            return new RequestCloudPlayersPacket();
+        }
+    };
 }

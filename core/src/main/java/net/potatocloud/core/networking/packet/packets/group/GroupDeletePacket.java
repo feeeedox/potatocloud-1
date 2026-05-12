@@ -1,25 +1,20 @@
 package net.potatocloud.core.networking.packet.packets.group;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GroupDeletePacket implements Packet {
+public record GroupDeletePacket(String groupName) implements Packet {
 
-    private String name;
+    public static final Codec<GroupDeletePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(name);
-    }
+        @Override
+        public void encode(GroupDeletePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.groupName());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        name = buf.readString();
-    }
+        @Override
+        public GroupDeletePacket decode(PacketBuffer buf) {
+            return new GroupDeletePacket(buf.readString());
+        }
+    };
 }

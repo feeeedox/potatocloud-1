@@ -1,8 +1,5 @@
 package net.potatocloud.core.networking.packet.packets.group;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
@@ -10,50 +7,52 @@ import net.potatocloud.core.networking.packet.Packet;
 import java.util.List;
 import java.util.Map;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GroupUpdatePacket implements Packet {
+public record GroupUpdatePacket(
+        String groupName,
+        List<String> customJvmFlags,
+        int maxPlayers,
+        int maxMemory,
+        int minOnlineCount,
+        int maxOnlineCount,
+        boolean fallback,
+        int startPriority,
+        int startPercentage,
+        List<String> serviceTemplates,
+        Map<String, Property<?>> propertyMap
+) implements Packet {
 
-    private String name;
-    private List<String> customJvmFlags;
-    private int maxPlayers;
-    private int maxMemory;
-    private int minOnlineCount;
-    private int maxOnlineCount;
-    private boolean fallback;
-    private int startPriority;
-    private int startPercentage;
-    private List<String> serviceTemplates;
-    private Map<String, Property<?>> propertyMap;
+    public static final Codec<GroupUpdatePacket> CODEC = new Codec<>() {
 
-    @Override
-    public void write(PacketBuffer buf) {
-        buf.writeString(name);
-        buf.writeStringList(customJvmFlags);
-        buf.writeInt(minOnlineCount);
-        buf.writeInt(maxOnlineCount);
-        buf.writeInt(maxPlayers);
-        buf.writeInt(maxMemory);
-        buf.writeBoolean(fallback);
-        buf.writeInt(startPriority);
-        buf.writeInt(startPercentage);
-        buf.writeStringList(serviceTemplates);
-        buf.writePropertyMap(propertyMap);
-    }
+        @Override
+        public void encode(GroupUpdatePacket packet, PacketBuffer buf) {
+            buf.writeString(packet.groupName());
+            buf.writeStringList(packet.customJvmFlags());
+            buf.writeInt(packet.minOnlineCount());
+            buf.writeInt(packet.maxOnlineCount());
+            buf.writeInt(packet.maxPlayers());
+            buf.writeInt(packet.maxMemory());
+            buf.writeBoolean(packet.fallback());
+            buf.writeInt(packet.startPriority());
+            buf.writeInt(packet.startPercentage());
+            buf.writeStringList(packet.serviceTemplates());
+            buf.writePropertyMap(packet.propertyMap());
+        }
 
-    @Override
-    public void read(PacketBuffer buf) {
-        name = buf.readString();
-        customJvmFlags = buf.readStringList();
-        minOnlineCount = buf.readInt();
-        maxOnlineCount = buf.readInt();
-        maxPlayers = buf.readInt();
-        maxMemory = buf.readInt();
-        fallback = buf.readBoolean();
-        startPriority = buf.readInt();
-        startPercentage = buf.readInt();
-        serviceTemplates = buf.readStringList();
-        propertyMap = buf.readPropertyMap();
-    }
+        @Override
+        public GroupUpdatePacket decode(PacketBuffer buf) {
+            return new GroupUpdatePacket(
+                    buf.readString(),
+                    buf.readStringList(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readBoolean(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readStringList(),
+                    buf.readPropertyMap()
+            );
+        }
+    };
 }
