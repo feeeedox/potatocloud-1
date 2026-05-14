@@ -31,7 +31,7 @@ public class ServiceStartScheduler {
     private final List<ServiceStartRule> rules;
     private final List<ServiceStartCondition> conditions;
 
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().factory());
 
     public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
         this.groupManager = groupManager;
