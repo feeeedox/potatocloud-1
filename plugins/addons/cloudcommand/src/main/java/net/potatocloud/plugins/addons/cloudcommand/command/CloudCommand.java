@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.cloudcommand.command;
+package net.potatocloud.plugins.addons.cloudcommand.command;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;

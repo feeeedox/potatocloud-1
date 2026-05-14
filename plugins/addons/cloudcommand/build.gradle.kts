@@ -4,8 +4,6 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-group = "net.potatocloud.plugin.server.cloudcommand"
-
 repositories {
     maven("https://jitpack.io")
     maven("https://repo.papermc.io/repository/maven-public")
@@ -15,6 +13,7 @@ dependencies {
     compileOnly(project(":api"))
     implementation(project(":plugins:shared"))
     implementation(project(":common"))
+
     implementation(libs.simpleyaml)
     implementation(libs.lombok)
     annotationProcessor(libs.lombok)

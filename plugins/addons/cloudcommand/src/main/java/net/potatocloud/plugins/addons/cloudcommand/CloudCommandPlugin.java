@@ -1,10 +1,10 @@
-package net.potatocloud.plugin.server.cloudcommand;
+package net.potatocloud.plugins.addons.cloudcommand;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.potatocloud.plugin.server.cloudcommand.command.CloudCommand;
+import net.potatocloud.plugins.addons.cloudcommand.command.CloudCommand;
 import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
