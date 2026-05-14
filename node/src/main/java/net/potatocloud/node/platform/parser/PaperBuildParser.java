@@ -1,17 +1,14 @@
 package net.potatocloud.node.platform.parser;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
 import net.potatocloud.node.platform.BuildParser;
 import net.potatocloud.node.utils.RequestUtil;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class PaperBuildParser implements BuildParser {
@@ -25,20 +22,20 @@ public class PaperBuildParser implements BuildParser {
 
             // Find the latest Minecraft version if the user wants the latest
             if (versionName.equalsIgnoreCase("latest")) {
-                final JsonObject project = RequestUtil.request("https://fill.papermc.io/v3/projects/" + projectName);
-                final JsonObject versions = project.getAsJsonObject("versions");
+                final JsonNode project = RequestUtil.request("https://fill.papermc.io/v3/projects/" + projectName);
+                final JsonNode versions = project.get("versions");
 
                 final List<String> allVersions = new ArrayList<>();
 
-                for (Map.Entry<String, JsonElement> entry : versions.entrySet()) {
-                    final JsonArray versionsArray = entry.getValue().getAsJsonArray();
+                if (versions != null && versions.isObject()) {
+                    for (String key : versions.propertyNames()) {
+                        final JsonNode versionArray = versions.get(key);
 
-                    if (versionsArray == null || versionsArray.isEmpty()) {
-                        throw new RuntimeException("No versions found in Paper API");
-                    }
-
-                    for (JsonElement element : versionsArray) {
-                        allVersions.add(element.getAsString());
+                        if (versionArray != null && versionArray.isArray()) {
+                            for (JsonNode node : versionArray.asArray().values()) {
+                                allVersions.add(node.asString());
+                            }
+                        }
                     }
                 }
 
@@ -46,22 +43,22 @@ public class PaperBuildParser implements BuildParser {
             }
 
             // Get the latest build of the chosen version
-            final JsonObject latestBuild = RequestUtil.request("https://fill.papermc.io/v3/projects/"
+            final JsonNode latestBuild = RequestUtil.request("https://fill.papermc.io/v3/projects/"
                     + projectName + "/versions/" + versionName + "/builds/latest");
 
-            final int latestBuildId = latestBuild.get("id").getAsInt();
+            final int latestBuildId = latestBuild.get("id").asInt();
 
-            final JsonObject downloads = latestBuild.getAsJsonObject("downloads");
-            final JsonObject serverDefault = downloads != null ? downloads.getAsJsonObject("server:default") : null;
+            final JsonNode downloads = latestBuild.get("downloads");
+            final JsonNode serverDefault = downloads != null ? downloads.get("server:default") : null;
 
             if (serverDefault == null) {
                 throw new RuntimeException("Missing download info for Paper build");
             }
 
             final String sha256 = serverDefault
-                    .getAsJsonObject("checksums")
+                    .get("checksums")
                     .get("sha256")
-                    .getAsString();
+                    .asString();
 
             // Replace placeholders in the platform download URL
             final String downloadUrl = baseUrl

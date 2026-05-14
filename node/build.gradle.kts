@@ -17,14 +17,15 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":eventbus"))
 
-    implementation(libs.commons.codec)
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.databind)
 
-    implementation(libs.gson)
     implementation(libs.jline)
     implementation(libs.oshi)
     implementation(libs.slf4j.nop)
     implementation(libs.lombok)
     annotationProcessor(libs.lombok)
+    implementation(libs.commons.codec)
 
     implementation(libs.simpleyaml) {
         exclude(group = "org.yaml", module = "snakeyaml")

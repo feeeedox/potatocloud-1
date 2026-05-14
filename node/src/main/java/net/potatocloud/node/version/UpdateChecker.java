@@ -1,11 +1,11 @@
 package net.potatocloud.node.version;
 
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.node.utils.RequestUtil;
+import tools.jackson.databind.JsonNode;
 
 @RequiredArgsConstructor
 public class UpdateChecker {
@@ -40,12 +40,12 @@ public class UpdateChecker {
 
     public Version getLatestVersion() {
         final String url = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
-        final JsonObject response = RequestUtil.request(url);
+        final JsonNode response = RequestUtil.request(url);
 
         if (response == null || !response.has("tag_name")) {
             return null;
         }
 
-        return Version.fromString(response.get("tag_name").getAsString());
+        return Version.fromString(response.get("tag_name").stringValue());
     }
 }
