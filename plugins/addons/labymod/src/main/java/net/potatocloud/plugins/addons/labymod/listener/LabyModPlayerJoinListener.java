@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.labymod.listener;
+package net.potatocloud.plugins.addons.labymod.listener;
 
 import lombok.RequiredArgsConstructor;
 import net.labymod.serverapi.server.bukkit.event.LabyModPlayerJoinEvent;

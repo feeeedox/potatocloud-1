@@ -4,8 +4,6 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-group = "net.potatocloud.plugin.server.labymod"
-
 repositories {
     maven("https://jitpack.io")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
