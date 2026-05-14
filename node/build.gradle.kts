@@ -30,10 +30,10 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
 
-    compileOnly(project(":platform-plugins:spigot"))
-    compileOnly(project(":platform-plugins:spigot-legacy"))
-    compileOnly(project(":platform-plugins:velocity"))
-    compileOnly(project(":platform-plugins:limbo"))
+    compileOnly(project(":plugins:platform:spigot"))
+    compileOnly(project(":plugins:platform:spigot-legacy"))
+    compileOnly(project(":plugins:platform:velocity"))
+    compileOnly(project(":plugins:platform:limbo"))
 }
 
 tasks.named<ShadowJar>("shadowJar") {
@@ -45,16 +45,16 @@ tasks.named<ShadowJar>("shadowJar") {
         attributes["Main-Class"] = "net.potatocloud.node.NodeMain"
     }
 
-    from(project(":platform-plugins:spigot").tasks.named("shadowJar")) {
+    from(project("::plugins:platform:spigot").tasks.named("shadowJar")) {
         into("default-files")
     }
-    from(project(":platform-plugins:spigot-legacy").tasks.named("shadowJar")) {
+    from(project(":plugins:platform:spigot-legacy").tasks.named("shadowJar")) {
         into("default-files")
     }
-    from(project(":platform-plugins:velocity").tasks.named("shadowJar")) {
+    from(project(":plugins:platform:velocity").tasks.named("shadowJar")) {
         into("default-files")
     }
-    from(project(":platform-plugins:limbo").tasks.named("shadowJar")) {
+    from(project(":plugins:platform:limbo").tasks.named("shadowJar")) {
         into("default-files")
     }
 }

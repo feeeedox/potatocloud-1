@@ -1,0 +1,27 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+repositories {
+    maven("https://repo.papermc.io/repository/maven-public/")
+}
+
+dependencies {
+    implementation(project(":api"))
+    implementation(project(":connector"))
+    implementation(project(":common"))
+    implementation(project(":network"))
+    implementation(project(":eventbus"))
+
+    compileOnly(libs.velocity)
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    archiveBaseName.set("potatocloud-plugin-velocity")
+    archiveVersion.set("")
+    archiveClassifier.set("")
+
+    relocate("io.netty", "net.potatocloud.shaded.netty")
+}
