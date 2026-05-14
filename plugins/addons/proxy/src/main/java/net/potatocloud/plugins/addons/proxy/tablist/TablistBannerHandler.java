@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.proxy.tablist;
+package net.potatocloud.plugins.addons.proxy.tablist;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;

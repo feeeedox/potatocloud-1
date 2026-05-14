@@ -2,7 +2,7 @@
   "id": "potatocloud-plugin-proxy",
   "name": "potatocloud-plugin-proxy",
   "version": "1.5.1",
-  "main": "net.potatocloud.plugin.server.proxy.ProxyPlugin",
+  "main": "net.potatocloud.plugins.addons.proxy.ProxyPlugin",
   "authors": [
     "TruaYT",
     "einCode_",

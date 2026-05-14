@@ -1,10 +1,10 @@
-package net.potatocloud.plugin.server.proxy.commands;
+package net.potatocloud.plugins.addons.proxy.commands;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.plugin.server.proxy.ProxyPlugin;
+import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
 import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessagesConfig;
 

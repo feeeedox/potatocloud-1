@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.proxy.motd;
+package net.potatocloud.plugins.addons.proxy.motd;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.plugin.server.proxy.ProxyPlugin;
+import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
 import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessageUtils;
 

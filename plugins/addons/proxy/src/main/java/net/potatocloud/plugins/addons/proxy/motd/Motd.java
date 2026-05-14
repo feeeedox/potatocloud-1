@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.proxy.motd;
+package net.potatocloud.plugins.addons.proxy.motd;
 
 
 import lombok.AllArgsConstructor;

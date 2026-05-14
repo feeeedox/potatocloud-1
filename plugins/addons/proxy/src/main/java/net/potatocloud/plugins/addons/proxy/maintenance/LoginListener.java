@@ -1,11 +1,11 @@
-package net.potatocloud.plugin.server.proxy.maintenance;
+package net.potatocloud.plugins.addons.proxy.maintenance;
 
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.plugin.server.proxy.ProxyPlugin;
+import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
 import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessagesConfig;
 

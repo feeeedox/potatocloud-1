@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.proxy;
+package net.potatocloud.plugins.addons.proxy;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.EventManager;
@@ -6,11 +6,11 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.labymod.serverapi.server.velocity.LabyModProtocolService;
-import net.potatocloud.plugin.server.proxy.commands.ProxyCommand;
-import net.potatocloud.plugin.server.proxy.maintenance.LoginListener;
-import net.potatocloud.plugin.server.proxy.motd.ProxyPingListener;
-import net.potatocloud.plugin.server.proxy.tablist.TablistBannerHandler;
-import net.potatocloud.plugin.server.proxy.tablist.TablistHandler;
+import net.potatocloud.plugins.addons.proxy.commands.ProxyCommand;
+import net.potatocloud.plugins.addons.proxy.maintenance.LoginListener;
+import net.potatocloud.plugins.addons.proxy.motd.ProxyPingListener;
+import net.potatocloud.plugins.addons.proxy.tablist.TablistBannerHandler;
+import net.potatocloud.plugins.addons.proxy.tablist.TablistHandler;
 import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessagesConfig;
 import org.slf4j.Logger;

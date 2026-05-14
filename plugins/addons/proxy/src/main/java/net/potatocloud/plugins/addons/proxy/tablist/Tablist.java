@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.proxy.tablist;
+package net.potatocloud.plugins.addons.proxy.tablist;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
