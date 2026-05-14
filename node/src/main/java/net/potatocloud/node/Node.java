@@ -11,7 +11,6 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.eventbus.ServerEventBus;
-import net.potatocloud.node.migration.MigrationManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.server.NettyNetworkServer;
 import net.potatocloud.network.packet.PacketManager;
@@ -22,6 +21,7 @@ import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.logging.NodeLogger;
+import net.potatocloud.node.migration.MigrationManager;
 import net.potatocloud.node.migration.migrations.Migration_1_4_3;
 import net.potatocloud.node.migration.migrations.Migration_1_4_4;
 import net.potatocloud.node.migration.migrations.Migration_1_5_0;
@@ -165,7 +165,7 @@ public class Node extends CloudAPI {
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.getDataFolder()));
         serviceManager = new ServiceManagerImpl(
-                config, logger, server, eventBus, groupManager, screenManager, templateManager, platformManager, downloadManager, cacheManager, console
+                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
         );
         serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
 

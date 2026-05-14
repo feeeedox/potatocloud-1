@@ -1,8 +1,7 @@
 package net.potatocloud.node.platform.steps;
 
 import net.potatocloud.api.platform.Platform;
-import net.potatocloud.api.platform.PrepareStep;
-import net.potatocloud.api.service.Service;
+import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.utils.PropertiesFileUtils;
 
 import java.io.IOException;
@@ -10,17 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-public class PortStep implements PrepareStep {
+public class PortStep extends AbstractPrepareStep {
 
     @Override
-    public void execute(Service service, Platform platform, Path serverDirectory) {
+    public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
+            final int port = (int) data().get("port");
+
             if (platform.isBukkitBased()) {
                 final Path propertiesPath = serverDirectory.resolve("server.properties");
                 final Properties properties = PropertiesFileUtils.loadProperties(propertiesPath);
 
-                properties.setProperty("server-port", String.valueOf(service.getPort()));
-                properties.setProperty("query.port", String.valueOf(service.getPort()));
+                properties.setProperty("server-port", String.valueOf(port));
+                properties.setProperty("query.port", String.valueOf(port));
 
                 PropertiesFileUtils.saveProperties(properties, propertiesPath);
                 return;
@@ -32,7 +33,7 @@ public class PortStep implements PrepareStep {
                 String fileContent = Files.readString(velocityToml);
                 fileContent = fileContent.replace(
                         "bind = \"0.0.0.0:25565\"",
-                        "bind = \"0.0.0.0:" + service.getPort() + "\""
+                        "bind = \"0.0.0.0:" + port + "\""
                 );
 
                 Files.writeString(velocityToml, fileContent);
@@ -42,12 +43,12 @@ public class PortStep implements PrepareStep {
                 final Path propertiesPath = serverDirectory.resolve("server.properties");
                 final Properties properties = PropertiesFileUtils.loadProperties(propertiesPath);
 
-                properties.setProperty("server-port", String.valueOf(service.getPort()));
+                properties.setProperty("server-port", String.valueOf(port));
 
                 PropertiesFileUtils.saveProperties(properties, propertiesPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to execute PortStep for service: " + service.getName(), e);
+            throw new RuntimeException("Failed to execute PortStep for service: " + serviceName, e);
         }
     }
 

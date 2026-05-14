@@ -1,8 +1,7 @@
 package net.potatocloud.node.platform.steps;
 
 import net.potatocloud.api.platform.Platform;
-import net.potatocloud.api.platform.PrepareStep;
-import net.potatocloud.api.service.Service;
+import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.platform.VelocityForwardingSecret;
 import net.potatocloud.node.utils.PropertiesFileUtils;
 import net.potatocloud.node.utils.ProxyUtils;
@@ -12,12 +11,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
 
-public class SetupProxyStep implements PrepareStep {
+public class SetupProxyStep extends AbstractPrepareStep {
 
     @Override
-    public void execute(Service service, Platform platform, Path serverDirectory) {
+    public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
-            // Skip if Bukkit Based uses legacy proxy mode (already configured in the spigot.yml)
+            // Skip if Bukkit based uses legacy proxy mode (already configured in the spigot.yml)
             if (platform.isBukkitBased() && !ProxyUtils.isProxyModernForwarding()) {
                 return;
             }
@@ -50,7 +49,7 @@ public class SetupProxyStep implements PrepareStep {
                 PropertiesFileUtils.saveProperties(properties, propertiesPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to execute SetupProxyStep for service: " + service.getName(), e);
+            throw new RuntimeException("Failed to execute SetupProxyStep for service: " + serviceName, e);
         }
     }
 

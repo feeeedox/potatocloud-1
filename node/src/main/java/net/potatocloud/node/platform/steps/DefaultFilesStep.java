@@ -1,20 +1,19 @@
 package net.potatocloud.node.platform.steps;
 
 import net.potatocloud.api.platform.Platform;
-import net.potatocloud.api.platform.PrepareStep;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.config.NodeConfig;
+import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.utils.ProxyUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DefaultFilesStep implements PrepareStep {
+public class DefaultFilesStep extends AbstractPrepareStep {
 
     @Override
-    public void execute(Service service, Platform platform, Path serverDirectory) {
+    public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
             final NodeConfig config = Node.getInstance().getConfig();
 
@@ -60,7 +59,7 @@ public class DefaultFilesStep implements PrepareStep {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to execute DefaultFilesStep for service: " + service.getName(), e);
+            throw new RuntimeException("Failed to execute DefaultFilesStep for service: " + serviceName, e);
         }
     }
 

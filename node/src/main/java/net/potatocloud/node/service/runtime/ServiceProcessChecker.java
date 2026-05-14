@@ -1,6 +1,7 @@
-package net.potatocloud.node.service;
+package net.potatocloud.node.service.runtime;
 
 import net.potatocloud.common.Closeable;
+import net.potatocloud.node.service.AbstractService;
 
 public final class ServiceProcessChecker implements Closeable {
 

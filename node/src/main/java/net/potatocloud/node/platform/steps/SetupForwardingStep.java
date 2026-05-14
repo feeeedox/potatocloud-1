@@ -1,10 +1,10 @@
 package net.potatocloud.node.platform.steps;
 
+import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.platform.Platform;
-import net.potatocloud.api.platform.PrepareStep;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
-import net.potatocloud.api.service.Service;
+import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.platform.VelocityForwardingSecret;
 import net.potatocloud.node.utils.ProxyUtils;
 
@@ -14,12 +14,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
-public class SetupForwardingStep implements PrepareStep {
+public class SetupForwardingStep extends AbstractPrepareStep {
 
     @Override
-    public void execute(Service service, Platform platform, Path serverDirectory) {
+    public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
-            if (!service.getServiceGroup().getPlatform().isVelocityBased()) {
+            if (!platform.isVelocityBased()) {
                 return;
             }
 
@@ -45,8 +45,10 @@ public class SetupForwardingStep implements PrepareStep {
                 Files.writeString(velocityToml, fileContent);
             }
 
+            final ServiceGroup group = (ServiceGroup) data().get("group");
+
             // Check if the forwarding secret should always be replaced
-            final Property<Boolean> property = service.getServiceGroup().getProperty(DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET);
+            final Property<Boolean> property = group.getProperty(DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET);
             final boolean alwaysOverride = property != null ? property.getValue() : DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET.getDefaultValue();
 
             // Now create the forwarding secret file with the correct secret
@@ -54,7 +56,7 @@ public class SetupForwardingStep implements PrepareStep {
                 Files.writeString(forwardingSecret, VelocityForwardingSecret.FORWARDING_SECRET, StandardOpenOption.CREATE);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to execute SetupForwardingStep for service: " + service.getName(), e);
+            throw new RuntimeException("Failed to execute SetupForwardingStep for service: " + serviceName, e);
         }
     }
 

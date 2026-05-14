@@ -9,32 +9,26 @@ import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.*;
 import net.potatocloud.node.config.NodeConfig;
-import net.potatocloud.node.console.Console;
 import net.potatocloud.node.platform.DownloadManager;
-import net.potatocloud.node.platform.PlatformManagerImpl;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.listeners.*;
+import net.potatocloud.node.service.runtime.ServiceLauncher;
 import net.potatocloud.node.template.TemplateManager;
-import net.potatocloud.node.utils.NetworkUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 public class ServiceManagerImpl implements ServiceManager {
 
     private final List<Service> services = new CopyOnWriteArrayList<>();
 
-    private final ServiceFactory factory;
-
-    private final NodeConfig config;
-    private final Logger logger;
+    private final ServiceLauncher launcher;
     private final NetworkServer server;
-    private final ServiceGroupManager groupManager;
+    private final Logger logger;
+    private final NodeConfig config;
 
     public ServiceManagerImpl(
             NodeConfig config,
@@ -44,16 +38,16 @@ public class ServiceManagerImpl implements ServiceManager {
             ServiceGroupManager groupManager,
             ScreenManager screenManager,
             TemplateManager templateManager,
-            PlatformManagerImpl platformManager,
             DownloadManager downloadManager,
-            CacheManager cacheManager,
-            Console console
+            CacheManager cacheManager
     ) {
         this.config = config;
         this.logger = logger;
         this.server = server;
-        this.groupManager = groupManager;
-        this.factory = new ServiceFactory(config, logger, server, screenManager, templateManager, eventBus, this, console, downloadManager, cacheManager);
+
+        final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager);
+
+        this.launcher = new ServiceLauncher(this, groupManager, factory, config, server);
 
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
         server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus));
@@ -87,76 +81,26 @@ public class ServiceManagerImpl implements ServiceManager {
         ));
     }
 
-    public Service startServiceInternal(String groupName, String requestId) {
-        final ServiceGroup group = groupManager.getServiceGroup(groupName);
-        if (group == null) {
-            return null;
-        }
-
-        final int serviceId = getFreeServiceId(group);
-        final int port = getServicePort(group);
-
-        final AbstractService service = factory.create(ServiceType.LOCAL, serviceId, port, group);
-
-        services.add(service);
-
-        server.generateBroadcast().broadcast(new ServiceAddPacket(
-                service.getName(),
-                service.getServiceId(),
-                service.getPort(),
-                service.getStartTimestamp(),
-                service.getGroup().getName(),
-                service.getPropertyMap(),
-                service.getStatus().name(),
-                service.getMaxPlayers(),
-                requestId
-        ));
-
-        service.start();
-
-        return service;
-    }
-
     @Override
     public void startService(String groupName) {
-        startServiceInternal(groupName, null);
+        launcher.start(groupName, null);
     }
 
     @Override
     public CompletableFuture<Service> startServiceAsync(String groupName) {
-        final Service service = startServiceInternal(groupName, null);
-        return CompletableFuture.completedFuture(service);
+        return CompletableFuture.completedFuture(launcher.start(groupName, null));
+    }
+
+    public void startServiceInternal(String groupName, String requestId) {
+        launcher.start(groupName, requestId);
+    }
+
+    public void addService(Service service) {
+        services.add(service);
     }
 
     public void removeService(Service service) {
         services.remove(service);
-    }
-
-    private int getFreeServiceId(ServiceGroup group) {
-        final Set<Integer> usedIds = services.stream()
-                .filter(service -> service.getServiceGroup().equals(group))
-                .map(Service::getServiceId)
-                .collect(Collectors.toSet());
-
-        int id = 1;
-        while (usedIds.contains(id)) {
-            id++;
-        }
-        return id;
-    }
-
-    private int getServicePort(ServiceGroup group) {
-        int port = group.getPlatform().isProxy() ? config.getProxyStartPort() : config.getServiceStartPort();
-
-        final Set<Integer> usedPorts = services.stream()
-                .map(Service::getPort)
-                .collect(Collectors.toSet());
-
-        while (usedPorts.contains(port) || !NetworkUtils.isPortFree(port)) {
-            port++;
-        }
-
-        return port;
     }
 
     public boolean hasEnoughMemory(ServiceGroup group) {

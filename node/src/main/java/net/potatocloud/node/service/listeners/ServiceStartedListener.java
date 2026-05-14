@@ -13,8 +13,8 @@ import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceStartedPacket;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.service.AbstractService;
-import net.potatocloud.node.service.ServiceMemoryUpdateTask;
-import net.potatocloud.node.service.ServiceProcessChecker;
+import net.potatocloud.node.service.runtime.ServiceMemoryUpdateTask;
+import net.potatocloud.node.service.runtime.ServiceProcessChecker;
 
 @RequiredArgsConstructor
 public class ServiceStartedListener implements PacketListener<ServiceStartedPacket> {

@@ -1,8 +1,7 @@
 package net.potatocloud.api.platform;
 
-import net.potatocloud.api.service.Service;
-
 import java.nio.file.Path;
+import java.util.Map;
 
 public interface PrepareStep {
 
@@ -16,10 +15,17 @@ public interface PrepareStep {
     /**
      * Executes the prepare step
      *
-     * @param service         the service to execute the prepare step on
+     * @param serviceName     the name from the service to execute the prepare step on
      * @param platform        the platform to execute the prepare step on
      * @param serverDirectory the directory of the server
      */
-    void execute(Service service, Platform platform, Path serverDirectory);
+    void execute(String serviceName, Platform platform, Path serverDirectory);
+
+    /**
+     * Gets the data of the prepare step
+     *
+     * @return the data of the prepare step
+     */
+    Map<String, Object> data();
 
 }
