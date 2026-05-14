@@ -7,8 +7,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.NetworkConnection;
 import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.core.networking.netty.NettyUtils;
@@ -21,8 +19,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Getter
-@RequiredArgsConstructor
 public class NettyNetworkServer implements NetworkServer {
 
     private final PacketManager packetManager;
@@ -32,6 +28,10 @@ public class NettyNetworkServer implements NetworkServer {
     private EventLoopGroup workerGroup;
     private Channel channel;
     private int port;
+
+    public NettyNetworkServer(PacketManager packetManager) {
+        this.packetManager = packetManager;
+    }
 
     @Override
     public void start(String hostname, int port) {
@@ -63,6 +63,20 @@ public class NettyNetworkServer implements NetworkServer {
     @Override
     public boolean isRunning() {
         return channel != null && channel.isActive();
+    }
+
+    @Override
+    public List<NetworkConnection> getConnectedSessions() {
+        return connectedSessions;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
+    }
+
+    public PacketManager packetManager() {
+        return packetManager;
     }
 
     @Override

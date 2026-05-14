@@ -1,16 +1,18 @@
 package net.potatocloud.core.networking;
 
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.packet.Packet;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-@RequiredArgsConstructor
 public class Broadcast {
 
     private final NetworkServer server;
+
+    public Broadcast(NetworkServer server) {
+        this.server = server;
+    }
 
     private final Set<NetworkConnection> excludeConnections = new HashSet<>();
     private Predicate<NetworkConnection> filter = null;

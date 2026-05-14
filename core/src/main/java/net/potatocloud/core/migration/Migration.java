@@ -1,7 +1,5 @@
 package net.potatocloud.core.migration;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.utils.version.Version;
 
 import java.nio.file.Files;
@@ -9,8 +7,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Getter
-@RequiredArgsConstructor
 public abstract class Migration {
 
     private static final Path BACKUPS_DIRECTORY = Path.of("backups");
@@ -18,6 +14,24 @@ public abstract class Migration {
     private final String name;
     private final Version from;
     private final Version to;
+
+    public Migration(String name, Version from, Version to) {
+        this.name = name;
+        this.from = from;
+        this.to = to;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public Version from() {
+        return from;
+    }
+
+    public Version to() {
+        return to;
+    }
 
     public abstract void execute();
 

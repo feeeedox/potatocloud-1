@@ -1,24 +1,33 @@
 package net.potatocloud.core.networking.netty;
 
 import io.netty.channel.Channel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.NetworkConnection;
 import net.potatocloud.core.networking.packet.Packet;
 
 import java.util.UUID;
 
-@Getter
-@RequiredArgsConstructor
 public class NettyNetworkConnection implements NetworkConnection {
 
     private final UUID id = UUID.randomUUID();
 
     private final Channel channel;
 
+    public NettyNetworkConnection(Channel channel) {
+        this.channel = channel;
+    }
+
     @Override
     public void send(Packet packet) {
         channel.writeAndFlush(packet);
+    }
+
+    public Channel channel() {
+        return channel;
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
     }
 
     @Override

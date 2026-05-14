@@ -7,8 +7,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.ConnectionListener;
 import net.potatocloud.core.networking.NetworkClient;
 import net.potatocloud.core.networking.NetworkConnection;
@@ -25,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Getter
-@RequiredArgsConstructor
 public class NettyNetworkClient implements NetworkClient {
 
     private final PacketManager packetManager;
@@ -34,6 +30,10 @@ public class NettyNetworkClient implements NetworkClient {
     private EventLoopGroup group;
     private NetworkConnection connection;
     private final List<ConnectionListener> listeners = new ArrayList<>();
+
+    public NettyNetworkClient(PacketManager packetManager) {
+        this.packetManager = packetManager;
+    }
 
     @Override
     public void connect(String host, int port) {
@@ -85,6 +85,14 @@ public class NettyNetworkClient implements NetworkClient {
     @Override
     public <T extends ResponsePacket> CompletableFuture<T> request(RequestPacket packet, Class<T> type) {
         return packetManager.request(connection, packet, type);
+    }
+
+    public NetworkConnection connection() {
+        return connection;
+    }
+
+    public PacketManager packetManager() {
+        return packetManager;
     }
 
     @Override

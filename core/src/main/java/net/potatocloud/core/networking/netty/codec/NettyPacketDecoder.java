@@ -3,7 +3,6 @@ package net.potatocloud.core.networking.netty.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.core.networking.netty.PacketBuffer;
 import net.potatocloud.core.networking.packet.Packet;
 import net.potatocloud.core.networking.packet.PacketManager;
@@ -13,10 +12,13 @@ import net.potatocloud.core.networking.packet.request.ResponsePacket;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 public class NettyPacketDecoder extends ByteToMessageDecoder {
 
     private final PacketManager packetManager;
+
+    public NettyPacketDecoder(PacketManager packetManager) {
+        this.packetManager = packetManager;
+    }
 
     private static final int MAX_PACKET_SIZE = 65536;
 

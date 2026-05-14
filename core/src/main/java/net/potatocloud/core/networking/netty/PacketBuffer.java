@@ -1,7 +1,6 @@
 package net.potatocloud.core.networking.netty;
 
 import io.netty.buffer.ByteBuf;
-import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
@@ -14,10 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class PacketBuffer {
 
     private final ByteBuf buf;
+
+    public PacketBuffer(ByteBuf buf) {
+        this.buf = buf;
+    }
 
     public void writeString(String string) {
         if (string == null) {
