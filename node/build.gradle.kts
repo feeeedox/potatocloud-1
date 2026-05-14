@@ -11,7 +11,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":core"))
     implementation(project(":api"))
     implementation(project(":connector"))
     implementation(project(":common"))

@@ -13,7 +13,6 @@ repositories {
 dependencies {
     implementation(project(":api"))
     implementation(project(":connector"))
-    implementation(project(":core"))
     implementation(project(":common"))
     implementation(project(":network"))
     implementation(project(":eventbus"))

@@ -2,7 +2,6 @@ rootProject.name = "potatocloud"
 include("api")
 include("connector")
 include("node")
-include("core")
 include("server-plugins")
 include("server-plugins:cloudcommand")
 include("server-plugins:hub")
