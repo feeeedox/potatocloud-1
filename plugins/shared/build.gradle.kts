@@ -1,5 +1,3 @@
-group = "net.potatocloud.plugin.server.shared"
-
 repositories {
     maven("https://jitpack.io")
 }

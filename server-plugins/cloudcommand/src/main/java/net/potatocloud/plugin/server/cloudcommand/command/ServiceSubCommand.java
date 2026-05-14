@@ -9,7 +9,7 @@ import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.common.PropertyUtil;
-import net.potatocloud.plugin.server.shared.MessagesConfig;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.ArrayList;
 import java.util.List;

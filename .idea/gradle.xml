@@ -21,13 +21,14 @@
             <option value="$PROJECT_DIR$/platform-plugins/spigot" />
             <option value="$PROJECT_DIR$/platform-plugins/spigot-legacy" />
             <option value="$PROJECT_DIR$/platform-plugins/velocity" />
+            <option value="$PROJECT_DIR$/plugins" />
+            <option value="$PROJECT_DIR$/plugins/shared" />
             <option value="$PROJECT_DIR$/server-plugins" />
             <option value="$PROJECT_DIR$/server-plugins/cloudcommand" />
             <option value="$PROJECT_DIR$/server-plugins/hub" />
             <option value="$PROJECT_DIR$/server-plugins/labymod" />
             <option value="$PROJECT_DIR$/server-plugins/notify" />
             <option value="$PROJECT_DIR$/server-plugins/proxy" />
-            <option value="$PROJECT_DIR$/server-plugins/shared" />
           </set>
         </option>
       </GradleProjectSettings>

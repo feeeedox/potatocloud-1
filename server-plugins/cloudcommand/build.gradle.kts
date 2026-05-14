@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     compileOnly(project(":api"))
-    implementation(project(":server-plugins:shared"))
+    implementation(project(":plugins:shared"))
     implementation(project(":common"))
     implementation(libs.simpleyaml)
     implementation(libs.lombok)

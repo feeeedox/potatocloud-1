@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     compileOnly(project(":api"))
-    implementation(project(":server-plugins:shared"))
+    implementation(project(":plugins:shared"))
     implementation(libs.simpleyaml)
     implementation(libs.labymod.common)
     implementation(libs.labymod.bukkit)

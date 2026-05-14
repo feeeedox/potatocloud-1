@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.shared;
+package net.potatocloud.plugins.shared;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

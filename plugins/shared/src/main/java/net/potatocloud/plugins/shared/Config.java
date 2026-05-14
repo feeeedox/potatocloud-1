@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.shared;
+package net.potatocloud.plugins.shared;
 
 import net.potatocloud.common.ResourceFileUtils;
 import org.simpleyaml.configuration.file.YamlFile;
