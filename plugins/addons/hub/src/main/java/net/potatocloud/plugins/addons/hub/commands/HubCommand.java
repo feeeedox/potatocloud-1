@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.hub.commands;
+package net.potatocloud.plugins.addons.hub.commands;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;

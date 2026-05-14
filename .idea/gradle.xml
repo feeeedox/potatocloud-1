@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/plugins" />
             <option value="$PROJECT_DIR$/plugins/addons" />
             <option value="$PROJECT_DIR$/plugins/addons/cloudcommand" />
+            <option value="$PROJECT_DIR$/plugins/addons/hub" />
             <option value="$PROJECT_DIR$/plugins/platform" />
             <option value="$PROJECT_DIR$/plugins/platform/limbo" />
             <option value="$PROJECT_DIR$/plugins/platform/spigot" />
