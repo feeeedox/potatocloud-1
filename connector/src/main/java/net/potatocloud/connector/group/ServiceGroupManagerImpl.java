@@ -7,11 +7,11 @@ import net.potatocloud.api.property.Property;
 import net.potatocloud.connector.group.listeners.GroupAddListener;
 import net.potatocloud.connector.group.listeners.GroupDeleteListener;
 import net.potatocloud.connector.group.listeners.GroupUpdateListener;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.group.GroupAddPacket;
-import net.potatocloud.core.networking.packet.packets.group.GroupDeletePacket;
-import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
-import net.potatocloud.core.networking.packet.packets.group.RequestGroupsPacket;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.group.GroupAddPacket;
+import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
+import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
+import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 
 import java.util.ArrayList;
 import java.util.Collections;

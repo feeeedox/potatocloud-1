@@ -5,9 +5,9 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.common.PropertyUtil;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 
 @RequiredArgsConstructor
 public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {

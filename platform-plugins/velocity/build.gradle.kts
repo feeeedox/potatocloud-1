@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":connector"))
     implementation(project(":core"))
     implementation(project(":common"))
+    implementation(project(":network"))
 
     compileOnly(libs.velocity)
 }

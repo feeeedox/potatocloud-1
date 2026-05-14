@@ -2,8 +2,8 @@ package net.potatocloud.connector.logging;
 
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.logging.LogMessagePacket;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.logging.LogMessagePacket;
 
 @RequiredArgsConstructor
 public class ConnectorLogger implements Logger {

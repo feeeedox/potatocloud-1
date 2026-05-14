@@ -3,9 +3,9 @@ package net.potatocloud.node.service.listeners;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.service.ServiceCopyPacket;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.service.ServiceCopyPacket;
 
 @RequiredArgsConstructor
 public class ServiceCopyListener implements PacketListener<ServiceCopyPacket> {

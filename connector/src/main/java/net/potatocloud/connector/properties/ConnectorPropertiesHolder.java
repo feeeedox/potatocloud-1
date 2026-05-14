@@ -3,10 +3,10 @@ package net.potatocloud.connector.properties;
 import lombok.Getter;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.property.PropertyHolder;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.property.PropertyAddPacket;
-import net.potatocloud.core.networking.packet.packets.property.PropertyUpdatePacket;
-import net.potatocloud.core.networking.packet.packets.property.RequestPropertiesPacket;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.property.PropertyAddPacket;
+import net.potatocloud.network.packet.packets.property.PropertyUpdatePacket;
+import net.potatocloud.network.packet.packets.property.RequestPropertiesPacket;
 
 import java.util.HashMap;
 import java.util.Map;

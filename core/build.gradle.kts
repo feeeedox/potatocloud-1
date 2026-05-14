@@ -3,9 +3,7 @@ group = "net.potatocloud.core"
 dependencies {
     implementation(project(":api"))
     implementation(project(":common"))
-
-    implementation(libs.netty.handler)
-    implementation(libs.netty.epoll)
+    implementation(project(":network"))
 
     // TODO
     implementation("tools.jackson.core:jackson-core:3.1.3")

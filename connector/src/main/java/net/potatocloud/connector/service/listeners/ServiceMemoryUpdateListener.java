@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.connector.service.ServiceImpl;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.service.ServiceMemoryUpdatePacket;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.service.ServiceMemoryUpdatePacket;
 
 @RequiredArgsConstructor
 public class ServiceMemoryUpdateListener implements PacketListener<ServiceMemoryUpdatePacket> {

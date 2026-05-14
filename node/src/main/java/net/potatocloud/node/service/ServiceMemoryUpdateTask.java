@@ -1,8 +1,8 @@
 package net.potatocloud.node.service;
 
 import net.potatocloud.api.service.Service;
-import net.potatocloud.core.networking.NetworkServer;
-import net.potatocloud.core.networking.packet.packets.service.ServiceMemoryUpdatePacket;
+import net.potatocloud.network.NetworkServer;
+import net.potatocloud.network.packet.packets.service.ServiceMemoryUpdatePacket;
 
 public class ServiceMemoryUpdateTask {
 

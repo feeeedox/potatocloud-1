@@ -3,9 +3,9 @@ package net.potatocloud.connector.player.listeners;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.connector.player.CloudPlayerManagerImpl;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.player.CloudPlayerRemovePacket;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
 
 @RequiredArgsConstructor
 public class CloudPlayerRemoveListener implements PacketListener<CloudPlayerRemovePacket> {

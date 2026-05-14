@@ -4,8 +4,8 @@ import net.potatocloud.api.event.Event;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.EventHandler;
 import net.potatocloud.api.event.PublishTarget;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.event.EventPacket;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.event.EventPacket;
 
 public final class ClientEventBus implements EventBus {
 

@@ -1,0 +1,21 @@
+package net.potatocloud.network;
+
+import net.potatocloud.network.packet.Packet;
+import net.potatocloud.network.packet.request.RequestPacket;
+import net.potatocloud.network.packet.request.ResponsePacket;
+
+import java.util.concurrent.CompletableFuture;
+
+public interface NetworkClient extends NetworkComponent {
+
+    void connect(String host, int port);
+
+    void send(Packet packet);
+
+    void close();
+
+    void addConnectionListener(ConnectionListener listener);
+
+    <T extends ResponsePacket> CompletableFuture<T> request(RequestPacket packet, Class<T> type);
+
+}

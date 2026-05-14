@@ -6,8 +6,8 @@ import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.connector.service.listeners.ServiceAddListener;
 import net.potatocloud.connector.service.listeners.ServiceMemoryUpdateListener;
 import net.potatocloud.connector.service.listeners.ServiceUpdateListener;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.service.*;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.service.*;
 
 import java.util.Collections;
 import java.util.List;

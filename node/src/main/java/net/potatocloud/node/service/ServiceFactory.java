@@ -4,7 +4,7 @@ import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.core.networking.NetworkServer;
+import net.potatocloud.network.NetworkServer;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.platform.DownloadManager;

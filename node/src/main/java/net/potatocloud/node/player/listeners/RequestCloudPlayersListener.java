@@ -3,10 +3,10 @@ package net.potatocloud.node.player.listeners;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.player.CloudPlayerAddPacket;
-import net.potatocloud.core.networking.packet.packets.player.RequestCloudPlayersPacket;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.player.CloudPlayerAddPacket;
+import net.potatocloud.network.packet.packets.player.RequestCloudPlayersPacket;
 
 @RequiredArgsConstructor
 public class RequestCloudPlayersListener implements PacketListener<RequestCloudPlayersPacket> {

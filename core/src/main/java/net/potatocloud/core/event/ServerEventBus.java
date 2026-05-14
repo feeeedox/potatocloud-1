@@ -4,7 +4,7 @@ import net.potatocloud.api.event.Event;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.EventHandler;
 import net.potatocloud.api.event.PublishTarget;
-import net.potatocloud.core.networking.NetworkServer;
+import net.potatocloud.network.NetworkServer;
 
 public class ServerEventBus implements EventBus {
 

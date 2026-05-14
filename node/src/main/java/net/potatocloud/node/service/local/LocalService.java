@@ -8,7 +8,7 @@ import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.PrepareStep;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.common.FileUtils;
-import net.potatocloud.core.networking.NetworkServer;
+import net.potatocloud.network.NetworkServer;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.platform.DownloadManager;

@@ -5,10 +5,10 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.common.PropertyUtil;
-import net.potatocloud.core.networking.NetworkServer;
-import net.potatocloud.core.networking.packet.PacketContext;
-import net.potatocloud.core.networking.packet.PacketListener;
-import net.potatocloud.core.networking.packet.packets.group.GroupUpdatePacket;
+import net.potatocloud.network.NetworkServer;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.group.ServiceGroupStorage;
 

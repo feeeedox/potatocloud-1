@@ -4,11 +4,11 @@ import lombok.Getter;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.platform.impl.PlatformImpl;
-import net.potatocloud.core.networking.NetworkClient;
-import net.potatocloud.core.networking.packet.packets.platform.PlatformAddPacket;
-import net.potatocloud.core.networking.packet.packets.platform.PlatformRemovePacket;
-import net.potatocloud.core.networking.packet.packets.platform.PlatformUpdatePacket;
-import net.potatocloud.core.networking.packet.packets.platform.RequestPlatformsPacket;
+import net.potatocloud.network.NetworkClient;
+import net.potatocloud.network.packet.packets.platform.PlatformAddPacket;
+import net.potatocloud.network.packet.packets.platform.PlatformRemovePacket;
+import net.potatocloud.network.packet.packets.platform.PlatformUpdatePacket;
+import net.potatocloud.network.packet.packets.platform.RequestPlatformsPacket;
 
 import java.util.ArrayList;
 import java.util.List;
