@@ -1,4 +1,4 @@
-package net.potatocloud.core.event;
+package net.potatocloud.eventbus;
 
 import net.potatocloud.api.event.Event;
 import net.potatocloud.api.event.EventBus;

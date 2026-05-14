@@ -13,7 +13,7 @@ import net.potatocloud.connector.platform.PlatformManagerImpl;
 import net.potatocloud.connector.player.CloudPlayerManagerImpl;
 import net.potatocloud.connector.properties.ConnectorPropertiesHolder;
 import net.potatocloud.connector.service.ServiceManagerImpl;
-import net.potatocloud.core.event.ClientEventBus;
+import net.potatocloud.eventbus.ClientEventBus;
 import net.potatocloud.network.NetworkClient;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
 import net.potatocloud.network.packet.PacketManager;

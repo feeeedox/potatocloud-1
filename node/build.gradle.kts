@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":connector"))
     implementation(project(":common"))
     implementation(project(":network"))
+    implementation(project(":eventbus"))
 
     implementation(libs.commons.codec)
 

@@ -10,7 +10,7 @@ import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.common.FileUtils;
-import net.potatocloud.core.event.ServerEventBus;
+import net.potatocloud.eventbus.ServerEventBus;
 import net.potatocloud.node.migration.MigrationManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.server.NettyNetworkServer;

@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":common"))
     implementation(project(":network"))
+    implementation(project(":eventbus"))
 
     compileOnly(libs.velocity)
 }
