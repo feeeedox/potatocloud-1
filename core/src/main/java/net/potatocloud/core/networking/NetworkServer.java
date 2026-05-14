@@ -8,11 +8,11 @@ public interface NetworkServer extends NetworkComponent {
 
     void start(String hostname, int port);
 
-    boolean isRunning();
+    boolean running();
 
-    List<NetworkConnection> getConnectedSessions();
+    List<NetworkConnection> connectedSessions();
 
-    int getPort();
+    int port();
 
     void send(NetworkConnection client, Packet packet);
 

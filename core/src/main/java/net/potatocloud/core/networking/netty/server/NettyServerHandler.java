@@ -28,19 +28,19 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        server.getConnectedSessions().add(new NettyNetworkConnection(ctx.channel()));
+        server.connectedSessions().add(new NettyNetworkConnection(ctx.channel()));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        server.getConnectedSessions().removeIf(session -> ((NettyNetworkConnection) session).channel().equals(ctx.channel()));
+        server.connectedSessions().removeIf(session -> ((NettyNetworkConnection) session).channel().equals(ctx.channel()));
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Packet packet) {
             // Find the session the packet was sent to and handle it
-            server.getConnectedSessions().stream()
+            server.connectedSessions().stream()
                     .filter(conn -> conn instanceof NettyNetworkConnection nettyConn && nettyConn.channel().equals(ctx.channel()))
                     .findFirst()
                     .ifPresent(connection -> packetManager.dispatch(connection, packet));

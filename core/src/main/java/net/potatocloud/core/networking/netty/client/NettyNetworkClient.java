@@ -94,9 +94,4 @@ public class NettyNetworkClient implements NetworkClient {
     public PacketManager packetManager() {
         return packetManager;
     }
-
-    @Override
-    public boolean isConnected() {
-        return channel != null && channel.isActive();
-    }
 }

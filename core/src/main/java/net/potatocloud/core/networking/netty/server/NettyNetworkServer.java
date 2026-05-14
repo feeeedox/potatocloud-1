@@ -61,17 +61,17 @@ public class NettyNetworkServer implements NetworkServer {
     }
 
     @Override
-    public boolean isRunning() {
+    public boolean running() {
         return channel != null && channel.isActive();
     }
 
     @Override
-    public List<NetworkConnection> getConnectedSessions() {
+    public List<NetworkConnection> connectedSessions() {
         return connectedSessions;
     }
 
     @Override
-    public int getPort() {
+    public int port() {
         return port;
     }
 

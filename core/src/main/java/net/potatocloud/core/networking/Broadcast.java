@@ -28,7 +28,7 @@ public class Broadcast {
     }
 
     public void broadcast(Packet packet) {
-        server.getConnectedSessions().forEach(connection -> {
+        server.connectedSessions().forEach(connection -> {
             if (excludeConnections.contains(connection)) {
                 return;
             }
