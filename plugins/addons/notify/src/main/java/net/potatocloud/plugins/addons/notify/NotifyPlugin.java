@@ -1,4 +1,4 @@
-package net.potatocloud.plugin.server.notify;
+package net.potatocloud.plugins.addons.notify;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
