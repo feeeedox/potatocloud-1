@@ -2,6 +2,7 @@ package net.potatocloud.connector.player;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.event.PublishTarget;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.connector.event.ConnectPlayerWithServiceEvent;
@@ -98,7 +99,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     @Override
     public void connectPlayerWithService(String playerName, String serviceName) {
-        CloudAPI.getInstance().getEventManager().call(new ConnectPlayerWithServiceEvent(playerName, serviceName));
+        CloudAPI.getInstance().getEventBus().publish(new ConnectPlayerWithServiceEvent(playerName, serviceName), PublishTarget.LOCAL);
     }
 
     @Override

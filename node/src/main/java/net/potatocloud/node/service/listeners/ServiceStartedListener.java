@@ -1,7 +1,7 @@
 package net.potatocloud.node.service.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.Service;
@@ -21,7 +21,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
 
     private final ServiceManager serviceManager;
     private final Logger logger;
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
     @Override
     public void handle(PacketContext<ServiceStartedPacket> ctx) {
@@ -38,7 +38,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
         service.setStatus(ServiceStatus.RUNNING);
         service.update();
 
-        eventManager.call(new ServiceStartedEvent(packet.serviceName()));
+        eventBus.publish(new ServiceStartedEvent(packet.serviceName()));
 
         if (service instanceof AbstractService abstractService) {
             abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));

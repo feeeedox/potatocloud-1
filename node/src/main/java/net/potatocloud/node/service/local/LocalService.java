@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.local;
 
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
@@ -50,7 +50,7 @@ public class LocalService extends AbstractService {
             NetworkServer server,
             ScreenManager screenManager,
             TemplateManager templateManager,
-            EventManager eventManager,
+            EventBus eventBus,
             ServiceManager serviceManager,
             Console console,
             DownloadManager downloadManager,
@@ -64,7 +64,7 @@ public class LocalService extends AbstractService {
                 server,
                 screenManager,
                 templateManager,
-                eventManager,
+                eventBus,
                 serviceManager,
                 console
         );

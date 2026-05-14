@@ -1,6 +1,6 @@
 package net.potatocloud.node.service;
 
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
@@ -20,7 +20,7 @@ public class ServiceFactory {
     private final NetworkServer server;
     private final ScreenManager screenManager;
     private final TemplateManager templateManager;
-    private final EventManager eventManager;
+    private final EventBus eventBus;
     private final ServiceManager serviceManager;
     private final Console console;
     private final DownloadManager downloadManager;
@@ -32,7 +32,7 @@ public class ServiceFactory {
             NetworkServer server,
             ScreenManager screenManager,
             TemplateManager templateManager,
-            EventManager eventManager,
+            EventBus eventBus,
             ServiceManager serviceManager,
             Console console,
             DownloadManager downloadManager,
@@ -43,7 +43,7 @@ public class ServiceFactory {
         this.server = server;
         this.screenManager = screenManager;
         this.templateManager = templateManager;
-        this.eventManager = eventManager;
+        this.eventBus = eventBus;
         this.serviceManager = serviceManager;
         this.console = console;
         this.downloadManager = downloadManager;
@@ -68,7 +68,7 @@ public class ServiceFactory {
                     server,
                     screenManager,
                     templateManager,
-                    eventManager,
+                    eventBus,
                     serviceManager,
                     console,
                     downloadManager,

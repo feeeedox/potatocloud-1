@@ -6,5 +6,8 @@ dependencies {
 
     implementation(libs.netty.handler)
     implementation(libs.netty.epoll)
-    implementation(libs.gson)
+
+    // TODO
+    implementation("tools.jackson.core:jackson-core:3.1.3")
+    implementation("tools.jackson.core:jackson-databind:3.1.3")
 }

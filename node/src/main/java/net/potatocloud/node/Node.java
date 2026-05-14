@@ -2,7 +2,7 @@ package net.potatocloud.node;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.player.CloudPlayerManager;
@@ -10,7 +10,7 @@ import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.common.FileUtils;
-import net.potatocloud.core.event.ServerEventManager;
+import net.potatocloud.core.event.ServerEventBus;
 import net.potatocloud.core.migration.MigrationManager;
 import net.potatocloud.core.networking.NetworkServer;
 import net.potatocloud.core.networking.netty.server.NettyNetworkServer;
@@ -61,7 +61,7 @@ public class Node extends CloudAPI {
     private final MigrationManager migrationManager;
     private final PacketManager packetManager;
     private final NetworkServer server;
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
     private final NodePropertiesHolder propertiesHolder;
     private final CloudPlayerManager playerManager;
@@ -138,7 +138,7 @@ public class Node extends CloudAPI {
         // Handle logs from Connector
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
 
-        eventManager = new ServerEventManager(server);
+        eventBus = new ServerEventBus(server);
         propertiesHolder = new NodePropertiesHolder(server);
         playerManager = new CloudPlayerManagerImpl(server);
         templateManager = new TemplateManager(logger, Path.of(config.getTemplatesFolder()));
@@ -165,9 +165,9 @@ public class Node extends CloudAPI {
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.getDataFolder()));
         serviceManager = new ServiceManagerImpl(
-                config, logger, server, eventManager, groupManager, screenManager, templateManager, platformManager, downloadManager, cacheManager, console
+                config, logger, server, eventBus, groupManager, screenManager, templateManager, platformManager, downloadManager, cacheManager, console
         );
-        serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventManager);
+        serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
 
         moduleManager = new ModuleManager();
         moduleLoader = new ModuleLoader(moduleManager);

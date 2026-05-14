@@ -13,7 +13,7 @@ import net.potatocloud.connector.platform.PlatformManagerImpl;
 import net.potatocloud.connector.player.CloudPlayerManagerImpl;
 import net.potatocloud.connector.properties.ConnectorPropertiesHolder;
 import net.potatocloud.connector.service.ServiceManagerImpl;
-import net.potatocloud.core.event.ClientEventManager;
+import net.potatocloud.core.event.ClientEventBus;
 import net.potatocloud.core.networking.NetworkClient;
 import net.potatocloud.core.networking.netty.client.NettyNetworkClient;
 import net.potatocloud.core.networking.packet.PacketManager;
@@ -30,7 +30,7 @@ public class ConnectorAPI extends CloudAPI {
     private final PacketManager packetManager;
     private final NetworkClient client;
     private ConnectorLogger logger;
-    private ClientEventManager eventManager;
+    private ClientEventBus eventBus;
     private ConnectorPropertiesHolder propertiesHolder;
     private ServiceGroupManager groupManager;
     private ServiceManager serviceManager;
@@ -44,7 +44,7 @@ public class ConnectorAPI extends CloudAPI {
 
         client.addConnectionListener(() -> {
             logger = new ConnectorLogger(client);
-            eventManager = new ClientEventManager(client);
+            eventBus = new ClientEventBus(client);
             propertiesHolder = new ConnectorPropertiesHolder(client);
             platformManager = new PlatformManagerImpl(client);
             groupManager = new ServiceGroupManagerImpl(client);

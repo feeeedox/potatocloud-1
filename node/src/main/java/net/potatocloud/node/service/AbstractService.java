@@ -2,7 +2,7 @@ package net.potatocloud.node.service;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
@@ -52,7 +52,7 @@ public abstract class AbstractService implements Service {
     private long startTimestamp;
 
     private final NetworkServer server;
-    private final EventManager eventManager;
+    private final EventBus eventBus;
     private final ServiceManager serviceManager;
     private final Console console;
 
@@ -77,7 +77,7 @@ public abstract class AbstractService implements Service {
             NetworkServer server,
             ScreenManager screenManager,
             TemplateManager templateManager,
-            EventManager eventManager,
+            EventBus eventBus,
             ServiceManager serviceManager,
             Console console
     ) {
@@ -88,7 +88,7 @@ public abstract class AbstractService implements Service {
         this.logger = logger;
 
         this.server = server;
-        this.eventManager = eventManager;
+        this.eventBus = eventBus;
         this.serviceManager = serviceManager;
         this.console = console;
         this.screenManager = screenManager;
@@ -126,7 +126,7 @@ public abstract class AbstractService implements Service {
         startProcess();
 
         logger.info("Service &a" + name + "&7 is now starting&8... &8[&7Port&8: &a" + port + "&8, &7Group&8: &a" + group.getName() + "&8]");
-        eventManager.call(new PreparedServiceStartingEvent(name));
+        eventBus.publish(new PreparedServiceStartingEvent(name));
     }
 
     @Override
@@ -138,7 +138,7 @@ public abstract class AbstractService implements Service {
         status = ServiceStatus.STOPPING;
 
         logger.info("Service &a" + name + "&7 is now stopping&8...");
-        eventManager.call(new ServiceStoppingEvent(name));
+        eventBus.publish(new ServiceStoppingEvent(name));
 
         return CompletableFuture.runAsync(() -> {
             stopProcess();
@@ -152,7 +152,7 @@ public abstract class AbstractService implements Service {
 
             if (server != null) {
                 server.generateBroadcast().broadcast(new ServiceRemovePacket(name, getPort()));
-                eventManager.call(new ServiceStoppedEvent(name));
+                eventBus.publish(new ServiceStoppedEvent(name));
             }
 
             synchronized (this) {

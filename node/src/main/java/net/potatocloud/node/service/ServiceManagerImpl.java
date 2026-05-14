@@ -1,6 +1,6 @@
 package net.potatocloud.node.service;
 
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
@@ -40,7 +40,7 @@ public class ServiceManagerImpl implements ServiceManager {
             NodeConfig config,
             Logger logger,
             NetworkServer server,
-            EventManager eventManager,
+            EventBus eventBus,
             ServiceGroupManager groupManager,
             ScreenManager screenManager,
             TemplateManager templateManager,
@@ -53,10 +53,10 @@ public class ServiceManagerImpl implements ServiceManager {
         this.logger = logger;
         this.server = server;
         this.groupManager = groupManager;
-        this.factory = new ServiceFactory(config, logger, server, screenManager, templateManager, eventManager, this, console, downloadManager, cacheManager);
+        this.factory = new ServiceFactory(config, logger, server, screenManager, templateManager, eventBus, this, console, downloadManager, cacheManager);
 
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
-        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventManager));
+        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus));
         server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server));
         server.on(StartServicePacket.class, new StartServiceListener(this, groupManager));
         server.on(StopServicePacket.class, new StopServiceListener(this));

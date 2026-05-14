@@ -66,13 +66,13 @@ public class VelocityPlugin implements PlatformPlugin {
             registerServer(ser);
         }
 
-        api.getEventManager().on(ServiceStartedEvent.class, startedEvent -> {
-            final Service startedService = api.getServiceManager().getService(startedEvent.getServiceName());
+        api.getEventBus().subscribe(ServiceStartedEvent.class, startedEvent -> {
+            final Service startedService = api.getServiceManager().getService(startedEvent.serviceName());
             registerServer(startedService);
         });
 
-        api.getEventManager().on(ConnectPlayerWithServiceEvent.class, connectEvent -> {
-            connectPlayer(connectEvent.getPlayerUsername(), connectEvent.getServiceName());
+        api.getEventBus().subscribe(ConnectPlayerWithServiceEvent.class, connectEvent -> {
+            connectPlayer(connectEvent.playerUsername(), connectEvent.serviceName());
         });
 
         api.getClient().on(CloudPlayerConnectPacket.class, ctx -> {
@@ -144,7 +144,7 @@ public class VelocityPlugin implements PlatformPlugin {
         playerManager.registerPlayer(
                 new CloudPlayerImpl(event.getPlayer().getUsername(), event.getPlayer().getUniqueId(), currentService.getName()));
 
-        api.getEventManager().call(new CloudPlayerJoinEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
+        api.getEventBus().publish(new CloudPlayerJoinEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
     }
 
     @Subscribe
@@ -169,7 +169,7 @@ public class VelocityPlugin implements PlatformPlugin {
 
         if (player != null) {
             playerManager.unregisterPlayer(player);
-            api.getEventManager().call(new CloudPlayerDisconnectEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
+            api.getEventBus().publish(new CloudPlayerDisconnectEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
         }
     }
 

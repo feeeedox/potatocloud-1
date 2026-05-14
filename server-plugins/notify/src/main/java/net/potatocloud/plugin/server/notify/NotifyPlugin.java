@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
@@ -41,19 +41,19 @@ public class NotifyPlugin {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
-        final EventManager eventManager = cloudAPI.getEventManager();
+        final EventBus eventBus = cloudAPI.getEventBus();
 
         if (config.yaml().getBoolean("messages.enable-service-starting")) {
-            eventManager.on(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.getServiceName(), "service-starting", false));
+            eventBus.subscribe(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
         }
 
-        eventManager.on(ServiceStartedEvent.class, startedEvent -> sendMessage(startedEvent.getServiceName(), "service-started", true));
+        eventBus.subscribe(ServiceStartedEvent.class, startedEvent -> sendMessage(startedEvent.serviceName(), "service-started", true));
 
         if (config.yaml().getBoolean("messages.enable-service-stopping")) {
-            eventManager.on(ServiceStoppingEvent.class, stoppingEvent -> sendSimpleMessage("service-stopping", stoppingEvent.getServiceName()));
+            eventBus.subscribe(ServiceStoppingEvent.class, stoppingEvent -> sendSimpleMessage("service-stopping", stoppingEvent.serviceName()));
         }
 
-        eventManager.on(ServiceStoppedEvent.class, stoppedEvent -> sendSimpleMessage("service-stopped", stoppedEvent.getServiceName()));
+        eventBus.subscribe(ServiceStoppedEvent.class, stoppedEvent -> sendSimpleMessage("service-stopped", stoppedEvent.serviceName()));
     }
 
     private void sendMessage(String serviceName, String key, boolean clickEvent) {

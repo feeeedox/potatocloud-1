@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.start;
 
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.property.PropertyChangedEvent;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
@@ -33,7 +33,7 @@ public class ServiceStartScheduler {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventManager eventManager) {
+    public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
 
@@ -50,16 +50,16 @@ public class ServiceStartScheduler {
         );
 
         // Handle game state changes
-        eventManager.on(PropertyChangedEvent.class, event -> {
-            if (!event.getProperty().getName().equals(DefaultProperties.GAME_STATE.getName())) {
+        eventBus.subscribe(PropertyChangedEvent.class, event -> {
+            if (!event.property().getName().equals(DefaultProperties.GAME_STATE.getName())) {
                 return;
             }
 
-            if (event.getNewValue() == null || !event.getNewValue().equals("INGAME")) {
+            if (event.newValue() == null || !event.newValue().equals("INGAME")) {
                 return;
             }
 
-            final Service service = serviceManager.getService(event.getHolderName());
+            final Service service = serviceManager.getService(event.holderName());
             if (service == null) {
                 return;
             }

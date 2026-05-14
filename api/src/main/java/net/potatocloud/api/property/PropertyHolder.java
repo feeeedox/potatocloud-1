@@ -79,7 +79,7 @@ public interface PropertyHolder {
         }
 
         if (fireEvent) {
-            CloudAPI.getInstance().getEventManager().call(
+            CloudAPI.getInstance().getEventBus().publish(
                     new PropertyChangedEvent(getPropertyHolderName(), property, oldValue, value)
             );
         }

@@ -1,7 +1,7 @@
 package net.potatocloud.api;
 
 import lombok.Getter;
-import net.potatocloud.api.event.EventManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.PlatformManager;
@@ -57,11 +57,11 @@ public abstract class CloudAPI {
     public abstract PlatformManager getPlatformManager();
 
     /**
-     * Gets the event manager.
+     * Gets the event bus.
      *
-     * @return the event manager
+     * @return the event bus
      */
-    public abstract EventManager getEventManager();
+    public abstract EventBus getEventBus();
 
     /**
      * Gets the player manager.
