@@ -1,9 +1,9 @@
-package net.potatocloud.node.migration;
+package net.potatocloud.node.migration.migrations;
 
 import net.potatocloud.api.utils.version.Version;
-import net.potatocloud.core.migration.Migration;
-import net.potatocloud.core.migration.MigrationManager;
 import net.potatocloud.node.config.NodeConfig;
+import net.potatocloud.node.migration.Migration;
+import net.potatocloud.node.migration.MigrationManager;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.IOException;

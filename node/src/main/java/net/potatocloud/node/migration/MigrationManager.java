@@ -1,4 +1,4 @@
-package net.potatocloud.core.migration;
+package net.potatocloud.node.migration;
 
 import net.potatocloud.api.utils.version.Version;
 
