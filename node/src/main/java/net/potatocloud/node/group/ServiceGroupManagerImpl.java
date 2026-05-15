@@ -14,6 +14,7 @@ import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.group.config.ServiceGroupStorage;
 import net.potatocloud.node.group.listeners.GroupAddListener;
 import net.potatocloud.node.group.listeners.GroupDeleteListener;
 import net.potatocloud.node.group.listeners.GroupUpdateListener;
@@ -132,7 +133,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             Node.getInstance().getTemplateManager().createTemplate(templateName);
         }
 
-        ServiceGroupStorage.saveToFile(group, groupsPath);
+        ServiceGroupStorage.save(group, groupsPath);
         groups.add(group);
     }
 
@@ -158,7 +159,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
     @Override
     public void updateServiceGroup(ServiceGroup group) {
-        ServiceGroupStorage.saveToFile(group, groupsPath);
+        ServiceGroupStorage.save(group, groupsPath);
 
         server.generateBroadcast().broadcast(new GroupUpdatePacket(
                 group.getName(),
@@ -191,8 +192,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         FileUtils.list(groupsPath).stream()
                 .filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".yml"))
                 .map(Path::toFile)
-                .map(ServiceGroupStorage::loadFromFile)
-                .filter(Objects::nonNull)
+                .map(ServiceGroupStorage::load)
                 .forEach(groups::add);
     }
 }

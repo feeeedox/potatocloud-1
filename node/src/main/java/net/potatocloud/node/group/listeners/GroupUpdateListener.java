@@ -10,7 +10,7 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
-import net.potatocloud.node.group.ServiceGroupStorage;
+import net.potatocloud.node.group.config.ServiceGroupStorage;
 
 @RequiredArgsConstructor
 public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
@@ -48,7 +48,7 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
         }
 
         if (groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
-            ServiceGroupStorage.saveToFile(group, groupManagerImpl.getGroupsPath());
+            ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
         }
 
         server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
