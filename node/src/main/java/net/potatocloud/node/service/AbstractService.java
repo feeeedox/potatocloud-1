@@ -131,7 +131,10 @@ public abstract class AbstractService implements Service {
         eventBus.publish(new ServiceStoppingEvent(name));
 
         return CompletableFuture.runAsync(() -> {
-            processChecker.close();
+            if (processChecker != null) {
+                processChecker.close();
+            }
+
             runtime.stop();
 
             ((ServiceManagerImpl) serviceManager).removeService(this);
