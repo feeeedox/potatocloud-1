@@ -64,7 +64,7 @@ public class PlatformManagerImpl implements PlatformManager {
     public void updatePlatform(Platform platform) {
         server.generateBroadcast().broadcast(new PlatformUpdatePacket(platform));
 
-        fileHandler.updatePlatform(platform);
+        fileHandler.savePlatform(platform);
     }
 
     public void addPlatform(Platform platform) {
@@ -74,6 +74,6 @@ public class PlatformManagerImpl implements PlatformManager {
 
         platforms.add(platform);
 
-        fileHandler.addPlatform(platform);
+        fileHandler.savePlatform(platform);
     }
 }

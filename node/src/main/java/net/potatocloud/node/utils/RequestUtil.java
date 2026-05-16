@@ -1,8 +1,8 @@
 package net.potatocloud.node.utils;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.common.JacksonUtils;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -14,8 +14,6 @@ public final class RequestUtil {
     private RequestUtil() {
     }
 
-    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
-
     public static JsonNode request(String url) {
         try (HttpClient client = HttpClient.newHttpClient()) {
             final HttpRequest buildRequest = HttpRequest.newBuilder(URI.create(url))
@@ -24,7 +22,7 @@ public final class RequestUtil {
 
             final HttpResponse<String> buildResponse = client.send(buildRequest, HttpResponse.BodyHandlers.ofString());
 
-            return JSON_MAPPER.readTree(buildResponse.body());
+            return JacksonUtils.JSON_MAPPER.readTree(buildResponse.body());
         } catch (Exception e) {
             throw new RuntimeException("Failed to request: " + url, e);
         }

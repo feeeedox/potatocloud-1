@@ -1,114 +1,112 @@
-paper:
-  download: https://fill-data.papermc.io/v1/objects/{sha256}/paper-{version}-{build}.jar
-  base: paper
-  custom: false
-  proxy: false
-  parser: paper
-  hash-type: sha256
-  pre-cache: paper
-  prepare-steps:
-    - default-files
-    - eula
-    - port
-    - setup-proxy
-  versions:
-    - version: latest
-    - version: 26.1.2
-    - version: 26.1.1
-    - version: 1.21.11
-    - version: 1.21.10
-    - version: 1.21.9
-    - version: 1.21.8
-    - version: 1.21.7
-    - version: 1.21.6
-    - version: 1.21.5
-    - version: 1.21.4
-velocity:
-  download: https://fill-data.papermc.io/v1/objects/{sha256}/velocity-{version}-{build}.jar
-  base: velocity
-  custom: false
-  proxy: true
-  parser: velocity
-  hash-type: sha256
-  prepare-steps:
-    - default-files
-    - port
-    - setup-forwarding
-  versions:
-    - version: latest
-    - version: 3.5.0-SNAPSHOT
-    - version: 3.4.0
-    - version: 3.4.0-SNAPSHOT
-    - version: 3.3.0-SNAPSHOT
-purpur:
-  download: https://api.purpurmc.org/v2/purpur/{version}/{build}/download
-  base: paper
-  custom: false
-  proxy: false
-  parser: purpur
-  hash-type: md5
-  pre-cache: paper
-  prepare-steps:
-    - default-files
-    - eula
-    - port
-    - setup-proxy
-  versions:
-    - version: latest
-    - version: 26.1.2
-    - version: 1.21.11
-    - version: 1.21.10
-    - version: 1.21.9
-    - version: 1.21.8
-    - version: 1.21.7
-    - version: 1.21.6
-    - version: 1.21.5
-    - version: 1.21.4
-leaf:
-  download: https://api.leafmc.one/v2/projects/leaf/versions/{version}/builds/{build}/downloads/leaf-{version}-{build}.jar
-  base: paper
-  custom: false
-  proxy: false
-  parser: leaf
-  hash-type: sha256
-  pre-cache: paper
-  prepare-steps:
-    - default-files
-    - eula
-    - port
-    - setup-proxy
-  versions:
-    - version: latest
-    - version: 1.21.11
-    - version: 1.21.10
-    - version: 1.21.9
-    - version: 1.21.8
-    - version: 1.21.7
-    - version: 1.21.6
-    - version: 1.21.5
-    - version: 1.21.4
-pandaspigot:
-  base: bukkit
-  custom: false
-  proxy: false
-  prepare-steps:
-    - default-files
-    - eula
-    - port
-  versions:
-    - version: latest
-      download: https://downloads.hpfxd.com/v2/projects/pandaspigot/versions/1.8.8/builds/latest/downloads/paperclip
-      legacy: true
-limbo:
-  base: limbo
-  custom: false
-  proxy: false
-  prepare-steps:
-    - default-files
-    - port
-    - setup-proxy
-  versions:
-    - version: 26.1.2
-    - download: https://ci.loohpjames.com/job/Limbo/74/artifact/target/Limbo-2026.0.1-ALPHA-26.1.2.jar
-    - version: 1.21.11
-      download: https://ci.loohpjames.com/job/Limbo/71/artifact/target/Limbo-0.7.18-ALPHA-1.21.11.jar
+platforms:
+  paper:
+    base: paper
+    download:
+      url: https://fill-data.papermc.io/v1/objects/{sha256}/paper-{version}-{build}.jar
+      hash: sha256
+      parser: paper
+    processing:
+      cache-builder: paper
+    prepare-steps:
+      - default-files
+      - eula
+      - port
+      - setup-proxy
+    versions:
+      - version: latest
+      - version: 26.1.2
+      - version: 26.1.1
+      - version: 1.21.11
+      - version: 1.21.10
+      - version: 1.21.9
+      - version: 1.21.8
+      - version: 1.21.7
+      - version: 1.21.6
+      - version: 1.21.5
+      - version: 1.21.4
+  velocity:
+    base: velocity
+    download:
+      url: https://fill-data.papermc.io/v1/objects/{sha256}/velocity-{version}-{build}.jar
+      hash: sha256
+      parser: velocity
+    flags:
+      proxy: true
+    prepare-steps:
+      - default-files
+      - port
+      - setup-forwarding
+    versions:
+      - version: latest
+      - version: 3.5.0-SNAPSHOT
+      - version: 3.4.0
+      - version: 3.4.0-SNAPSHOT
+      - version: 3.3.0-SNAPSHOT
+  purpur:
+    base: paper
+    download:
+      url: https://api.purpurmc.org/v2/purpur/{version}/{build}/download
+      hash: md5
+      parser: purpur
+    processing:
+      cache-builder: paper
+    prepare-steps:
+      - default-files
+      - eula
+      - port
+      - setup-proxy
+    versions:
+      - version: latest
+      - version: 26.1.2
+      - version: 1.21.11
+      - version: 1.21.10
+      - version: 1.21.9
+      - version: 1.21.8
+      - version: 1.21.7
+      - version: 1.21.6
+      - version: 1.21.5
+      - version: 1.21.4
+  leaf:
+    base: paper
+    download:
+      url: https://api.leafmc.one/v2/projects/leaf/versions/{version}/builds/{build}/downloads/leaf-{version}-{build}.jar
+      hash: sha256
+      parser: leaf
+    processing:
+      cache-builder: paper
+    prepare-steps:
+      - default-files
+      - eula
+      - port
+      - setup-proxy
+    versions:
+      - version: latest
+      - version: 1.21.11
+      - version: 1.21.10
+      - version: 1.21.9
+      - version: 1.21.8
+      - version: 1.21.7
+      - version: 1.21.6
+      - version: 1.21.5
+      - version: 1.21.4
+  pandaspigot:
+    base: bukkit
+    prepare-steps:
+      - default-files
+      - eula
+      - port
+    versions:
+      - version: latest
+        url: https://downloads.hpfxd.com/v2/projects/pandaspigot/versions/1.8.8/builds/latest/downloads/paperclip
+        legacy: true
+  limbo:
+    base: limbo
+    prepare-steps:
+      - default-files
+      - port
+      - setup-proxy
+    versions:
+      - version: 26.1.2
+        url: https://ci.loohpjames.com/job/Limbo/74/artifact/target/Limbo-2026.0.1-ALPHA-26.1.2.jar
+      - version: 1.21.11
+        url: https://ci.loohpjames.com/job/Limbo/71/artifact/target/Limbo-0.7.18-ALPHA-1.21.11.jar

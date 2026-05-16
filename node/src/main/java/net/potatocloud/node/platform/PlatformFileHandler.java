@@ -2,12 +2,12 @@ package net.potatocloud.node.platform;
 
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
-import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
+import net.potatocloud.common.JacksonUtils;
 import net.potatocloud.common.ResourceFileUtils;
-import org.simpleyaml.configuration.ConfigurationSection;
-import org.simpleyaml.configuration.file.YamlFile;
+import net.potatocloud.node.platform.config.*;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,178 +20,122 @@ import java.util.Map;
 
 public class PlatformFileHandler {
 
-    private static final String PLATFORMS_FILE_NAME = "platforms.yml";
+    private static final String FILE_NAME = "platforms.yml";
+
+    private static final YAMLMapper MAPPER = JacksonUtils.YAML_MAPPER;
 
     private final Logger logger;
-    private final Path platformsFilePath;
-    private final YamlFile config;
+    private final Path file;
 
     public PlatformFileHandler(Logger logger) {
         this.logger = logger;
-        this.platformsFilePath = Path.of(PLATFORMS_FILE_NAME);
+        this.file = Path.of(FILE_NAME);
 
-        if (!Files.exists(platformsFilePath)) {
-            ResourceFileUtils.copyResourceFile(
-                    PLATFORMS_FILE_NAME,
-                    platformsFilePath
-            );
+        if (!Files.exists(file)) {
+            ResourceFileUtils.copyResourceFile(FILE_NAME, file);
         }
 
-        this.config = mergePlatformsFile();
+        mergeWithDefaults();
     }
 
     public List<Platform> loadPlatformsFile() {
+        final PlatformsConfig root = readFile();
         final List<Platform> platforms = new ArrayList<>();
 
-        // Read all platforms from the merged config
-        for (String key : config.getKeys(false)) {
-            final ConfigurationSection section = config.getConfigurationSection(key);
-            if (section == null) {
-                continue;
-            }
+        for (Map.Entry<String, PlatformConfig> entry : root.platforms().entrySet()) {
+            final String name = entry.getKey();
+            final PlatformConfig config = entry.getValue();
+
+            final FlagsConfig flags = config.flags();
+            final DownloadConfig download = config.download();
+            final ProcessingConfig processing = config.processing();
 
             final PlatformImpl platform = new PlatformImpl(
-                    key,
-                    section.getString("download"),
-                    section.getBoolean("custom", false),
-                    section.getBoolean("proxy", false),
-                    section.getString("base", "UNKNOWN"),
-                    section.getString("pre-cache"),
-                    section.getString("parser", ""),
-                    section.getString("hash-type", ""),
-                    section.getStringList("prepare-steps")
+                    name,
+                    download != null ? download.url() : null,
+                    flags != null && flags.custom(),
+                    flags != null && flags.proxy(),
+                    config.base() != null ? config.base() : "UNKNOWN",
+                    processing != null ? processing.cacheBuilder() : null,
+                    download != null ? download.parser() : "",
+                    download != null ? download.hash() : "",
+                    config.prepareSteps()
             );
 
-            // Read versions of the platform
-            final List<Map<?, ?>> versionMap = section.getMapList("versions");
-            if (versionMap == null) {
-                logger.warn("No versions found for platform " + key);
+            if (config.versions() == null) {
+                logger.warn("No versions found for platform " + name);
+                platforms.add(platform);
                 continue;
             }
 
-            final List<PlatformVersion> versions = new ArrayList<>();
-            for (Map<?, ?> map : versionMap) {
-                final String version = String.valueOf(map.get("version"));
-                final String download = map.containsKey("download") ? String.valueOf(map.get("download")) : null;
-                final boolean legacy = map.containsKey("legacy") && Boolean.parseBoolean(map.get("legacy").toString());
-                final boolean local = map.containsKey("local") && Boolean.parseBoolean(map.get("local").toString());
-
-                versions.add(new PlatformVersionImpl(key, version, local, download, legacy));
+            for (VersionConfig version : config.versions()) {
+                platform.getVersions().add(new PlatformVersionImpl(
+                        name,
+                        version.name(),
+                        version.local(),
+                        version.url(),
+                        version.legacy()
+                ));
             }
 
-            platform.getVersions().addAll(versions);
             platforms.add(platform);
         }
 
         return platforms;
     }
 
-    private YamlFile mergePlatformsFile() {
-        try {
-            // Load the platforms file in the user directory
-            final YamlFile userConfig = new YamlFile(platformsFilePath.toFile());
-            userConfig.load();
+    public void savePlatform(Platform platform) {
+        final PlatformsConfig root = readFile();
+        final PlatformConfig config = PlatformConfig.from(platform);
 
-            // Now load the default platforms config
-            final YamlFile defaultConfig = new YamlFile();
-            try (InputStream stream = getClass().getClassLoader().getResourceAsStream(PLATFORMS_FILE_NAME)) {
-                if (stream != null) {
-                    defaultConfig.load(stream);
-                }
-            } catch (IOException e) {
-                logger.error("Failed to copy " + PLATFORMS_FILE_NAME + " file");
-            }
+        root.platforms().put(platform.getName(), config);
 
-            // Merge user and default config so the user config is always up to date
-            final YamlFile mergedConfig = new YamlFile();
-            for (String key : userConfig.getKeys(false)) {
-                final ConfigurationSection section = userConfig.getConfigurationSection(key);
-                if (section == null) {
-                    continue;
-                }
-                // We want to keep custom platforms of the user so set them again in the merged config as well
-                if (section.getBoolean("custom", false)) {
-                    mergedConfig.set(key, section);
-                }
-            }
-
-            // Add all other missing platforms
-            for (String key : defaultConfig.getKeys(false)) {
-                if (!mergedConfig.contains(key)) {
-                    mergedConfig.set(key, defaultConfig.get(key));
-                }
-            }
-
-            // Save the new merged config and replace the old user config with it
-            mergedConfig.save(platformsFilePath.toFile());
-            return mergedConfig;
-        } catch (IOException e) {
-            logger.error("Failed to merge " + PLATFORMS_FILE_NAME);
-            return new YamlFile(platformsFilePath.toFile());
-        }
+        writeFile(root);
     }
 
-    public void updatePlatform(Platform platform) {
-        try {
-            final List<Map<String, Object>> versions = new ArrayList<>();
-
-            for (PlatformVersion version : platform.getVersions()) {
-                final Map<String, Object> versionMap = new LinkedHashMap<>();
-
-                versionMap.put("version", version.getName());
-                versionMap.put("download", version.getDownloadUrl());
-                versionMap.put("legacy", version.isLegacy());
-
-                versions.add(versionMap);
-            }
-
-            config.set(platform.getName() + ".versions", versions);
-            config.save(platformsFilePath.toFile());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to update platform: " + platform.getName(), e);
-        }
-    }
-
-    public void addPlatform(Platform platform) {
-        if (platform == null) {
+    private void mergeWithDefaults() {
+        if (!Files.exists(file)) {
             return;
         }
 
-        try {
-            final Map<String, Object> platformMap = new LinkedHashMap<>();
-            putIfNotNull(platformMap, "download", platform.getDownloadUrl());
-            putIfNotNull(platformMap, "base", platform.getBase());
-            putIfNotNull(platformMap, "custom", platform.isCustom());
-            putIfNotNull(platformMap, "pre-cache", platform.getPreCacheBuilder());
-            putIfNotNull(platformMap, "parser", platform.getParser());
-            putIfNotNull(platformMap, "proxy", platform.isProxy());
-            putIfNotNull(platformMap, "hash-type", platform.getHashType());
-            putIfNotNull(platformMap, "prepare-steps", new ArrayList<>(platform.getPrepareSteps()));
+        // Load default from resources
+        PlatformsConfig defaults = loadDefaultConfig();
+        if (defaults == null) {
+            return;
+        }
 
-            final List<Map<String, Object>> versions = new ArrayList<>();
-            for (PlatformVersion version : platform.getVersions()) {
-                final Map<String, Object> versionMap = new LinkedHashMap<>();
+        final PlatformsConfig user = readFile();
 
-                putIfNotNull(versionMap, "version", version.getName());
-                putIfNotNull(versionMap, "download", version.getDownloadUrl());
-                putIfNotNull(versionMap, "legacy", version.isLegacy());
-                putIfNotNull(versionMap, "local", version.isLocal());
-
-                versions.add(versionMap);
+        // Merge user custom platforms with defaults
+        final Map<String, PlatformConfig> merged = new LinkedHashMap<>(defaults.platforms());
+        for (Map.Entry<String, PlatformConfig> entry : user.platforms().entrySet()) {
+            if (entry.getValue().flags() != null && entry.getValue().flags().custom()) {
+                merged.put(entry.getKey(), entry.getValue());
             }
+        }
 
-            putIfNotNull(platformMap, "versions", versions);
+        // Replace current user config with merged
+        writeFile(new PlatformsConfig(merged));
+    }
 
-            config.set(platform.getName(), platformMap);
-            config.save(platformsFilePath.toFile());
+    private PlatformsConfig loadDefaultConfig() {
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+            if (stream == null) {
+                return null;
+            }
+            return MAPPER.readValue(stream, PlatformsConfig.class);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to add platform: " + platform.getName(), e);
+            logger.error("Failed to copy " + FILE_NAME + " file");
+            return null;
         }
     }
 
-    private void putIfNotNull(Map<String, Object> map, String key, Object value) {
-        if (value != null) {
-            map.put(key, value);
-        }
+    private PlatformsConfig readFile() {
+        return MAPPER.readValue(file, PlatformsConfig.class);
+    }
+
+    private void writeFile(PlatformsConfig config) {
+        MAPPER.writeValue(file, config);
     }
 }
+
