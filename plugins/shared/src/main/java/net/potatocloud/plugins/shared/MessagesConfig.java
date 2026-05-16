@@ -1,29 +1,32 @@
 package net.potatocloud.plugins.shared;
 
 import net.kyori.adventure.text.Component;
+import net.potatocloud.common.config.Config;
+import net.potatocloud.common.config.yaml.YamlConfig;
 
-public class MessagesConfig extends Config {
+public class MessagesConfig {
+
+    private final Config config;
 
     public MessagesConfig(String folder) {
-        super(folder, "messages.yml");
+        this.config = new YamlConfig(folder, "messages.yml");
     }
 
-    public Component get(String key, boolean usePrefix) {
-        String message = yaml().getString(key);
-        if (message == null) {
-            message = "";
-        }
+    public void load() {
+        config.load();
+    }
 
-        String prefix = "";
-        final String rawPrefix = yaml().getString("prefix");
-        if (rawPrefix != null) {
-            prefix = usePrefix ? rawPrefix : "";
-        }
-
-        return MessageUtils.format(prefix + message);
+    public void reload() {
+        config.reload();
     }
 
     public Component get(String key) {
         return get(key, true);
+    }
+
+    public Component get(String path, boolean withPrefix) {
+        final String prefix = withPrefix ? config.get("prefix").asString() : "";
+        final String message = config.get(path).asString();
+        return MessageUtils.format(prefix + message);
     }
 }

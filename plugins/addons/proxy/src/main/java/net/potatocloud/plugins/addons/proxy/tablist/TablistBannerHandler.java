@@ -6,7 +6,6 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import lombok.RequiredArgsConstructor;
 import net.labymod.serverapi.server.velocity.LabyModPlayer;
 import net.labymod.serverapi.server.velocity.event.LabyModPlayerJoinEvent;
-import net.potatocloud.plugins.shared.Config;
 
 import java.util.Optional;
 

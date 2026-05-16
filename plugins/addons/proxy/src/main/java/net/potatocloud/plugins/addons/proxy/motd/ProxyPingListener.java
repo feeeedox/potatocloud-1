@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
-import net.potatocloud.plugins.shared.Config;
 import net.potatocloud.plugins.shared.MessageUtils;
 
 @RequiredArgsConstructor
@@ -49,13 +49,12 @@ public class ProxyPingListener {
     }
 
     private Motd defaultMotd() {
-        return new Motd(config.yaml().getString("motd.default.firstLine"),
-                config.yaml().getString("motd.default.secondLine"));
+        return new Motd(config.get("motd.default.firstLine").asString(), config.get("motd.default.secondLine").asString());
     }
 
     private Motd maintenanceMotd() {
-        return new Motd(config.yaml().getString("motd.maintenance.firstLine"),
-                config.yaml().getString("motd.maintenance.secondLine"),
-                config.yaml().getString("motd.maintenance.version"));
+        return new Motd(config.get("motd.maintenance.firstLine").asString(),
+                config.get("motd.maintenance.secondLine").asString(),
+                config.get("motd.maintenance.version").asString());
     }
 }

@@ -5,8 +5,7 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
-import net.potatocloud.plugins.shared.Config;
-import net.potatocloud.plugins.shared.MessagesConfig;
+import net.potatocloud.common.config.MessagesConfig;
 
 import java.util.Collections;
 import java.util.List;

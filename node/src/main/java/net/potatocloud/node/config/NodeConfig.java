@@ -2,9 +2,9 @@ package net.potatocloud.node.config;
 
 import lombok.Getter;
 import net.potatocloud.common.ResourceFileUtils;
-import org.simpleyaml.configuration.file.YamlFile;
+import net.potatocloud.common.config.Config;
+import net.potatocloud.common.config.yaml.YamlConfig;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -13,7 +13,7 @@ public class NodeConfig {
 
     public static final String CONFIG_FILE_NAME = "config.yml";
 
-    private final YamlFile config;
+    private Config config;
 
     private String prompt;
     private boolean enableBanner;
@@ -46,7 +46,10 @@ public class NodeConfig {
     private boolean disableUpdateChecker;
     private boolean debug;
 
-    public NodeConfig() {
+    public void load(Path path) {
+        this.config = new YamlConfig(path.getParent().getFileName().toString(), path.getFileName().toString());
+        config.load();
+
         final Path configPath = Path.of(CONFIG_FILE_NAME);
 
         if (!Files.exists(configPath)) {
@@ -56,15 +59,6 @@ public class NodeConfig {
             );
         }
 
-        this.config = new YamlFile(configPath.toFile());
-        try {
-            config.load();
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read " + CONFIG_FILE_NAME, e);
-        }
-    }
-
-    public void load() {
         prompt = config.getString("console.prompt");
         enableBanner = config.getBoolean("console.enable-banner");
         primaryColorCode = config.getInt("console.primary-color");
@@ -96,15 +90,4 @@ public class NodeConfig {
         disableUpdateChecker = config.getBoolean("disable-update-checker");
         debug = config.getBoolean("debug");
     }
-
-    public void reload() {
-        try {
-            config.load();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to reload " + CONFIG_FILE_NAME, e);
-        }
-
-        load();
-    }
-
 }

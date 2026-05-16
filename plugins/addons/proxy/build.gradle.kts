@@ -13,7 +13,7 @@ repositories {
 dependencies {
     compileOnly(project(":api"))
     implementation(project(":plugins:shared"))
-    implementation(libs.simpleyaml)
+    implementation(project(":common"))
     implementation(libs.labymod.common)
     implementation(libs.labymod.velocity)
     implementation(libs.lombok)

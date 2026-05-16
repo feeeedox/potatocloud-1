@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":plugins:shared"))
     implementation(project(":common"))
 
-    implementation(libs.simpleyaml)
     implementation(libs.lombok)
     annotationProcessor(libs.lombok)
 

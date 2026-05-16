@@ -28,10 +28,6 @@ dependencies {
     annotationProcessor(libs.lombok)
     implementation(libs.commons.codec)
 
-    implementation(libs.simpleyaml) {
-        exclude(group = "org.yaml", module = "snakeyaml")
-    }
-
     compileOnly(project(":plugins:platform:spigot"))
     compileOnly(project(":plugins:platform:spigot-legacy"))
     compileOnly(project(":plugins:platform:velocity"))

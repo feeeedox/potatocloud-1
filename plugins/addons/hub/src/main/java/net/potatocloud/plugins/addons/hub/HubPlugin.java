@@ -5,8 +5,9 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.potatocloud.plugins.addons.hub.commands.HubCommand;
-import net.potatocloud.plugins.shared.Config;
-import net.potatocloud.plugins.shared.MessagesConfig;
+import net.potatocloud.common.config.Config;
+import net.potatocloud.common.config.MessagesConfig;
+import net.potatocloud.common.impl.YamlConfig;
 
 import java.util.logging.Logger;
 
@@ -21,10 +22,9 @@ public class HubPlugin {
     public HubPlugin(ProxyServer server, Logger logger) {
         this.server = server;
         this.logger = logger;
-
         final String folder = "plugins/potatocloud-hub";
 
-        config = new Config(folder, "config.yml");
+        config = new YamlConfig(folder, "config.yml");
         messagesConfig = new MessagesConfig(folder);
         config.load();
         messagesConfig.load();
@@ -37,6 +37,6 @@ public class HubPlugin {
     }
 
     private String[] commandAliases() {
-        return config.yaml().getStringList("aliases").toArray(new String[0]);
+        return config.get("aliases").asStringList().toArray(new String[0]);
     }
 }
