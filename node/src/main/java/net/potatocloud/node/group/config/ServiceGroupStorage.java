@@ -5,6 +5,7 @@ import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class ServiceGroupStorage {
@@ -21,9 +22,14 @@ public final class ServiceGroupStorage {
     }
 
     public static void save(ServiceGroup group, Path directory) {
-        final Path path = directory.resolve(group.getName() + ".yml");
+        try {
+            final Path path = directory.resolve(group.getName() + ".yml");
+            Files.createDirectories(path.getParent());
 
-        MAPPER.writeValue(path, ServiceGroupConfig.from(group));
+            MAPPER.writeValue(path, ServiceGroupConfig.from(group));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save service group: " + group.getName(), e);
+        }
     }
 
     public static ServiceGroup load(File file) {
