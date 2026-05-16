@@ -236,7 +236,13 @@ public abstract class Setup {
 
     private void cleanup() {
         screenManager.switchTo(Screen.NODE_SCREEN);
-        screenManager.unregister(questionScreen.name());
-        screenManager.unregister(summaryScreen.name());
+
+        if (questionScreen != null) {
+            screenManager.unregister(questionScreen.name());
+        }
+
+        if (summaryScreen != null) {
+            screenManager.unregister(summaryScreen.name());
+        }
     }
 }
