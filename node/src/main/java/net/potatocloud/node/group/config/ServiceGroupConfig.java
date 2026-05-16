@@ -78,15 +78,18 @@ public record ServiceGroupConfig(
         final Set<String> names = new HashSet<>();
         final Map<String, Property<?>> propertyMap = new HashMap<>();
 
-        for (PropertyConfig property : properties) {
-            final String name = property.name();
+        if (properties != null) {
 
-            // Check for duplicate names
-            if (!names.add(name)) {
-                throw new IllegalStateException("Duplicate property " + name + " found in group " + this.name);
+            for (PropertyConfig property : properties) {
+                final String name = property.name();
+
+                // Check for duplicate names
+                if (!names.add(name)) {
+                    throw new IllegalStateException("Duplicate property " + name + " found in group " + this.name);
+                }
+
+                propertyMap.put(name, property.toProperty());
             }
-
-            propertyMap.put(name, property.toProperty());
         }
 
         return new ServiceGroupImpl(
