@@ -10,12 +10,12 @@ public class YamlSource implements ConfigSource {
 
     @Override
     public JsonNode read(Path path) {
-        return JacksonUtils.JSON_MAPPER.readTree(path);
+        return JacksonUtils.YAML_MAPPER.readTree(path);
     }
 
     @Override
     public void write(Path path, JsonNode node) {
-        JacksonUtils.JSON_MAPPER.writeValue(path, node);
+        JacksonUtils.YAML_MAPPER.writeValue(path, node);
     }
 
     @Override
