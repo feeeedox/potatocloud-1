@@ -10,15 +10,13 @@ import java.nio.file.Path;
 public abstract class AbstractConfig implements Config {
 
     private final ConfigSource source;
-    private final String fileName;
     private final Path path;
 
     protected JsonNode node;
 
-    protected AbstractConfig(ConfigSource source, String directory, String fileName) {
+    protected AbstractConfig(ConfigSource source, Path path) {
         this.source = source;
-        this.fileName = fileName;
-        this.path = Path.of(directory).resolve(fileName);
+        this.path = path;
     }
 
     @Override
@@ -34,7 +32,7 @@ public abstract class AbstractConfig implements Config {
             node = source.read(path);
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to load config: " + fileName, e);
+            throw new IllegalStateException("Failed to load config: " + path.getFileName(), e);
         }
     }
 

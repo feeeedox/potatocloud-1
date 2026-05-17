@@ -4,16 +4,40 @@ import net.potatocloud.common.config.AbstractConfig;
 import net.potatocloud.common.config.ConfigNode;
 import net.potatocloud.common.config.JacksonConfigNode;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
+import java.nio.file.Path;
 
 public class YamlConfig extends AbstractConfig {
 
-    public YamlConfig(String directory, String fileName) {
-        super(new YamlSource(), directory, fileName);
+    public YamlConfig(Path path) {
+        super(new YamlSource(), path);
     }
 
     @Override
     public ConfigNode get(String path) {
         return new JacksonConfigNode(resolve(path));
+    }
+
+    @Override
+    public void set(String path, Object value) {
+        if (!(node instanceof ObjectNode root)) {
+            return;
+        }
+
+        final String[] keys = path.split("\\.");
+        ObjectNode current = root;
+
+        for (int i = 0; i < keys.length - 1; i++) {
+            JsonNode child = current.get(keys[i]);
+            if (child == null || !child.isObject()) {
+                child = current.putObject(keys[i]);
+            }
+            current = (ObjectNode) child;
+        }
+
+        final String lastKey = keys[keys.length - 1];
+        current.putPOJO(lastKey, value);
     }
 
     private JsonNode resolve(String path) {
