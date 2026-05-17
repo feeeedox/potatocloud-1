@@ -1,9 +1,8 @@
 package net.potatocloud.network.packet.exception;
 
-public class PacketToBigException extends Exception {
+public class PacketTooBigException extends Exception {
 
-    public PacketToBigException(int length) {
+    public PacketTooBigException(int length) {
         super("Received a packet that is too big! (" + length + ")");
-
     }
 }
