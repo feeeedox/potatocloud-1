@@ -1,13 +1,12 @@
 package net.potatocloud.node.platform.steps;
 
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.common.config.yaml.YamlConfig;
 import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.platform.VelocityForwardingSecret;
 import net.potatocloud.node.utils.PropertiesFileUtils;
 import net.potatocloud.node.utils.ProxyUtils;
-import org.simpleyaml.configuration.file.YamlFile;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -23,14 +22,13 @@ public class SetupProxyStep extends AbstractPrepareStep {
 
             // Configure Paper for modern Velocity forwarding
             if (platform.isPaperBased() && ProxyUtils.isProxyModernForwarding()) {
-                final Path paperYml = serverDirectory.resolve("config").resolve("paper-global.yml");
-                final YamlFile yaml = new YamlFile(paperYml.toFile());
+                final YamlConfig config = new YamlConfig(serverDirectory.resolve("config").resolve("paper-global.yml"));
+                config.load();
 
-                yaml.load();
-                yaml.set("proxies.velocity.enabled", true);
-                yaml.set("proxies.velocity.secret", VelocityForwardingSecret.FORWARDING_SECRET);
-                yaml.save();
+                config.set("proxies.velocity.enabled", true);
+                config.set("proxies.velocity.secret", VelocityForwardingSecret.FORWARDING_SECRET);
 
+                config.save();
                 return;
             }
 
@@ -48,7 +46,7 @@ public class SetupProxyStep extends AbstractPrepareStep {
 
                 PropertiesFileUtils.saveProperties(properties, propertiesPath);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to execute SetupProxyStep for service: " + serviceName, e);
         }
     }
