@@ -4,8 +4,9 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
-import net.potatocloud.common.config.MessagesConfig;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +27,7 @@ public class ProxyCommand implements SimpleCommand {
             return;
         }
 
-        final String permission = config.yaml().getString("permission");
+        final String permission = config.get("permission").asString();
         if (!player.hasPermission(permission)) {
             player.sendMessage(messages.get("no-permission"));
             return;
@@ -115,7 +116,7 @@ public class ProxyCommand implements SimpleCommand {
         if (!(source instanceof Player player)) {
             return Collections.emptyList();
         }
-        final String permission = config.yaml().getString("permission");
+        final String permission = config.get("permission").asString();
         if (!player.hasPermission(permission)) {
             return Collections.emptyList();
         }

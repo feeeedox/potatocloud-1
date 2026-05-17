@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.shared.MessageUtils;
 
 @RequiredArgsConstructor
@@ -52,8 +53,8 @@ public class TablistHandler {
         final int maxPlayers = CloudAPI.getInstance().getServiceManager().getCurrentService().getMaxPlayers();
 
         final Tablist tablist = new Tablist(
-                config.yaml().getString("tablist.header"),
-                config.yaml().getString("tablist.footer")
+                config.get("tablist.header").asString(),
+                config.get("tablist.footer").asString()
         );
 
         final Component header = replacePlaceholders(tablist.header(), service.getName(), group,

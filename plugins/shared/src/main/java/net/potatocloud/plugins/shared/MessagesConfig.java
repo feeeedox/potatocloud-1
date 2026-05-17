@@ -4,12 +4,14 @@ import net.kyori.adventure.text.Component;
 import net.potatocloud.common.config.Config;
 import net.potatocloud.common.config.yaml.YamlConfig;
 
+import java.nio.file.Path;
+
 public class MessagesConfig {
 
     private final Config config;
 
-    public MessagesConfig(String folder) {
-        this.config = new YamlConfig(folder, "messages.yml");
+    public MessagesConfig(String directory) {
+        this.config = new YamlConfig(Path.of(directory).resolve("messages.yml"));
     }
 
     public void load() {

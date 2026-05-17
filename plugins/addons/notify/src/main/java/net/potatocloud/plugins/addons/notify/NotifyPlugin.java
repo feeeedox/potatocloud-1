@@ -14,8 +14,11 @@ import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.common.config.MessagesConfig;
+import net.potatocloud.common.config.Config;
+import net.potatocloud.common.config.yaml.YamlConfig;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class NotifyPlugin {
@@ -23,8 +26,8 @@ public class NotifyPlugin {
     private final ProxyServer server;
     private final CloudAPI cloudAPI = CloudAPI.getInstance();
     private final Logger logger;
-    private final MessagesConfig messages;
     private final Config config;
+    private final MessagesConfig messages;
 
     @Inject
     public NotifyPlugin(ProxyServer server, Logger logger) {
@@ -32,7 +35,7 @@ public class NotifyPlugin {
         this.logger = logger;
         final String folder = "plugins/potatocloud-notify";
 
-        config = new Config(folder, "config.yml");
+        config = new YamlConfig(Path.of(folder).resolve("config.yml"));
         messages = new MessagesConfig(folder);
         config.load();
         messages.load();
@@ -42,13 +45,13 @@ public class NotifyPlugin {
     public void onProxyInitialize(ProxyInitializeEvent event) {
         final EventBus eventBus = cloudAPI.getEventBus();
 
-        if (config.yaml().getBoolean("messages.enable-service-starting")) {
+        if (config.get("messages.enable-service-starting").asBoolean()) {
             eventBus.subscribe(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
         }
 
         eventBus.subscribe(ServiceStartedEvent.class, startedEvent -> sendMessage(startedEvent.serviceName(), "service-started", true));
 
-        if (config.yaml().getBoolean("messages.enable-service-stopping")) {
+        if (config.get("messages.enable-service-stopping").asBoolean()) {
             eventBus.subscribe(ServiceStoppingEvent.class, stoppingEvent -> sendSimpleMessage("service-stopping", stoppingEvent.serviceName()));
         }
 
@@ -71,13 +74,13 @@ public class NotifyPlugin {
 
         final Component finalMessage = message;
         server.getAllPlayers().stream()
-                .filter(player -> player.hasPermission(config.yaml().getString("permission")))
+                .filter(player -> player.hasPermission(config.get("permission").asString()))
                 .forEach(player -> player.sendMessage(finalMessage));
     }
 
     private void sendSimpleMessage(String key, String serviceName) {
         server.getAllPlayers().stream()
-                .filter(player -> player.hasPermission(config.yaml().getString("permission")))
+                .filter(player -> player.hasPermission(config.get("permission").asString()))
                 .forEach(player -> player.sendMessage(messages.get(key).replaceText(text -> text.match("%service%").replacement(serviceName))));
     }
 }

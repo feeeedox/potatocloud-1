@@ -4,11 +4,13 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.potatocloud.plugins.addons.hub.commands.HubCommand;
 import net.potatocloud.common.config.Config;
-import net.potatocloud.common.config.MessagesConfig;
-import net.potatocloud.common.impl.YamlConfig;
+import net.potatocloud.common.config.yaml.YamlConfig;
+import net.potatocloud.plugins.addons.hub.commands.HubCommand;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
+
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class HubPlugin {
@@ -24,7 +26,7 @@ public class HubPlugin {
         this.logger = logger;
         final String folder = "plugins/potatocloud-hub";
 
-        config = new YamlConfig(folder, "config.yml");
+        config = new YamlConfig(Path.of(folder, "config.yml"));
         messagesConfig = new MessagesConfig(folder);
         config.load();
         messagesConfig.load();

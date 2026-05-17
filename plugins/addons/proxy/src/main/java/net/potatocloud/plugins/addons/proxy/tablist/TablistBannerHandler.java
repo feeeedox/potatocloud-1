@@ -6,6 +6,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import lombok.RequiredArgsConstructor;
 import net.labymod.serverapi.server.velocity.LabyModPlayer;
 import net.labymod.serverapi.server.velocity.event.LabyModPlayerJoinEvent;
+import net.potatocloud.common.config.Config;
 
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public class TablistBannerHandler {
         final Optional<ServerConnection> serverConnection = player.getCurrentServer();
 
         if (serverConnection.isPresent()) {
-            final String imageURL = config.yaml().getString("tablistImageURL");
+            final String imageURL = config.get("tablistImageURL").asString();
             labyModPlayer.sendTabListBanner(imageURL);
         }
     }

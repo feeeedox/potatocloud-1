@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceStatus;
-import net.potatocloud.common.config.MessagesConfig;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.Comparator;
 import java.util.Optional;

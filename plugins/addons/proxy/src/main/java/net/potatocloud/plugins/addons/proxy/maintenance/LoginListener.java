@@ -5,8 +5,9 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
-import net.potatocloud.common.config.MessagesConfig;
+import net.potatocloud.plugins.shared.MessagesConfig;
 
 @RequiredArgsConstructor
 public class LoginListener {
@@ -17,7 +18,7 @@ public class LoginListener {
 
     @Subscribe
     public void handle(LoginEvent event) {
-        final boolean isMaintenance = config.yaml().getBoolean("maintenance");
+        final boolean isMaintenance = config.get("maintenance").asBoolean();
 
         if (!(isMaintenance)) {
             return;
@@ -26,7 +27,7 @@ public class LoginListener {
         final Player player = event.getPlayer();
         final String username = player.getUsername();
 
-        final String bypassPermission = config.yaml().getString("maintenance-bypass-permission");
+        final String bypassPermission = config.get("maintenance-bypass-permission").asString();
         if (plugin.getWhitelist().contains(username) || player.hasPermission(bypassPermission)) {
             return;
         }

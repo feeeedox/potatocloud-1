@@ -4,9 +4,12 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.potatocloud.common.config.Config;
+import net.potatocloud.common.config.yaml.YamlConfig;
 import net.potatocloud.plugins.addons.cloudcommand.command.CloudCommand;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class CloudCommandPlugin {
@@ -23,7 +26,7 @@ public class CloudCommandPlugin {
 
         final String folder = "plugins/potatocloud-cloudcommand";
 
-        config = new Config(folder, "config.yml");
+        config = new YamlConfig(Path.of(folder).resolve("config.yml"));
         messagesConfig = new MessagesConfig(folder);
 
         config.load();
@@ -37,7 +40,7 @@ public class CloudCommandPlugin {
     }
 
     private String[] commandAliases() {
-        return config.yaml().getStringList("aliases").toArray(new String[0]);
+        return config.get("aliases").asStringList().toArray(new String[0]);
     }
 }
 

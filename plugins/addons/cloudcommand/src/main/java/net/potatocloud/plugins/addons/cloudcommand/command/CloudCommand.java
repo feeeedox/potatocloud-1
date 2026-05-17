@@ -3,6 +3,7 @@ package net.potatocloud.plugins.addons.cloudcommand.command;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class CloudCommand implements SimpleCommand {
             return;
         }
 
-        if (!player.hasPermission(config.yaml().getString("permission"))) {
+        if (!player.hasPermission(config.get("permission").asString())) {
             player.sendMessage(messages.get("no-permission"));
             return;
         }

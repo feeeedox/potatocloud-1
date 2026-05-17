@@ -12,10 +12,11 @@ import net.potatocloud.plugins.addons.proxy.commands.ProxyCommand;
 import net.potatocloud.plugins.addons.proxy.maintenance.LoginListener;
 import net.potatocloud.plugins.addons.proxy.motd.ProxyPingListener;
 import net.potatocloud.plugins.addons.proxy.tablist.TablistBannerHandler;
-import net.potatocloud.plugins.addons.proxy.tablist.TablistHandler;;
+import net.potatocloud.plugins.addons.proxy.tablist.TablistHandler;
 import net.potatocloud.plugins.shared.MessagesConfig;
 import org.slf4j.Logger;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class ProxyPlugin {
@@ -31,7 +32,7 @@ public class ProxyPlugin {
         this.logger = logger;
         final String folder = "plugins/potatocloud-proxy";
 
-        config = new YamlConfig(folder, "config.yml");
+        config = new YamlConfig(Path.of(folder).resolve("config.yml"));
         messagesConfig = new MessagesConfig(folder);
         config.load();
         messagesConfig.load();
@@ -73,12 +74,12 @@ public class ProxyPlugin {
     }
 
     public void setWhitelist(List<String> whitelist) {
-        // config.yaml().set("whitelist", whitelist);
+        config.set("whitelist", whitelist);
         config.save();
     }
 
     public void setMaintenance(boolean maintenance) {
-        //   config.yaml().set("maintenance", maintenance);
+        config.set("maintenance", maintenance);
         config.save();
     }
 }
