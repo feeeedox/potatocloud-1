@@ -6,7 +6,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import net.potatocloud.network.netty.PacketBuffer;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketManager;
-import net.potatocloud.network.packet.exception.PacketToBigException;
+import net.potatocloud.network.packet.exception.PacketTooBigException;
 import net.potatocloud.network.packet.request.RequestPacket;
 import net.potatocloud.network.packet.request.ResponsePacket;
 
@@ -34,7 +34,7 @@ public class NettyPacketDecoder extends ByteToMessageDecoder {
         final int length = in.readInt();
         if (length > MAX_PACKET_SIZE) {
             ctx.close();
-            throw new PacketToBigException(length);
+            throw new PacketTooBigException(length);
         }
 
         // Wait until the full packet is received
