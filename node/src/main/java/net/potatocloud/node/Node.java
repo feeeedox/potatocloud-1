@@ -18,13 +18,11 @@ import net.potatocloud.network.packet.packets.logging.LogMessagePacket;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.command.commands.*;
 import net.potatocloud.node.config.NodeConfig;
+import net.potatocloud.node.config.NodeConfigLoader;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.logging.NodeLogger;
 import net.potatocloud.node.migration.MigrationManager;
-import net.potatocloud.node.migration.migrations.Migration_1_4_3;
-import net.potatocloud.node.migration.migrations.Migration_1_4_4;
-import net.potatocloud.node.migration.migrations.Migration_1_5_0;
 import net.potatocloud.node.module.ModuleLoader;
 import net.potatocloud.node.module.ModuleManager;
 import net.potatocloud.node.platform.DownloadManager;
@@ -51,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
 public class Node extends CloudAPI {
 
     private final long startupTime;
-    private final NodeConfig config;
+    private NodeConfig config;
 
     private final NodeLogger logger;
     private final Console console;
@@ -88,26 +86,26 @@ public class Node extends CloudAPI {
     public Node(long startupTime) {
         this.startupTime = startupTime;
 
-        config = new NodeConfig();
-        config.load();
+        final NodeConfigLoader configLoader = new NodeConfigLoader();
+
+        config = configLoader.load();
 
         previousVersion = VersionFile.read();
         migrationManager = new MigrationManager(previousVersion);
-        registerMigrations();
         migrationManager.migrate();
 
         VersionFile.write(CloudAPI.VERSION);
 
-        config.reload();
+        this.config = configLoader.reload();
 
-        if (!NetworkUtils.isPortFree(config.getNodePort())) {
+        if (!NetworkUtils.isPortFree(config.node().port())) {
             System.err.println("The configured node port is already in use. Is another instance of potatocloud already running on this port?");
             System.exit(0);
         }
 
         commandManager = new CommandManager();
         console = new Console(config, commandManager);
-        logger = new NodeLogger(config, console, Path.of(config.getLogsFolder()));
+        logger = new NodeLogger(config, console, Path.of(config.folders().logs()));
 
         commandManager.setLogger(logger);
 
@@ -126,14 +124,14 @@ public class Node extends CloudAPI {
 
         updateChecker = new UpdateChecker(logger);
 
-        if (!config.isDisableUpdateChecker()) {
+        if (!config.disableUpdateChecker()) {
             updateChecker.checkForUpdates();
         }
 
         packetManager = new PacketManager();
         server = new NettyNetworkServer(packetManager);
-        server.start(config.getNodeHost(), config.getNodePort());
-        logger.info("Network server started using &aNetty &7on &a" + config.getNodeHost() + "&8:&a" + config.getNodePort());
+        server.start(config.node().host(), config.node().port());
+        logger.info("Network server started using &aNetty &7on &a" + config.node().host() + "&8:&a" + config.node().port());
 
         // Handle logs from Connector
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
@@ -141,8 +139,8 @@ public class Node extends CloudAPI {
         eventBus = new ServerEventBus(server);
         propertiesHolder = new NodePropertiesHolder(server);
         playerManager = new CloudPlayerManagerImpl(server);
-        templateManager = new TemplateManager(logger, Path.of(config.getTemplatesFolder()));
-        groupManager = new ServiceGroupManagerImpl(Path.of(config.getGroupsFolder()), server, logger);
+        templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
+        groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger);
 
         if (!groupManager.getAllServiceGroups().isEmpty()) {
             final int count = groupManager.getAllServiceGroups().size();
@@ -160,10 +158,10 @@ public class Node extends CloudAPI {
             platformManager.getPlatforms().forEach(platform -> logger.info("&8» &a" + platform.getName()));
         }
 
-        downloadManager = new DownloadManager(Path.of(config.getPlatformsFolder()), logger);
+        downloadManager = new DownloadManager(Path.of(config.folders().platforms()), logger);
         cacheManager = new CacheManager(logger);
 
-        ServiceDefaultFiles.copyDefaultFiles(Path.of(config.getDataFolder()));
+        ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
         serviceManager = new ServiceManagerImpl(
                 config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
         );
@@ -171,7 +169,7 @@ public class Node extends CloudAPI {
 
         moduleManager = new ModuleManager();
         moduleLoader = new ModuleLoader(moduleManager);
-        moduleLoader.load(Path.of(config.getModulesFolder()));
+        moduleLoader.load(Path.of(config.folders().modules()));
 
         if (!moduleManager.getModules().isEmpty()) {
             final int count = moduleManager.getModules().size();
@@ -193,12 +191,6 @@ public class Node extends CloudAPI {
 
     public static Node getInstance() {
         return (Node) CloudAPI.getInstance();
-    }
-
-    private void registerMigrations() {
-        new Migration_1_4_3(Path.of(config.getGroupsFolder()), migrationManager);
-        new Migration_1_4_4(migrationManager);
-        new Migration_1_5_0(migrationManager);
     }
 
     private void registerCommands() {
@@ -238,7 +230,7 @@ public class Node extends CloudAPI {
         server.close();
 
         logger.info("Cleaning up temporary files&8...");
-        FileUtils.deleteDirectory(Path.of(config.getTempServicesFolder()));
+        FileUtils.deleteDirectory(Path.of(config.folders().tempServices()));
 
         logger.info("Shutdown complete. Goodbye!");
 

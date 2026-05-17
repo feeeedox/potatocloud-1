@@ -5,7 +5,7 @@ import net.potatocloud.api.module.AbstractModule;
 import net.potatocloud.api.module.Module;
 import net.potatocloud.api.utils.version.Version;
 import net.potatocloud.common.FileUtils;
-import org.simpleyaml.configuration.file.YamlFile;
+import net.potatocloud.common.JacksonUtils;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -43,19 +43,14 @@ public class ModuleLoader {
                     return;
                 }
 
-                final YamlFile yaml = new YamlFile();
-                yaml.load(stream);
+                final ModuleConfig config = JacksonUtils.JSON_MAPPER.readValue(stream, ModuleConfig.class);
 
-                final String name = yaml.getString("name");
-                final String version = yaml.getString("version");
-                final String main = yaml.getString("main");
-
-                final Class<?> clazz = Class.forName(main, true, loader);
+                final Class<?> clazz = Class.forName(config.mainClass(), true, loader);
                 final Module module = (Module) clazz.getDeclaredConstructor().newInstance();
 
                 if (module instanceof AbstractModule abstractModule) {
-                    abstractModule.setName(name);
-                    abstractModule.setVersion(Version.fromString(version));
+                    abstractModule.setName(config.name());
+                    abstractModule.setVersion(Version.fromString(config.version()));
                 }
 
                 module.onLoad();

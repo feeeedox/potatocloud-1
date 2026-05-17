@@ -49,7 +49,7 @@ public class Console {
     public void start() {
         clearScreen();
 
-        if (config.isEnableBanner()) {
+        if (config.console().enableBanner()) {
             ConsoleBanner.display(this);
         }
 
@@ -61,7 +61,7 @@ public class Console {
     }
 
     public String defaultPrompt() {
-        final String rawPrompt = config.getPrompt();
+        final String rawPrompt = config.console().prompt();
 
         return ConsoleColor.format(rawPrompt.replace("%user%", System.getProperty("user.name")));
     }

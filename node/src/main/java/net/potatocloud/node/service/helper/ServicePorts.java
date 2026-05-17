@@ -16,8 +16,8 @@ public final class ServicePorts {
 
     public static int nextPort(ServiceGroup group, NodeConfig config, List<Service> services) {
         int port = group.getPlatform().isProxy()
-                ? config.getProxyStartPort()
-                : config.getServiceStartPort();
+                ? config.service().proxyStartPort()
+                : config.service().serviceStartPort();
 
         final Set<Integer> usedPorts = services.stream()
                 .map(Service::getPort)

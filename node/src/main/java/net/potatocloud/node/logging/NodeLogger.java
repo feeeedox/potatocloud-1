@@ -51,7 +51,7 @@ public class NodeLogger implements Logger {
 
     @Override
     public void log(Level level, String message) {
-        if (level == Level.DEBUG && !config.isDebug()) {
+        if (level == Level.DEBUG && !config.debug()) {
             return;
         }
 

@@ -15,7 +15,7 @@ public class MaxStartingRule implements ServiceStartRule {
 
     @Override
     public boolean allows(ServiceGroup group) {
-        final int maxStarting = config.getMaxStartingServices();
+        final int maxStarting = config.service().maxStartingServices();
 
         // If max starting services is set to -1 (unlimited), always allow starting new services
         if (maxStarting == -1) {

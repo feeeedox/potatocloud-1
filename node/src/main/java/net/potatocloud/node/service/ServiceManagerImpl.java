@@ -104,7 +104,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     public boolean hasEnoughMemory(ServiceGroup group) {
-        if (!config.isMemoryCheckEnabled()) {
+        if (!config.service().memoryCheckEnabled()) {
             return true;
         }
 
@@ -112,7 +112,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 .mapToLong(service -> service.getServiceGroup().getMaxMemory())
                 .sum();
 
-        return (usedMb + group.getMaxMemory()) <= config.getMaxMemory();
+        return (usedMb + group.getMaxMemory()) <= config.service().maxMemory();
     }
 
     public void logMemoryWarning(ServiceGroup group) {
@@ -123,7 +123,7 @@ public class ServiceManagerImpl implements ServiceManager {
         logger.warn("Service(s) for group &a" + group.getName()
                 + " &7could not be started &8[&7Required&8: &a" + group.getMaxMemory() + " MB"
                 + "&8, &7Used&8: &a" + usedMb + " MB"
-                + "&8, &7Max&8: &a" + config.getMaxMemory() + " MB&8]");
+                + "&8, &7Max&8: &a" + config.service().maxMemory() + " MB&8]");
     }
 
     @Override

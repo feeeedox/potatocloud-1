@@ -64,7 +64,7 @@ public final class LocalServicePreparer implements ServicePreparer {
             }
 
             Files.copy(
-                    Path.of(config.getDataFolder()).resolve(pluginName),
+                    Path.of(config.folders().data()).resolve(pluginName),
                     pluginsFolder.resolve(pluginName),
                     StandardCopyOption.REPLACE_EXISTING
             );

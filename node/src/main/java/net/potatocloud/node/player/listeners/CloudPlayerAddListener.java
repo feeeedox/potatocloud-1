@@ -29,7 +29,7 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
         server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
 
         final NodeConfig config = node.getConfig();
-        if (config.isLogPlayerConnections()) {
+        if (config.console().logPlayerConnections()) {
             node.getLogger().info("Player &a" + player.getUsername() + " &7connected to the network &8[&7UUID&8: &a"
                     + player.getUniqueId() + "&8, &7Proxy&8: &a" + player.getConnectedProxyName() + "&8]");
         }

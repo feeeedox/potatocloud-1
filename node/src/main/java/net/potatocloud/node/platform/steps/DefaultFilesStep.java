@@ -20,7 +20,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
             if (platform.isBukkitBased()) {
                 final Path serverProperties = serverDirectory.resolve("server.properties");
                 if (!serverProperties.toFile().exists()) {
-                    Files.copy(Path.of(config.getDataFolder(), "server.properties"), serverProperties);
+                    Files.copy(Path.of(config.folders().data(), "server.properties"), serverProperties);
                 }
 
                 // The spigot yml is only needed when velocity uses legacy forwarding
@@ -28,7 +28,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
                     final Path spigotYml = serverDirectory.resolve("spigot.yml");
 
                     if (!Files.exists(spigotYml)) {
-                        Files.copy(Path.of(config.getDataFolder(), "spigot.yml"), spigotYml);
+                        Files.copy(Path.of(config.folders().data(), "spigot.yml"), spigotYml);
                     }
                 }
 
@@ -37,7 +37,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
 
                     if (!Files.exists(paperYml)) {
                         Files.createDirectories(paperYml.getParent());
-                        Files.copy(Path.of(config.getDataFolder(), "paper-global.yml"), paperYml);
+                        Files.copy(Path.of(config.folders().data(), "paper-global.yml"), paperYml);
                     }
                 }
                 return;
@@ -46,7 +46,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
             if (platform.isVelocityBased()) {
                 final Path velocityToml = serverDirectory.resolve("velocity.toml");
                 if (!Files.exists(velocityToml)) {
-                    Files.copy(Path.of(config.getDataFolder(), "velocity.toml"), velocityToml);
+                    Files.copy(Path.of(config.folders().data(), "velocity.toml"), velocityToml);
                     return;
                 }
             }
@@ -55,7 +55,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
                 final Path serverProperties = serverDirectory.resolve("server.properties");
 
                 if (!Files.exists(serverProperties)) {
-                    Files.copy(Path.of(config.getDataFolder(), "limbo-server.properties"), serverProperties);
+                    Files.copy(Path.of(config.folders().data(), "limbo-server.properties"), serverProperties);
                 }
             }
         } catch (IOException e) {

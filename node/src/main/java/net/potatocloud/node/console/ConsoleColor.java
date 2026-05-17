@@ -33,7 +33,7 @@ public enum ConsoleColor {
     }
 
     private static String primaryColor() {
-        return Ansi.ansi().reset().fg(Node.getInstance().getConfig().getPrimaryColorCode()).toString();
+        return Ansi.ansi().reset().fg(Node.getInstance().getConfig().console().primaryColorCode()).toString();
     }
 }
 

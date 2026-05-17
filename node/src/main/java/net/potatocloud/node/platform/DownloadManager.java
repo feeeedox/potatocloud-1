@@ -79,7 +79,7 @@ public class DownloadManager {
             return;
         }
 
-        final boolean autoUpdate = Node.getInstance().getConfig().isPlatformAutoUpdate();
+        final boolean autoUpdate = Node.getInstance().getConfig().service().autoUpdatePlatforms();
         if (autoUpdate && needsUpdate(version, platformJarPath)) {
             logger.info("Platform &a" + platform.getName() + " &7is outdated! Downloading update&8...");
             download(platform, version, platformJarPath);

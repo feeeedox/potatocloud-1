@@ -91,7 +91,7 @@ public abstract class AbstractService implements Service {
         this.console = console;
         this.preparer = preparer;
         this.runtime = runtime;
-        this.name = group.getName() + config.getSplitter() + serviceId;
+        this.name = group.getName() + config.service().splitter() + serviceId;
         this.screen = new Screen(name);
         this.directory = resolveDirectory();
         this.maxPlayers = group.getMaxPlayers();
@@ -161,7 +161,7 @@ public abstract class AbstractService implements Service {
 
     @Override
     public void copy(String template, String filter) {
-        final Path templatesDirectory = Path.of(config.getTemplatesFolder());
+        final Path templatesDirectory = Path.of(config.folders().templates());
 
         Path sourcePath = directory;
         Path targetPath = templatesDirectory.resolve(template);
@@ -275,8 +275,8 @@ public abstract class AbstractService implements Service {
 
     private Path resolveDirectory() {
         if (group.isStatic()) {
-            return Path.of(config.getStaticFolder()).resolve(name);
+            return Path.of(config.folders().staticServices()).resolve(name);
         }
-        return Path.of(config.getTempServicesFolder()).resolve(name + "-" + UUID.randomUUID());
+        return Path.of(config.folders().tempServices()).resolve(name + "-" + UUID.randomUUID());
     }
 }

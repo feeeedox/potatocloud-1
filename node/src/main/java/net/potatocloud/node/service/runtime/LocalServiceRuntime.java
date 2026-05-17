@@ -70,7 +70,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
         executeCommand("stop");
 
         try {
-            if (!process.waitFor(config.getKillTimeout(), TimeUnit.SECONDS)) {
+            if (!process.waitFor(config.service().killTimeout(), TimeUnit.SECONDS)) {
                 logger.debug("Service &a" + "abc" + " &7did not stop in time, destroying process&8...");
                 process.destroyForcibly();
                 process.waitFor();
@@ -121,7 +121,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
         args.add("-Xms" + group.getMaxMemory() + "M");
         args.add("-Xmx" + group.getMaxMemory() + "M");
         args.add("-Dpotatocloud.service.name=" + name);
-        args.add("-Dpotatocloud.node.port=" + config.getNodePort());
+        args.add("-Dpotatocloud.node.port=" + config.node().port());
 
         args.addAll(ServicePerformanceFlags.DEFAULT_FLAGS);
 

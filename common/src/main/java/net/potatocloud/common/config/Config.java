@@ -10,4 +10,6 @@ public interface Config {
 
     ConfigNode get(String path);
 
+    void set(String path, Object value);
+
 }
