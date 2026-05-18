@@ -15,5 +15,6 @@ public record PacketContext<T extends Packet>(NetworkConnection connection, Pack
         }
         packetManager.requestId(response, requestId);
         connection.send(response);
+        packetManager.removeRequest(packet);
     }
 }
