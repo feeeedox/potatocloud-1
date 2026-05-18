@@ -25,9 +25,7 @@ public class CloudPlayerRemoveListener implements PacketListener<CloudPlayerRemo
 
         final Node node = Node.getInstance();
 
-        node.getServer().connectedSessions().stream()
-                .filter(networkConnection -> !networkConnection.equals(ctx.connection()))
-                .forEach(networkConnection -> networkConnection.send(packet));
+        node.getServer().generateBroadcast().exclude(ctx.connection()).broadcast(packet);
 
         if (node.getConfig().console().logPlayerConnections() && !node.isStopping()) {
             node.getLogger().info("Player &a" + player.getUsername()
