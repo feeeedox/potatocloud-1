@@ -81,26 +81,32 @@ public class PacketBuffer {
     }
 
     public void writeObject(Object object) {
-        if (object instanceof String string) {
-            buf.writeByte(1);
-            writeString(string);
-        } else if (object instanceof Integer integer) {
-            buf.writeByte(2);
-            writeInt(integer);
-        } else if (object instanceof Boolean bool) {
-            buf.writeByte(3);
-            writeBoolean(bool);
-        } else if (object instanceof Long l) {
-            buf.writeByte(4);
-            writeLong(l);
-        } else if (object instanceof Float f) {
-            buf.writeByte(5);
-            writeFloat(f);
-        } else if (object instanceof Double d) {
-            buf.writeByte(6);
-            writeDouble(d);
-        } else {
-            throw new IllegalArgumentException("Unsupported object: " + object.getClass());
+        switch (object) {
+            case String string -> {
+                buf.writeByte(1);
+                writeString(string);
+            }
+            case Integer integer -> {
+                buf.writeByte(2);
+                writeInt(integer);
+            }
+            case Boolean bool -> {
+                buf.writeByte(3);
+                writeBoolean(bool);
+            }
+            case Long l -> {
+                buf.writeByte(4);
+                writeLong(l);
+            }
+            case Float f -> {
+                buf.writeByte(5);
+                writeFloat(f);
+            }
+            case Double d -> {
+                buf.writeByte(6);
+                writeDouble(d);
+            }
+            case null, default -> throw new IllegalArgumentException("Unsupported object: " + object.getClass());
         }
     }
 
