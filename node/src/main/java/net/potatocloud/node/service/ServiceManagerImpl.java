@@ -12,10 +12,12 @@ import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.cache.CacheManager;
 import net.potatocloud.node.screen.ScreenManager;
+import net.potatocloud.node.service.config.ServiceDefaultFiles;
 import net.potatocloud.node.service.listeners.*;
 import net.potatocloud.node.service.runtime.ServiceLauncher;
 import net.potatocloud.node.template.TemplateManager;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -44,6 +46,8 @@ public class ServiceManagerImpl implements ServiceManager {
         this.config = config;
         this.logger = logger;
         this.server = server;
+
+        ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
 
         final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager);
 

@@ -3,8 +3,10 @@ package net.potatocloud.node;
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventBus;
+import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
+import net.potatocloud.api.module.Module;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
@@ -33,7 +35,6 @@ import net.potatocloud.node.properties.NodePropertiesHolder;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.service.ServiceManagerImpl;
-import net.potatocloud.node.service.config.ServiceDefaultFiles;
 import net.potatocloud.node.service.start.ServiceStartScheduler;
 import net.potatocloud.node.setup.SetupManager;
 import net.potatocloud.node.template.TemplateManager;
@@ -43,13 +44,16 @@ import net.potatocloud.node.version.UpdateChecker;
 import net.potatocloud.node.version.VersionFile;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Getter
 public class Node extends CloudAPI {
 
     private final long startupTime;
-    private NodeConfig config;
+    private final NodeConfigLoader configLoader;
+    private final NodeConfig config;
 
     private final NodeLogger logger;
     private final Console console;
@@ -80,37 +84,57 @@ public class Node extends CloudAPI {
     private final ModuleLoader moduleLoader;
 
     private final Version previousVersion;
-    private boolean ready = false;
+    private boolean ready;
     private boolean stopping;
 
     public Node(long startupTime) {
         this.startupTime = startupTime;
+        this.configLoader = new NodeConfigLoader();
+        this.previousVersion = VersionFile.read();
 
-        final NodeConfigLoader configLoader = new NodeConfigLoader();
-
-        config = configLoader.load();
-
-        previousVersion = VersionFile.read();
-        migrationManager = new MigrationManager(previousVersion);
+        this.migrationManager = new MigrationManager(previousVersion);
+        configLoader.load();
         migrationManager.migrate();
-
         VersionFile.write(CloudAPI.VERSION);
+        this.config = configLoader.load();
 
-        this.config = configLoader.reload();
+        this.commandManager = new CommandManager();
+        this.console = new Console(config, commandManager);
+        this.logger = new NodeLogger(config, console, Path.of(config.folders().logs()));
+        this.screenManager = new ScreenManager(console, logger);
+        this.setupManager = new SetupManager();
+        this.updateChecker = new UpdateChecker(logger);
 
+        this.packetManager = new PacketManager();
+        this.server = new NettyNetworkServer(packetManager);
+        this.eventBus = new ServerEventBus(server);
+        this.propertiesHolder = new NodePropertiesHolder(server);
+        this.playerManager = new CloudPlayerManagerImpl(server);
+
+        this.templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
+        this.groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger);
+        this.platformManager = new PlatformManagerImpl(logger, server);
+        this.downloadManager = new DownloadManager(Path.of(config.folders().platforms()), logger);
+        this.cacheManager = new CacheManager(logger);
+
+        this.moduleManager = new ModuleManager();
+        this.moduleLoader = new ModuleLoader(moduleManager);
+
+        this.serviceManager = new ServiceManagerImpl(
+                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
+        );
+        this.serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
+    }
+
+    void start() {
         if (!NetworkUtils.isPortFree(config.node().port())) {
             System.err.println("The configured node port is already in use. Is another instance of potatocloud already running on this port?");
             System.exit(0);
         }
 
-        commandManager = new CommandManager();
-        console = new Console(config, commandManager);
-        logger = new NodeLogger(config, console, Path.of(config.folders().logs()));
-
         commandManager.setLogger(logger);
 
         final Screen nodeScreen = new Screen(Screen.NODE_SCREEN);
-        screenManager = new ScreenManager(console, logger);
         screenManager.register(nodeScreen);
         screenManager.setCurrentScreen(nodeScreen);
 
@@ -120,63 +144,43 @@ public class Node extends CloudAPI {
             logger.warn("Your hardware is low, you may experience performance issues. Recommended: 4 cores, 4GB RAM");
         }
 
-        setupManager = new SetupManager();
-
-        updateChecker = new UpdateChecker(logger);
-
         if (!config.disableUpdateChecker()) {
             updateChecker.checkForUpdates();
         }
 
-        packetManager = new PacketManager();
-        server = new NettyNetworkServer(packetManager);
-        server.start(config.node().host(), config.node().port());
-        logger.info("Network server started using &aNetty &7on &a" + config.node().host() + "&8:&a" + config.node().port());
+        final String host = config.node().host();
+        final int port = config.node().port();
 
-        // Handle logs from Connector
+        server.start(host, port);
+        logger.info("Network server started using &aNetty &7on &a" + host + "&8:&a" + port);
+
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
 
-        eventBus = new ServerEventBus(server);
-        propertiesHolder = new NodePropertiesHolder(server);
-        playerManager = new CloudPlayerManagerImpl(server);
-        templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
-        groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger);
+        final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
 
-        if (!groupManager.getAllServiceGroups().isEmpty()) {
+        if (!groups.isEmpty()) {
             final int count = groupManager.getAllServiceGroups().size();
+            final String groupText = count == 1 ? "group" : "groups";
 
-            logger.info("Loaded &a" + count + "&7 " + (count == 1 ? "group" : "groups") + "&8:");
-
-            groupManager.getAllServiceGroups().forEach(group -> logger.info("&8» &a" + group.getName()));
+            logger.info("Loaded &a" + count + "&7 " + groupText + "&8:");
+            groups.forEach(group -> logger.info("&8» &a" + group.getName()));
         }
-
-        platformManager = new PlatformManagerImpl(logger, server);
 
         if (!platformManager.getPlatforms().isEmpty()) {
             logger.info("Loaded &a" + platformManager.getPlatforms().size() + "&7 platforms&8:");
-
             platformManager.getPlatforms().forEach(platform -> logger.info("&8» &a" + platform.getName()));
         }
 
-        downloadManager = new DownloadManager(Path.of(config.folders().platforms()), logger);
-        cacheManager = new CacheManager(logger);
-
-        ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
-        serviceManager = new ServiceManagerImpl(
-                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
-        );
-        serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
-
-        moduleManager = new ModuleManager();
-        moduleLoader = new ModuleLoader(moduleManager);
         moduleLoader.load(Path.of(config.folders().modules()));
 
-        if (!moduleManager.getModules().isEmpty()) {
+        final Collection<Module> modules = moduleManager.getModules().values();
+
+        if (!modules.isEmpty()) {
             final int count = moduleManager.getModules().size();
+            final String moduleText = count == 1 ? "module" : "modules";
 
-            logger.info("Loaded &a" + count + "&7 module" + (count == 1 ? "" : "s") + "&8:");
-
-            moduleManager.getModules().values().forEach(module -> logger.info("&8» &a" + module.getName() + " &7v" + module.getVersion()));
+            logger.info("Loaded &a" + count + "&7" + moduleText + "&8:");
+            modules.forEach(module -> logger.info("&8» &a" + module.getName() + " &7v" + module.getVersion()));
         }
 
         moduleManager.enableAll();
@@ -216,14 +220,16 @@ public class Node extends CloudAPI {
 
         moduleManager.disableAll();
 
-        if (!serviceManager.getAllServices().isEmpty()) {
-            logger.info("Shutting down all running services&8...");
+        final List<Service> services = serviceManager.getAllServices();
 
-            CompletableFuture.allOf(
-                    serviceManager.getAllServices().stream()
-                            .map(Service::shutdown)
-                            .toArray(CompletableFuture[]::new)
-            ).join();
+        if (!services.isEmpty()) {
+            logger.info("Shutting down all running services...");
+
+            final CompletableFuture<?>[] futures = services.stream()
+                    .map(Service::shutdown)
+                    .toArray(CompletableFuture[]::new);
+
+            CompletableFuture.allOf(futures).join();
         }
 
         logger.info("Stopping network server&8...");
@@ -233,9 +239,7 @@ public class Node extends CloudAPI {
         FileUtils.deleteDirectory(Path.of(config.folders().tempServices()));
 
         logger.info("Shutdown complete. Goodbye!");
-
-        //console.close();
-        System.exit(0);
+        console.close();
     }
 
     public long getUptime() {

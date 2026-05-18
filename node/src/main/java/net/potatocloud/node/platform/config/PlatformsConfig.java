@@ -1,9 +1,9 @@
 package net.potatocloud.node.platform.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record PlatformsConfig(@JsonProperty("platforms") Map<String, PlatformConfig> platforms) {
 
