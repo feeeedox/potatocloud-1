@@ -2,7 +2,7 @@ package net.potatocloud.network;
 
 import net.potatocloud.network.packet.Packet;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface NetworkServer extends NetworkComponent {
 
@@ -10,7 +10,7 @@ public interface NetworkServer extends NetworkComponent {
 
     boolean running();
 
-    List<NetworkConnection> connectedSessions();
+    Collection<NetworkConnection> connectedSessions();
 
     int port();
 

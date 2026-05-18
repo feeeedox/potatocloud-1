@@ -16,13 +16,14 @@ import net.potatocloud.network.packet.PacketManager;
 import net.potatocloud.network.packet.PacketRegistry;
 
 import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NettyNetworkServer implements NetworkServer {
 
     private final PacketManager packetManager;
-    private final List<NetworkConnection> connectedSessions = new CopyOnWriteArrayList<>();
+    private final Map<Channel, NetworkConnection> sessionMap = new ConcurrentHashMap<>();
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -52,12 +53,12 @@ public class NettyNetworkServer implements NetworkServer {
 
     @Override
     public void close() {
-        for (NetworkConnection session : connectedSessions) {
+        for (NetworkConnection session : connectedSessions()) {
             session.close();
         }
-        channel.close();
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+        channel.close().syncUninterruptibly();
+        bossGroup.shutdownGracefully().syncUninterruptibly();
+        workerGroup.shutdownGracefully().syncUninterruptibly();
     }
 
     @Override
@@ -66,13 +67,17 @@ public class NettyNetworkServer implements NetworkServer {
     }
 
     @Override
-    public List<NetworkConnection> connectedSessions() {
-        return connectedSessions;
+    public Collection<NetworkConnection> connectedSessions() {
+        return sessionMap.values();
     }
 
     @Override
     public int port() {
         return port;
+    }
+
+    public Map<Channel, NetworkConnection> sessionMap() {
+        return sessionMap;
     }
 
     public PacketManager packetManager() {
