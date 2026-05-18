@@ -29,8 +29,6 @@ public class ServiceManagerImpl implements ServiceManager {
     public ServiceManagerImpl(NetworkClient client) {
         this.client = client;
 
-        client.send(new RequestServicesPacket());
-
         client.on(ServiceAddPacket.class, new ServiceAddListener(this));
 
         client.on(ServiceRemovePacket.class, ctx -> services.remove(getService(ctx.packet().serviceName())));
@@ -38,6 +36,8 @@ public class ServiceManagerImpl implements ServiceManager {
         client.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this));
 
         client.on(ServiceMemoryUpdatePacket.class, new ServiceMemoryUpdateListener(this));
+
+        client.send(new RequestServicesPacket());
     }
 
     public void addService(Service service) {

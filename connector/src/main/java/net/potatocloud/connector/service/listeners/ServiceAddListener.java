@@ -1,7 +1,6 @@
 package net.potatocloud.connector.service.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.connector.service.ServiceImpl;
@@ -27,7 +26,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
                 packet.serviceId(),
                 packet.port(),
                 packet.startTimestamp(),
-                CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(packet.groupName()),
+                packet.groupName(),
                 packet.propertyMap(),
                 ServiceStatus.valueOf(packet.status()),
                 packet.maxPlayers(),

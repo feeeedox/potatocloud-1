@@ -97,7 +97,7 @@ public record ServiceGroupConfig(
                 platform,
                 platformVersion,
                 javaCommand,
-                jvmFlags,
+                jvmFlags != null ? jvmFlags : new ArrayList<>(),
                 maxPlayers,
                 maxMemory,
                 minOnlineCount,
@@ -106,7 +106,7 @@ public record ServiceGroupConfig(
                 fallback,
                 startPriority,
                 startPercentage,
-                templates,
+                templates != null ? templates : new ArrayList<>(),
                 propertyMap
         );
     }

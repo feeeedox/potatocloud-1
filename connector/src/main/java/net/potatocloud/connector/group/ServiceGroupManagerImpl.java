@@ -26,11 +26,11 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     public ServiceGroupManagerImpl(NetworkClient client) {
         this.client = client;
 
-        client.send(new RequestGroupsPacket());
-
         client.on(GroupAddPacket.class, new GroupAddListener(this));
         client.on(GroupDeletePacket.class, new GroupDeleteListener(this));
         client.on(GroupUpdatePacket.class, new GroupUpdateListener(this));
+
+        client.send(new RequestGroupsPacket());
     }
 
     public void addServiceGroup(ServiceGroup group) {

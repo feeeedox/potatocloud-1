@@ -3,6 +3,7 @@ package net.potatocloud.connector.service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
@@ -25,7 +26,7 @@ public class ServiceImpl implements Service {
     private final int serviceId;
     private final int port;
     private final long startTimestamp;
-    private final ServiceGroup group;
+    private final String groupName;
     private final Map<String, Property<?>> propertyMap;
     private ServiceStatus status;
     private int maxPlayers;
@@ -35,7 +36,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public ServiceGroup getServiceGroup() {
-        return group;
+        return CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(groupName);
     }
 
     @Override

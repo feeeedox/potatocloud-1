@@ -21,7 +21,7 @@ public interface PlatformPlugin {
 
         final Service currentService = api.getServiceManager().getCurrentService();
 
-        if (currentService == null) {
+        if (currentService == null || currentService.getServiceGroup() == null) {
             runTaskLater(this::initCurrentService, 1);
             return;
         }

@@ -58,6 +58,10 @@ public class PacketBuffer {
     }
 
     public void writeStringList(List<String> list) {
+        if (list == null) {
+            writeInt(-1);
+            return;
+        }
         writeInt(list.size());
         for (String item : list) {
             writeString(item);
@@ -66,6 +70,9 @@ public class PacketBuffer {
 
     public List<String> readStringList() {
         final int size = readInt();
+        if (size == -1) {
+            return new ArrayList<>();
+        }
         final List<String> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             list.add(readString());
@@ -125,6 +132,10 @@ public class PacketBuffer {
     }
 
     public void writePropertyMap(Map<String, Property<?>> propertyMap) {
+        if (propertyMap == null) {
+            writeInt(-1);
+            return;
+        }
         writeInt(propertyMap.size());
         for (Property<?> prop : propertyMap.values()) {
             writeProperty(prop);
@@ -133,6 +144,9 @@ public class PacketBuffer {
 
     public Map<String, Property<?>> readPropertyMap() {
         final int size = readInt();
+        if (size == -1) {
+            return new HashMap<>();
+        }
         final Map<String, Property<?>> map = new HashMap<>(size);
         for (int i = 0; i < size; i++) {
             final Property<?> property = readProperty();
