@@ -26,9 +26,9 @@ import java.util.concurrent.CompletableFuture;
 public class NettyNetworkClient implements NetworkClient {
 
     private final PacketManager packetManager;
-    private Channel channel;
+    private volatile Channel channel;
     private EventLoopGroup group;
-    private NetworkConnection connection;
+    private volatile NetworkConnection connection;
     private final List<ConnectionListener> listeners = new ArrayList<>();
 
     public NettyNetworkClient(PacketManager packetManager) {
