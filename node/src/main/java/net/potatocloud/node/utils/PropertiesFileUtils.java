@@ -1,10 +1,10 @@
 package net.potatocloud.node.utils;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -16,10 +16,10 @@ public final class PropertiesFileUtils {
     public static Properties loadProperties(Path path) {
         final Properties properties = new Properties();
 
-        try (FileInputStream in = new FileInputStream(path.toFile())) {
+        try (InputStream in = Files.newInputStream(path)) {
             properties.load(in);
             return properties;
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             return null;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load properties from file: " + path, e);
