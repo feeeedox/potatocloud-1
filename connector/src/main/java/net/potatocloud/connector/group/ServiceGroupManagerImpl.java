@@ -55,6 +55,10 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
     @Override
     public void createServiceGroup(String name, String platformName, String platformVersionName, int minOnlineCount, int maxOnlineCount, int maxPlayers, int maxMemory, boolean fallback, boolean isStatic, int startPriority, int startPercentage, String javaCommand, List<String> customJvmFlags, Map<String, Property<?>> propertyMap) {
+        if (existsServiceGroup(name)) {
+            return;
+        }
+
         final ServiceGroupImpl group = new ServiceGroupImpl(
                 name,
                 platformName,
