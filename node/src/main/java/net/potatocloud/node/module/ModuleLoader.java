@@ -35,9 +35,7 @@ public class ModuleLoader {
     }
 
     private void loadJar(Path jar) {
-        try {
-            final URLClassLoader loader = new URLClassLoader(new URL[]{jar.toUri().toURL()}, getClass().getClassLoader());
-
+        try (URLClassLoader loader = new URLClassLoader(new URL[]{jar.toUri().toURL()}, getClass().getClassLoader())) {
             try (InputStream stream = loader.getResourceAsStream("module.yml")) {
                 if (stream == null) {
                     return;
