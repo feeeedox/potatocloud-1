@@ -41,20 +41,15 @@ public class NettyNetworkClient implements NetworkClient {
 
         group = NettyUtils.createEventLoopGroup();
 
-        final ChannelFuture future = new Bootstrap()
+        final ChannelFuture connectFuture = new Bootstrap()
                 .group(group)
                 .channel(Epoll.isAvailable() ? EpollSocketChannel.class : NioSocketChannel.class)
                 .handler(new NettyNetworkClientInitializer(packetManager, this))
                 .connect(host, port).syncUninterruptibly();
 
-        future.addListener(f -> {
-            if (!f.isSuccess()) {
-                return;
-            }
-            channel = future.channel();
-            connection = new NettyNetworkConnection(channel);
-            onConnected();
-        });
+        channel = connectFuture.channel();
+        connection = new NettyNetworkConnection(channel);
+        onConnected();
     }
 
     @Override
