@@ -50,7 +50,7 @@ public class CacheManager {
             return null;
         }
 
-        final String jarHash = HashUtils.sha256(platformJarPath.toFile());
+        final String jarHash = HashUtils.sha256(platformJarPath);
         final Path cacheDirectory = platformDirectory.resolve("cache-" + jarHash);
         final String cacheKey = platform.getName() + "-" + version.getName() + "-" + jarHash;
 

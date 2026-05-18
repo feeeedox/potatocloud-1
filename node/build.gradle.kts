@@ -26,7 +26,6 @@ dependencies {
     implementation(libs.slf4j.nop)
     implementation(libs.lombok)
     annotationProcessor(libs.lombok)
-    implementation(libs.commons.codec)
 
     compileOnly(project(":plugins:platform:spigot"))
     compileOnly(project(":plugins:platform:spigot-legacy"))

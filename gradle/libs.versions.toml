@@ -6,7 +6,6 @@ lombok = "1.18.46"
 jackson = "3.1.3"
 jline = "4.1.0"
 netty = "4.2.13.Final"
-commons-codec = "1.22.0"
 oshi = "7.1.0"
 slf4j-nop = "2.0.17"
 spigot = "1.20.4-R0.1-SNAPSHOT"
@@ -23,7 +22,6 @@ jackson-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", ve
 jline = { module = "org.jline:jline", version.ref = "jline" }
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
 netty-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
-commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 oshi = { module = "com.github.oshi:oshi-core-ffm", version.ref = "oshi" }
 slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j-nop" }
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }

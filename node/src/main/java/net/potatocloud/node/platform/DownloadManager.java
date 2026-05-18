@@ -9,9 +9,8 @@ import net.potatocloud.node.Node;
 import net.potatocloud.node.platform.parser.LeafBuildParser;
 import net.potatocloud.node.platform.parser.PaperBuildParser;
 import net.potatocloud.node.platform.parser.PurpurBuildParser;
-import org.apache.commons.codec.digest.DigestUtils;
+import net.potatocloud.node.utils.HashUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +63,6 @@ public class DownloadManager {
                 .findFirst()
                 .orElse(null);
 
-        // Use build parser to get the correct download url and hash if version has no download url
         if ((version.getDownloadUrl() == null || version.getDownloadUrl().isEmpty()) && parser != null) {
             parser.parse(version, platform.getDownloadUrl());
         }
@@ -99,21 +97,15 @@ public class DownloadManager {
     }
 
     private boolean needsUpdate(PlatformVersion version, Path platformJarPath) {
-        // Check if the platform version file is outdated by comparing its hash with the latest version hash
         final String versionHash = version.getFileHash();
         if (versionHash == null || versionHash.isEmpty()) {
             return false;
         }
 
-        try (FileInputStream stream = new FileInputStream(platformJarPath.toFile())) {
-            final String currentFileHash = version.getPlatform().getHashType().equals("md5")
-                    ? DigestUtils.md5Hex(stream)
-                    : DigestUtils.sha256Hex(stream);
+        final String currentHash = version.getPlatform().getHashType().equals("md5")
+                ? HashUtils.md5(platformJarPath)
+                : HashUtils.sha256(platformJarPath);
 
-            // Returns true if the file is outdated
-            return !currentFileHash.equalsIgnoreCase(versionHash);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to check for platform updates: " + platformJarPath, e);
-        }
+        return !currentHash.equalsIgnoreCase(versionHash);
     }
 }
