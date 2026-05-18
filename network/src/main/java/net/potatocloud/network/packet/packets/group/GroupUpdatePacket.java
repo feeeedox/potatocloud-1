@@ -27,10 +27,10 @@ public record GroupUpdatePacket(
         public void encode(GroupUpdatePacket packet, PacketBuffer buf) {
             buf.writeString(packet.groupName());
             buf.writeStringList(packet.customJvmFlags());
-            buf.writeInt(packet.minOnlineCount());
-            buf.writeInt(packet.maxOnlineCount());
             buf.writeInt(packet.maxPlayers());
             buf.writeInt(packet.maxMemory());
+            buf.writeInt(packet.minOnlineCount());
+            buf.writeInt(packet.maxOnlineCount());
             buf.writeBoolean(packet.fallback());
             buf.writeInt(packet.startPriority());
             buf.writeInt(packet.startPercentage());

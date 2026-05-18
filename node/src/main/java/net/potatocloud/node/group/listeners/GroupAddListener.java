@@ -32,6 +32,7 @@ public class GroupAddListener implements PacketListener<GroupAddPacket> {
                 packet.fallback(),
                 packet.startPriority(),
                 packet.startPercentage(),
+                packet.serviceTemplates(),
                 packet.propertyMap()
         ));
 

@@ -36,8 +36,8 @@ public record GroupAddPacket(
             buf.writeStringList(packet.customJvmFlags());
             buf.writeInt(packet.maxPlayers());
             buf.writeInt(packet.maxMemory());
-            buf.writeInt(packet.maxOnlineCount());
             buf.writeInt(packet.minOnlineCount());
+            buf.writeInt(packet.maxOnlineCount());
             buf.writeBoolean(packet.isStatic());
             buf.writeBoolean(packet.fallback());
             buf.writeInt(packet.startPriority());

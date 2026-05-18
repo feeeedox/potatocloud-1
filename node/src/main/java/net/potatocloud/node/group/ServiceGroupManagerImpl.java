@@ -139,10 +139,18 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
     @Override
     public void deleteServiceGroup(String name) {
+        if (!deleteServiceGroupLocal(name)) {
+            return;
+        }
+
+        server.generateBroadcast().broadcast(new GroupDeletePacket(name));
+    }
+
+    public boolean deleteServiceGroupLocal(String name) {
         final ServiceGroup group = getServiceGroup(name);
 
         if (group == null || !groups.contains(group)) {
-            return;
+            return false;
         }
 
         group.getAllServices().forEach(Service::shutdown);
@@ -155,6 +163,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         } catch (IOException e) {
             logger.error("Failed to delete group file for: " + name);
         }
+        return true;
     }
 
     @Override
