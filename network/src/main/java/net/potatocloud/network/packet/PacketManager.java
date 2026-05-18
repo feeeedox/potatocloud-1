@@ -5,6 +5,8 @@ import net.potatocloud.network.packet.request.PendingRequest;
 import net.potatocloud.network.packet.request.RequestPacket;
 import net.potatocloud.network.packet.request.ResponsePacket;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +23,7 @@ public final class PacketManager {
 
     private final Map<Integer, PendingRequest<?>> pending = new ConcurrentHashMap<>();
     private final AtomicInteger requestCounter = new AtomicInteger(1);
-    private final Map<Integer, Integer> requestIds = new ConcurrentHashMap<>();
+    private final Map<Packet, Integer> requestIds = Collections.synchronizedMap(new IdentityHashMap<>());
 
     public <T extends Packet> void register(int id, Class<T> clazz, Packet.Codec<T> codec) {
         codecs.put(id, codec);
@@ -43,17 +45,17 @@ public final class PacketManager {
     }
 
     public int requestId(Packet packet) {
-        return requestIds.getOrDefault(packetId(packet), 0);
+        return requestIds.getOrDefault(packet, 0);
     }
 
     public void requestId(Packet packet, int requestId) {
         if (requestId != 0) {
-            requestIds.put(packetId(packet), requestId);
+            requestIds.put(packet, requestId);
         }
     }
 
     public void removeRequest(Packet packet) {
-        requestIds.remove(packetId(packet));
+        requestIds.remove(packet);
     }
 
     public <T extends Packet> void on(Class<T> type, PacketListener<T> listener) {
@@ -62,7 +64,7 @@ public final class PacketManager {
 
     public <T extends ResponsePacket> CompletableFuture<T> request(NetworkConnection connection, RequestPacket packet, Class<T> type) {
         final int id = requestCounter.getAndIncrement();
-        requestIds.put(packetId(packet), id);
+        requestIds.put(packet, id);
 
         final CompletableFuture<T> future = new CompletableFuture<>();
         pending.put(id, new PendingRequest<>(type, future));
@@ -82,7 +84,7 @@ public final class PacketManager {
 
             final PendingRequest<?> pendingRequest = pending.get(id);
 
-            if (pendingRequest.future() == null || pendingRequest.future().isDone()) {
+            if (pendingRequest == null || pendingRequest.future() == null || pendingRequest.future().isDone()) {
                 return;
             }
 
