@@ -96,7 +96,7 @@ public class Node extends CloudAPI {
         configLoader.load();
         migrationManager.migrate();
         VersionFile.write(CloudAPI.VERSION);
-        this.config = configLoader.load();
+        this.config = configLoader.reload();
 
         this.commandManager = new CommandManager();
         this.console = new Console(config, commandManager);
@@ -179,7 +179,7 @@ public class Node extends CloudAPI {
             final int count = moduleManager.getModules().size();
             final String moduleText = count == 1 ? "module" : "modules";
 
-            logger.info("Loaded &a" + count + "&7" + moduleText + "&8:");
+            logger.info("Loaded &a" + count + "&7 " + moduleText + "&8:");
             modules.forEach(module -> logger.info("&8» &a" + module.getName() + " &7v" + module.getVersion()));
         }
 

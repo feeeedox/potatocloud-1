@@ -87,11 +87,11 @@ public class Console {
     }
 
     public void close() {
-        consoleReader.interrupt();
         try {
             terminal.close();
         } catch (Exception e) {
             throw new RuntimeException("Failed to close terminal", e);
         }
+        consoleReader.interrupt();
     }
 }

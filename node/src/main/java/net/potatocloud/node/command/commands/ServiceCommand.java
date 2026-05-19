@@ -5,6 +5,7 @@ import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.node.command.ArgumentType;
 import net.potatocloud.node.command.Command;
@@ -278,6 +279,12 @@ public class ServiceCommand extends Command {
                 .argument(ArgumentType.Service("service"))
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
+
+                    final ServiceStatus status = service.getStatus();
+                    if (status == ServiceStatus.STOPPED || status == ServiceStatus.STOPPING) {
+                        logger.info("Service &a" + service.getName() + " &7is already &c" + status.name().toLowerCase());
+                        return;
+                    }
 
                     service.shutdown();
                 });
