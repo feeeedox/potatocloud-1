@@ -48,7 +48,7 @@ public class CommandManager {
         if (command != null) {
             return command;
         }
-        return aliases.get(name);
+        return aliases.get(name.toLowerCase());
     }
 
     public List<String> getAllCommandNames() {
