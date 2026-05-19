@@ -132,6 +132,6 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public Service getCurrentService() {
-        return null;
+        throw new UnsupportedOperationException("getCurrentService() is only available when the API is used from within a connector.");
     }
 }
