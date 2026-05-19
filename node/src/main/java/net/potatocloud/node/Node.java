@@ -10,7 +10,7 @@ import net.potatocloud.api.module.Module;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.eventbus.ServerEventBus;
 import net.potatocloud.network.NetworkServer;

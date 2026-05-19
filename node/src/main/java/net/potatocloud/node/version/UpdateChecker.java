@@ -3,7 +3,7 @@ package net.potatocloud.node.version;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 import net.potatocloud.node.utils.RequestUtil;
 import tools.jackson.databind.JsonNode;
 

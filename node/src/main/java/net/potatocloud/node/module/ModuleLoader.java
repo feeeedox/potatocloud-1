@@ -3,7 +3,7 @@ package net.potatocloud.node.module;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.module.AbstractModule;
 import net.potatocloud.api.module.Module;
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.common.JacksonUtils;
 

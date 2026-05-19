@@ -1,6 +1,6 @@
 package net.potatocloud.node.migration;
 
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

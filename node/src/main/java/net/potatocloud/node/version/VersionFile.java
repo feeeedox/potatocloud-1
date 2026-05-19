@@ -1,6 +1,6 @@
 package net.potatocloud.node.version;
 
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

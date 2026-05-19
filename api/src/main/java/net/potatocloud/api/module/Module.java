@@ -1,6 +1,6 @@
 package net.potatocloud.api.module;
 
-import net.potatocloud.api.utils.version.Version;
+import net.potatocloud.api.version.Version;
 
 public interface Module {
 
