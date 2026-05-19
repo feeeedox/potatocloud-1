@@ -10,15 +10,17 @@ public class Version implements Comparable<Version> {
     private final int major;
     private final int minor;
     private final int patch;
+    private final String tag;
 
-    protected Version(int major, int minor, int patch) {
+    protected Version(int major, int minor, int patch, String tag) {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
+        this.tag = tag;
     }
 
     public static Version of(int major, int minor, int patch) {
-        return new Version(major, minor, patch);
+        return new Version(major, minor, patch, null);
     }
 
     public static Version fromString(String value) {
@@ -26,12 +28,38 @@ public class Version implements Comparable<Version> {
             return null;
         }
 
-        final String[] parts = value.split("\\.");
-        return new Version(
-                Integer.parseInt(parts[0]),
-                Integer.parseInt(parts[1]),
-                Integer.parseInt(parts[2])
-        );
+        String version = value.trim();
+
+        if (version.startsWith("v") || version.startsWith("V")) {
+            version = version.substring(1);
+        }
+
+        String tag = null;
+
+        final String[] split = version.split("-", 2);
+
+        version = split[0];
+
+        if (split.length == 2) {
+            tag = split[1];
+        }
+
+        final String[] parts = version.split("\\.");
+
+        if (parts.length != 3) {
+            return null;
+        }
+
+        try {
+            return new Version(
+                    Integer.parseInt(parts[0]),
+                    Integer.parseInt(parts[1]),
+                    Integer.parseInt(parts[2]),
+                    tag
+            );
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @Override
@@ -42,18 +70,7 @@ public class Version implements Comparable<Version> {
         if (minor != other.minor) {
             return Integer.compare(minor, other.minor);
         }
-        if (patch != other.patch) {
-            return Integer.compare(patch, other.patch);
-        }
-
-        if (this instanceof BetaVersion && !(other instanceof BetaVersion)) {
-            return -1;
-        }
-        if (!(this instanceof BetaVersion) && other instanceof BetaVersion) {
-            return 1;
-        }
-
-        return 0;
+        return Integer.compare(patch, other.patch);
     }
 
     @Override
@@ -64,16 +81,16 @@ public class Version implements Comparable<Version> {
         if (!(o instanceof Version other)) {
             return false;
         }
-        return major == other.major && minor == other.minor && patch == other.patch;
+        return major == other.major && minor == other.minor && patch == other.patch && Objects.equals(tag, other.tag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(major, minor, patch);
+        return Objects.hash(major, minor, patch, tag);
     }
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + patch;
+        return tag == null ? major + "." + minor + "." + patch : major + "." + minor + "." + patch + "-" + tag;
     }
 }
