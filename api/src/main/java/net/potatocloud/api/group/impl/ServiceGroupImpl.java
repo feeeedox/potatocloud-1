@@ -102,9 +102,6 @@ public class ServiceGroupImpl implements ServiceGroup {
 
     @Override
     public void removeServiceTemplate(String template) {
-        if (!serviceTemplates.contains(template)) {
-            return;
-        }
         serviceTemplates.remove(template);
     }
 
