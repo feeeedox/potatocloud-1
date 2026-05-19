@@ -32,7 +32,7 @@ public final class ServiceGroupStorage {
         }
     }
 
-    public static ServiceGroup load(File file) {
-        return MAPPER.readValue(file, ServiceGroupConfig.class).toGroup();
+    public static ServiceGroup load(Path path) {
+        return MAPPER.readValue(path, ServiceGroupConfig.class).toGroup();
     }
 }

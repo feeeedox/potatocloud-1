@@ -202,9 +202,14 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         }
 
         FileUtils.list(groupsPath).stream()
-                .filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".yml"))
-                .map(Path::toFile)
-                .map(ServiceGroupStorage::load)
-                .forEach(groups::add);
+                .filter(Files::isRegularFile)
+                .filter(path -> path.toString().endsWith(".yml"))
+                .forEach(path -> {
+                    try {
+                        groups.add(ServiceGroupStorage.load(path));
+                    } catch (Exception e) {
+                        logger.error("Failed to load group file&8: &a" + path.getFileName());
+                    }
+                });
     }
 }
