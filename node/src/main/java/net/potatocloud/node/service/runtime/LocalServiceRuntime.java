@@ -24,6 +24,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
     private OSProcess osProcess;
     private BufferedWriter processWriter;
     private BufferedReader processReader;
+    private String serviceName;
 
     public LocalServiceRuntime(ServiceGroup group, NodeConfig config, Logger logger) {
         this.group = group;
@@ -33,6 +34,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
     @Override
     public void start(Path directory, AbstractService service) {
+        this.serviceName = service.getName();
         final List<String> args = buildArguments(directory, service.getName());
 
         try {
@@ -71,7 +73,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
         try {
             if (!process.waitFor(config.service().killTimeout(), TimeUnit.SECONDS)) {
-                logger.debug("Service &a" + "abc" + " &7did not stop in time, destroying process&8...");
+                logger.debug("Service &a" + serviceName + " &7did not stop in time, destroying process&8...");
                 process.destroyForcibly();
                 process.waitFor();
             }
