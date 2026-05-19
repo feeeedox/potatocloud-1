@@ -7,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 
 public final class TimeFormatter {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
     private TimeFormatter() {
     }
 
@@ -45,6 +48,6 @@ public final class TimeFormatter {
     }
 
     public static String formatAsDateAndTime(long millis) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(millis));
+        return DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(millis));
     }
 }

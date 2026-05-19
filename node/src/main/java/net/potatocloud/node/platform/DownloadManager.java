@@ -90,7 +90,6 @@ public class DownloadManager {
         if (version.getDownloadUrl() == null || version.getDownloadUrl().isEmpty()) {
             logger.error("No download URL found for platform: " + platform.getName());
             return;
-
         }
         FileUtils.downloadFile(version.getDownloadUrl(), platformJarPath);
         logger.info("&7Finished downloading platform &a" + platform.getName() + "&7 version &a" + version.getName());
