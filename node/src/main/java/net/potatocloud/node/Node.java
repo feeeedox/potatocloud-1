@@ -2,6 +2,7 @@ package net.potatocloud.node;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
@@ -16,7 +17,9 @@ import net.potatocloud.eventbus.ServerEventBus;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.server.NettyNetworkServer;
 import net.potatocloud.network.packet.PacketManager;
+import net.potatocloud.network.packet.PacketRegistry;
 import net.potatocloud.network.packet.packets.logging.LogMessagePacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.command.commands.*;
 import net.potatocloud.node.config.NodeConfig;
@@ -70,12 +73,15 @@ public class Node extends CloudAPI {
     private final TemplateManager templateManager;
     private final ServiceGroupManager groupManager;
 
+    private final ClusterManagerImpl clusterManager;
+
     private final PlatformManagerImpl platformManager;
     private final DownloadManager downloadManager;
     private final CacheManager cacheManager;
 
     private final ServiceManagerImpl serviceManager;
     private final ServiceStartScheduler serviceStartScheduler;
+
 
     private final SetupManager setupManager;
     private final UpdateChecker updateChecker;
@@ -106,8 +112,12 @@ public class Node extends CloudAPI {
         this.updateChecker = new UpdateChecker(logger);
 
         this.packetManager = new PacketManager();
+        PacketRegistry.registerPackets(packetManager);
         this.server = new NettyNetworkServer(packetManager);
         this.eventBus = new ServerEventBus(server);
+
+        this.clusterManager = new ClusterManagerImpl(config.node().host(), config.node().port(), config.cluster(), packetManager, server, logger);
+
         this.propertiesHolder = new NodePropertiesHolder(server);
         this.playerManager = new CloudPlayerManagerImpl(server);
 
@@ -155,6 +165,11 @@ public class Node extends CloudAPI {
         logger.info("Network server started using &aNetty &7on &a" + host + "&8:&a" + port);
 
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
+
+
+        if (config.cluster().enabled()) {
+            clusterManager.start();
+        }
 
         final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
 
@@ -220,6 +235,8 @@ public class Node extends CloudAPI {
 
         moduleManager.disableAll();
 
+        clusterManager.close();
+
         final List<Service> services = serviceManager.getAllServices();
 
         if (!services.isEmpty()) {
@@ -254,5 +271,10 @@ public class Node extends CloudAPI {
     @Override
     public PropertyHolder getGlobalProperties() {
         return propertiesHolder;
+    }
+
+    @Override
+    public ClusterManager getClusterManager() {
+        return clusterManager;
     }
 }

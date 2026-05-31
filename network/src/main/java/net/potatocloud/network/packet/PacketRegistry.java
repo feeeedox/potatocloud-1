@@ -1,5 +1,7 @@
 package net.potatocloud.network.packet;
 
+import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
+import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
 import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
@@ -58,5 +60,8 @@ public final class PacketRegistry {
         manager.register(503, PropertyAddPacket.class, PropertyAddPacket.CODEC);
 
         manager.register(600, LogMessagePacket.class, LogMessagePacket.CODEC);
+
+        manager.register(700, NodeJoinPacket.class, NodeJoinPacket.CODEC);
+        manager.register(701, NodeLeavePacket.class, NodeLeavePacket.CODEC);
     }
 }

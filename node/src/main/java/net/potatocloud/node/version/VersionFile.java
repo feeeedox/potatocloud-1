@@ -1,10 +1,14 @@
 package net.potatocloud.node.version;
 
 import net.potatocloud.api.version.Version;
+import net.potatocloud.common.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public final class VersionFile {
 
@@ -28,11 +32,7 @@ public final class VersionFile {
     public static void write(Version version) {
         try {
             if (!Files.exists(VERSION_FILE)) {
-                Files.createFile(VERSION_FILE);
-
-                if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                    Files.setAttribute(VERSION_FILE, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
-                }
+                FileUtils.createHiddenFile(VERSION_FILE);
             }
 
             Files.writeString(VERSION_FILE, version.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);

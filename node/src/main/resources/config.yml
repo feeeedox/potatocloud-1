@@ -58,5 +58,18 @@ node:
   # Node communication port
   port: 16000
 
+cluster:
+  # Enable multi-node clustering
+  enabled: false
+
+  # Name of this node
+  name: Node-1
+
+  # Other cluster nodes to connect to
+  nodes:
+  #  - 127.0.0.1:16001
+  #  - 127.0.0.1:16002
+
 disable-update-checker: false
 debug: false
+

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
@@ -13,6 +14,13 @@ import java.util.stream.Stream;
 public final class FileUtils {
 
     private FileUtils() {
+    }
+
+    public static void createHiddenFile(Path path) throws IOException {
+        Files.createFile(path);
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            Files.setAttribute(path, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+        }
     }
 
     public static void deleteDirectory(Path directory) {

@@ -35,7 +35,10 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        server.sessionMap().remove(ctx.channel());
+        final NetworkConnection connection = server.sessionMap().remove(ctx.channel());
+        if (connection != null) {
+            server.handleDisconnect(connection);
+        }
     }
 
     @Override

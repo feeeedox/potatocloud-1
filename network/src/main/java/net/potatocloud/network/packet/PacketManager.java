@@ -26,6 +26,14 @@ public final class PacketManager {
     private final Map<Packet, Integer> requestIds = Collections.synchronizedMap(new IdentityHashMap<>());
 
     public <T extends Packet> void register(int id, Class<T> clazz, Packet.Codec<T> codec) {
+        if (codecs.containsKey(id)) {
+            throw new IllegalStateException("Duplicate packet id: " + id + " for " + clazz.getName());
+        }
+
+        if (packetIds.containsKey(clazz)) {
+            throw new IllegalStateException("Packet already registered: " + clazz.getName());
+        }
+
         codecs.put(id, codec);
         packetIds.put(clazz, id);
     }

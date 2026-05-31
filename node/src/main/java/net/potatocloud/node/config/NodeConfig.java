@@ -7,6 +7,7 @@ public record NodeConfig(
         ServiceConfig service,
         FoldersConfig folders,
         NodeNetworkConfig node,
+        ClusterConfig cluster,
         @JsonProperty("disable-update-checker") boolean disableUpdateChecker,
         boolean debug
 ) {}

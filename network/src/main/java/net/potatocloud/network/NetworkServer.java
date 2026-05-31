@@ -3,6 +3,7 @@ package net.potatocloud.network;
 import net.potatocloud.network.packet.Packet;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface NetworkServer extends NetworkComponent {
 
@@ -15,6 +16,8 @@ public interface NetworkServer extends NetworkComponent {
     int port();
 
     void send(NetworkConnection client, Packet packet);
+
+    default void addDisconnectListener(Consumer<NetworkConnection> listener) {}
 
     default Broadcast generateBroadcast() {
         return new Broadcast(this);
