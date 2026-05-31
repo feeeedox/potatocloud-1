@@ -18,7 +18,7 @@ public record CloudPlayerUpdatePacket(
 
         @Override
         public void encode(CloudPlayerUpdatePacket packet, PacketBuffer buf) {
-            buf.writeString(packet.playerUniqueId().toString());
+            buf.writeUUID(packet.playerUniqueId());
             buf.writeString(packet.connectedProxyName());
             buf.writeString(packet.connectedServiceName());
             buf.writePropertyMap(packet.propertyMap());
@@ -27,7 +27,7 @@ public record CloudPlayerUpdatePacket(
         @Override
         public CloudPlayerUpdatePacket decode(PacketBuffer buf) {
             return new CloudPlayerUpdatePacket(
-                    UUID.fromString(buf.readString()),
+                    buf.readUUID(),
                     buf.readString(),
                     buf.readString(),
                     buf.readPropertyMap()

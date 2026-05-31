@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class PacketBuffer {
 
@@ -160,6 +161,15 @@ public class PacketBuffer {
             map.put(property.getName(), property);
         }
         return map;
+    }
+
+    public void writeUUID(UUID uuid) {
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
+    }
+
+    public UUID readUUID() {
+        return new UUID(buf.readLong(), buf.readLong());
     }
 
     public void writeLong(long value) {

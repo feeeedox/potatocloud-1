@@ -20,7 +20,7 @@ public record CloudPlayerAddPacket(
         @Override
         public void encode(CloudPlayerAddPacket packet, PacketBuffer buf) {
             buf.writeString(packet.username());
-            buf.writeString(packet.uniqueId().toString());
+            buf.writeUUID(packet.uniqueId());
             buf.writeString(packet.connectedProxyName());
             buf.writeString(packet.connectedServiceName());
             buf.writePropertyMap(packet.propertyMap());
@@ -30,7 +30,7 @@ public record CloudPlayerAddPacket(
         public CloudPlayerAddPacket decode(PacketBuffer buf) {
             return new CloudPlayerAddPacket(
                     buf.readString(),
-                    UUID.fromString(buf.readString()),
+                    buf.readUUID(),
                     buf.readString(),
                     buf.readString(),
                     buf.readPropertyMap()
