@@ -235,7 +235,9 @@ public class Node extends CloudAPI {
 
         moduleManager.disableAll();
 
-        clusterManager.close();
+        if (config.cluster().enabled()) {
+            clusterManager.close();
+        }
 
         final List<Service> services = serviceManager.getAllServices();
 
