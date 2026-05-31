@@ -27,7 +27,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
     @Override
     public void handle(PacketContext<NodeJoinPacket> ctx) {
         final NodeJoinPacket packet = ctx.packet();
-        final UUID nodeId = UUID.fromString(packet.nodeId());
+        final UUID nodeId = packet.nodeId();
 
         if (nodeId.equals(localNode.id())) {
             return;
@@ -42,7 +42,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
             // node restarted and lost our data, resend join
             if (!clusterManager.isOutbound(ctx.connection())) {
-                ctx.connection().send(new NodeJoinPacket(localNode.id().toString(), localNode.name(), localNode.host(), localNode.port()));
+                ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
             }
             return;
         }
@@ -54,7 +54,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            ctx.connection().send(new NodeJoinPacket(localNode.id().toString(), localNode.name(), localNode.host(), localNode.port()));
+            ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
         }
     }
 }

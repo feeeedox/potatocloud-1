@@ -74,7 +74,7 @@ public class ClusterManagerImpl implements ClusterManager {
             final NetworkConnection connection = client.connection();
 
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.id().toString(), localNode.name(), localNode.host(), localNode.port()));
+            connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
         });
 
         client.connect(host, port);
@@ -102,7 +102,7 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     public void close() {
-        final NodeLeavePacket leavePacket = new NodeLeavePacket(localNode.id().toString());
+        final NodeLeavePacket leavePacket = new NodeLeavePacket(localNode.id());
 
         nodes.values().stream()
                 .filter(node -> node.status() == NodeStatus.CONNECTED && node.connection() != null)
