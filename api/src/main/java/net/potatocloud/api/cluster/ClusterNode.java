@@ -12,4 +12,6 @@ public interface ClusterNode {
 
     int port();
 
+    long startedAt();
+
 }

@@ -32,14 +32,14 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             return;
         }
 
-        final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), ctx.connection());
+        final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), packet.startedAt(), ctx.connection());
         clusterManager.add(node);
 
         if (clusterManager.isOutbound(ctx.connection())) {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
+            ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
 
             ctx.connection().send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()

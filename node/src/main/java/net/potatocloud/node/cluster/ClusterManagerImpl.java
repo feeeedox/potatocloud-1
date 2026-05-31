@@ -42,7 +42,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.packetManager = packetManager;
         this.server = server;
         this.logger = logger;
-        this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, null);
+        this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, System.currentTimeMillis(), null);
     }
 
     public void start() {
@@ -81,7 +81,7 @@ public class ClusterManagerImpl implements ClusterManager {
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
+            connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
         });
 
         try {

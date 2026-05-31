@@ -171,10 +171,11 @@ public class PacketBuffer {
         writeString(node.name());
         writeString(node.host());
         writeInt(node.port());
+        writeLong(node.startedAt());
     }
 
     public ClusterNode readClusterNode() {
-        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt());
+        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt(), readLong());
     }
 
     public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {

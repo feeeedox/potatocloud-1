@@ -10,8 +10,8 @@ public class ClusterNodeImpl extends AbstractClusterNode {
     private final NetworkConnection connection;
     private volatile long lastHeartbeat = System.currentTimeMillis();
 
-    public ClusterNodeImpl(UUID id, String name, String host, int port, NetworkConnection connection) {
-        super(id, name, host, port);
+    public ClusterNodeImpl(UUID id, String name, String host, int port, long startedAt, NetworkConnection connection) {
+        super(id, name, host, port, startedAt);
         this.connection = connection;
     }
 

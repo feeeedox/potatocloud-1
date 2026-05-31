@@ -5,7 +5,7 @@ import net.potatocloud.network.packet.Packet;
 
 import java.util.UUID;
 
-public record NodeJoinPacket(UUID nodeId, String name, String host, int port) implements Packet {
+public record NodeJoinPacket(UUID nodeId, String name, String host, int port, long startedAt) implements Packet {
 
     public static final Codec<NodeJoinPacket> CODEC = new Codec<>() {
 
@@ -15,11 +15,12 @@ public record NodeJoinPacket(UUID nodeId, String name, String host, int port) im
             buf.writeString(packet.name());
             buf.writeString(packet.host());
             buf.writeInt(packet.port());
+            buf.writeLong(packet.startedAt());
         }
 
         @Override
         public NodeJoinPacket decode(PacketBuffer buf) {
-            return new NodeJoinPacket(buf.readUUID(), buf.readString(), buf.readString(), buf.readInt());
+            return new NodeJoinPacket(buf.readUUID(), buf.readString(), buf.readString(), buf.readInt(), buf.readLong());
         }
     };
 }
