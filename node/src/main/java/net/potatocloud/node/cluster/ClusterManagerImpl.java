@@ -7,15 +7,19 @@ import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
+import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketManager;
+import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
+import net.potatocloud.node.cluster.listeners.HeartbeatListener;
 import net.potatocloud.node.cluster.listeners.NodeDisconnectListener;
 import net.potatocloud.node.cluster.listeners.NodeJoinListener;
 import net.potatocloud.node.cluster.listeners.NodeLeaveListener;
 import net.potatocloud.node.config.ClusterConfig;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClusterManagerImpl implements ClusterManager {
 
@@ -26,9 +30,11 @@ public class ClusterManagerImpl implements ClusterManager {
     private final NetworkServer server;
     private final Logger logger;
 
-    private final Map<UUID, ClusterNodeImpl> nodes = new HashMap<>();
-    private final Set<NetworkConnection> outboundConnections = new HashSet<>();
+    private final Map<UUID, ClusterNodeImpl> nodes = new ConcurrentHashMap<>();
+    private final Set<NetworkConnection> outboundConnections = ConcurrentHashMap.newKeySet();
     private final List<NettyNetworkClient> clients = new ArrayList<>();
+
+    private HeartbeatScheduler heartbeatScheduler;
 
     public ClusterManagerImpl(String localHost, int localPort, ClusterConfig config, PacketManager packetManager, NetworkServer server, Logger logger) {
         this.config = config;
@@ -41,7 +47,11 @@ public class ClusterManagerImpl implements ClusterManager {
     public void start() {
         server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
+        server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.addDisconnectListener(new NodeDisconnectListener(this, logger));
+
+        heartbeatScheduler = new HeartbeatScheduler(this, localNode, logger);
+        heartbeatScheduler.start();
 
         logger.info("Cluster enabled &8(&aid&8: &a" + localNode.id() + "&8, &aname&8: &a" + localNode.name() + "&8)");
 
@@ -101,13 +111,18 @@ public class ClusterManagerImpl implements ClusterManager {
         return outboundConnections.contains(connection);
     }
 
-    public void close() {
-        final NodeLeavePacket leavePacket = new NodeLeavePacket(localNode.id());
-
+    public void broadcast(Packet packet) {
         nodes.values().stream()
                 .filter(node -> node.status() == NodeStatus.CONNECTED && node.connection() != null)
-                .forEach(node -> node.connection().send(leavePacket));
+                .forEach(node -> node.connection().send(packet));
+    }
 
+    public void close() {
+        if (heartbeatScheduler != null) {
+            heartbeatScheduler.stop();
+        }
+
+        broadcast(new NodeLeavePacket(localNode.id()));
         clients.forEach(NettyNetworkClient::close);
     }
 
@@ -125,6 +140,10 @@ public class ClusterManagerImpl implements ClusterManager {
 
         all.add(localNode);
         return Collections.unmodifiableList(all);
+    }
+
+    public Collection<ClusterNodeImpl> remoteNodes() {
+        return nodes.values();
     }
 
     @Override

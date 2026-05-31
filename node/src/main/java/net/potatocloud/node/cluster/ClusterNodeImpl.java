@@ -13,8 +13,9 @@ public class ClusterNodeImpl implements ClusterNode {
     private final String host;
     private final int port;
 
-    private NodeStatus status;
-    private NetworkConnection connection;
+    private volatile NodeStatus status;
+    private volatile NetworkConnection connection;
+    private volatile long lastHeartbeat = System.currentTimeMillis();
 
     public ClusterNodeImpl(UUID id, String name, String host, int port, NodeStatus status, NetworkConnection connection) {
         this.id = id;
@@ -60,5 +61,13 @@ public class ClusterNodeImpl implements ClusterNode {
 
     public void connection(NetworkConnection connection) {
         this.connection = connection;
+    }
+
+    public void updateHeartbeat() {
+        this.lastHeartbeat = System.currentTimeMillis();
+    }
+
+    public boolean isTimedOut(long timeoutMs) {
+        return System.currentTimeMillis() - lastHeartbeat > timeoutMs;
     }
 }

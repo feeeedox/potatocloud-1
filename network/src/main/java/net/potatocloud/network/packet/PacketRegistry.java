@@ -1,5 +1,6 @@
 package net.potatocloud.network.packet;
 
+import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
 import net.potatocloud.network.packet.packets.event.EventPacket;
@@ -63,5 +64,6 @@ public final class PacketRegistry {
 
         manager.register(700, NodeJoinPacket.class, NodeJoinPacket.CODEC);
         manager.register(701, NodeLeavePacket.class, NodeLeavePacket.CODEC);
+        manager.register(702, HeartbeatPacket.class, HeartbeatPacket.CODEC);
     }
 }

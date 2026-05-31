@@ -22,7 +22,7 @@ public class NodeDisconnectListener implements Consumer<NetworkConnection> {
        clusterManager.getByConnection(connection).ifPresent(node -> {
             // only warn if no clean leave packet was received
             if (node.status() == NodeStatus.CONNECTED) {
-                node.status(NodeStatus.DISCONNECTED);
+                node.status(NodeStatus.DEAD);
                 clusterManager.removeOutbound(connection);
                 logger.warn("Cluster node &a" + node.name() + " &7lost connection");
             }
