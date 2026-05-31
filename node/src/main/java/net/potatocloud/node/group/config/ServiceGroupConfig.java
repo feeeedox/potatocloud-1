@@ -11,43 +11,19 @@ import java.util.*;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ServiceGroupConfig(
         String name,
-
         String platform,
-
-        @JsonProperty("platform-version")
-        String platformVersion,
-
-        @JsonProperty("java-command")
-        String javaCommand,
-
-        @JsonProperty("jvm-flags")
-        List<String> jvmFlags,
-
-        @JsonProperty("max-players")
-        int maxPlayers,
-
-        @JsonProperty("max-memory")
-        int maxMemory,
-
-        @JsonProperty("min-online-count")
-        int minOnlineCount,
-
-        @JsonProperty("max-online-count")
-        int maxOnlineCount,
-
-        @JsonProperty("static")
-        boolean isStatic,
-
+        @JsonProperty("platform-version") String platformVersion,
+        @JsonProperty("java-command") String javaCommand,
+        @JsonProperty("jvm-flags") List<String> jvmFlags,
+        @JsonProperty("max-players") int maxPlayers,
+        @JsonProperty("max-memory") int maxMemory,
+        @JsonProperty("min-online-count") int minOnlineCount,
+        @JsonProperty("max-online-count") int maxOnlineCount,
+        @JsonProperty("static") boolean isStatic,
         boolean fallback,
-
-        @JsonProperty("start-priority")
-        int startPriority,
-
-        @JsonProperty("start-percentage")
-        int startPercentage,
-
+        @JsonProperty("start-priority") int startPriority,
+        @JsonProperty("start-percentage") int startPercentage,
         List<String> templates,
-
         List<PropertyConfig> properties
 ) {
 
@@ -79,7 +55,6 @@ public record ServiceGroupConfig(
         final Map<String, Property<?>> propertyMap = new HashMap<>();
 
         if (properties != null) {
-
             for (PropertyConfig property : properties) {
                 final String name = property.name();
 
