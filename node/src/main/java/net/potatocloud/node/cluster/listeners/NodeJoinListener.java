@@ -39,6 +39,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         if (known.isPresent()) {
             known.get().status(NodeStatus.CONNECTED);
             known.get().connection(ctx.connection());
+            known.get().updateHeartbeat();
             logger.info("Cluster node &a" + known.get().name() + " &7reconnected to the cluster");
 
             // node restarted and lost our data, resend join
