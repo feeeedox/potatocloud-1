@@ -82,7 +82,6 @@ public class Node extends CloudAPI {
     private final ServiceManagerImpl serviceManager;
     private final ServiceStartScheduler serviceStartScheduler;
 
-
     private final SetupManager setupManager;
     private final UpdateChecker updateChecker;
 
@@ -165,7 +164,6 @@ public class Node extends CloudAPI {
         logger.info("Network server started using &aNetty &7on &a" + host + "&8:&a" + port);
 
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
-
 
         if (config.cluster().enabled()) {
             clusterManager.start();
