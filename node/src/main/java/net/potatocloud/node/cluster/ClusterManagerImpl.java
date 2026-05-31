@@ -2,7 +2,6 @@ package net.potatocloud.node.cluster;
 
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.NetworkServer;
@@ -43,7 +42,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.packetManager = packetManager;
         this.server = server;
         this.logger = logger;
-        this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, NodeStatus.CONNECTED, null);
+        this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, null);
     }
 
     public void start() {
@@ -104,10 +103,6 @@ public class ClusterManagerImpl implements ClusterManager {
         }
     }
 
-    public void removeOutbound(NetworkConnection connection) {
-        outboundConnections.remove(connection);
-    }
-
     // returns true if we opened this connection
     public boolean isOutbound(NetworkConnection connection) {
         return outboundConnections.contains(connection);
@@ -115,7 +110,7 @@ public class ClusterManagerImpl implements ClusterManager {
 
     public void broadcast(Packet packet) {
         nodes.values().stream()
-                .filter(node -> node.status() == NodeStatus.CONNECTED && node.connection() != null)
+                .filter(node -> node.connection() != null)
                 .forEach(node -> node.connection().send(packet));
     }
 
@@ -135,11 +130,7 @@ public class ClusterManagerImpl implements ClusterManager {
 
     @Override
     public Collection<ClusterNode> nodes() {
-        final List<ClusterNode> all = new ArrayList<>();
-        nodes.values().stream()
-                .filter(node -> node.status() == NodeStatus.CONNECTED)
-                .forEach(all::add);
-
+        final List<ClusterNode> all = new ArrayList<>(nodes.values());
         all.add(localNode);
         return Collections.unmodifiableList(all);
     }

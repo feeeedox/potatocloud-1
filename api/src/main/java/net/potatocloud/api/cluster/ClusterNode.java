@@ -12,6 +12,4 @@ public interface ClusterNode {
 
     int port();
 
-    NodeStatus status();
-
 }

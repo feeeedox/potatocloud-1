@@ -1,7 +1,6 @@
 package net.potatocloud.node.cluster.listeners;
 
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -10,7 +9,6 @@ import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
@@ -34,22 +32,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             return;
         }
 
-        // todo maybe remove reconnect because from where should the node get its data from if we have no leader?
-        final Optional<ClusterNodeImpl> known = clusterManager.getNode(nodeId);
-        if (known.isPresent()) {
-            known.get().status(NodeStatus.CONNECTED);
-            known.get().connection(ctx.connection());
-            known.get().updateHeartbeat();
-            logger.info("Cluster node &a" + known.get().name() + " &7reconnected to the cluster");
-
-            // node restarted and lost our data, resend join
-            if (!clusterManager.isOutbound(ctx.connection())) {
-                ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
-            }
-            return;
-        }
-
-        final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), NodeStatus.CONNECTED, ctx.connection());
+        final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), ctx.connection());
         clusterManager.add(node);
 
         if (clusterManager.isOutbound(ctx.connection())) {
@@ -60,7 +43,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
             ctx.connection().send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()
-                            .filter(n -> n.status() == NodeStatus.CONNECTED && !n.id().equals(nodeId))
+                            .filter(n -> !n.id().equals(nodeId))
                             .map(n -> (ClusterNode) n)
                             .toList()
             ));

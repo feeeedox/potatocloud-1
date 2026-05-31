@@ -1,6 +1,5 @@
 package net.potatocloud.node.cluster.listeners;
 
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -20,7 +19,6 @@ public class NodeLeaveListener implements PacketListener<NodeLeavePacket> {
     @Override
     public void handle(PacketContext<NodeLeavePacket> ctx) {
         clusterManager.getNode(ctx.packet().nodeId()).ifPresent(node -> {
-            node.status(NodeStatus.DISCONNECTED);
             clusterManager.remove(node);
             logger.info("Cluster node &a" + node.name() + " &7left the cluster");
         });

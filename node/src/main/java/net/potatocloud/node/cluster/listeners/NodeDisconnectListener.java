@@ -1,6 +1,5 @@
 package net.potatocloud.node.cluster.listeners;
 
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
@@ -19,13 +18,10 @@ public class NodeDisconnectListener implements Consumer<NetworkConnection> {
 
     @Override
     public void accept(NetworkConnection connection) {
-       clusterManager.getByConnection(connection).ifPresent(node -> {
-            // only warn if no clean leave packet was received
-            if (node.status() == NodeStatus.CONNECTED) {
-                node.status(NodeStatus.DEAD);
-                clusterManager.removeOutbound(connection);
-                logger.warn("Cluster node &a" + node.name() + " &7lost connection");
-            }
+        // only warn if no clean leave packet was received before disconnect
+        clusterManager.getByConnection(connection).ifPresent(node -> {
+            clusterManager.remove(node);
+            logger.warn("Cluster node &a" + node.name() + " &7lost connection");
         });
     }
 }

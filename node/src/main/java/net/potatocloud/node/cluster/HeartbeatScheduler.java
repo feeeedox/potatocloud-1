@@ -1,6 +1,5 @@
 package net.potatocloud.node.cluster;
 
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 
@@ -33,9 +32,8 @@ public class HeartbeatScheduler {
         clusterManager.broadcast(new HeartbeatPacket(localNode.id()));
 
         for (ClusterNodeImpl node : clusterManager.remoteNodes()) {
-            if (node.status() == NodeStatus.CONNECTED && node.isTimedOut(TIMEOUT_MS)) {
-                node.status(NodeStatus.DEAD);
-                clusterManager.removeOutbound(node.connection());
+            if (node.isTimedOut(TIMEOUT_MS)) {
+                clusterManager.remove(node);
                 logger.warn("Cluster node &a" + node.name() + " &7timed out");
             }
         }

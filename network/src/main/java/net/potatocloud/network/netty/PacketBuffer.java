@@ -2,7 +2,6 @@ package net.potatocloud.network.netty;
 
 import io.netty.buffer.ByteBuf;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.cluster.impl.AbstractClusterNode;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -172,11 +171,10 @@ public class PacketBuffer {
         writeString(node.name());
         writeString(node.host());
         writeInt(node.port());
-        writeString(node.status().name());
     }
 
     public ClusterNode readClusterNode() {
-        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt(), NodeStatus.valueOf(readString()));
+        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt());
     }
 
     public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
