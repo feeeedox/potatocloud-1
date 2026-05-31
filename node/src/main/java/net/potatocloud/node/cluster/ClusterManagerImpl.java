@@ -34,6 +34,7 @@ public class ClusterManagerImpl implements ClusterManager {
     private final Map<UUID, ClusterNodeImpl> nodes = new ConcurrentHashMap<>();
     private final Set<NetworkConnection> outboundConnections = ConcurrentHashMap.newKeySet();
     private final List<NettyNetworkClient> clients = new ArrayList<>();
+    private final Set<String> connectingAddresses = ConcurrentHashMap.newKeySet();
 
     private HeartbeatScheduler heartbeatScheduler;
 
@@ -76,6 +77,10 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     public void connect(String host, int port) {
+        if (!connectingAddresses.add(host + ":" + port)) {
+            return;
+        }
+
         final NettyNetworkClient client = new NettyNetworkClient(packetManager);
 
         client.addConnectionListener(() -> {
