@@ -5,6 +5,7 @@ import net.potatocloud.api.cluster.NodeStatus;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
@@ -55,6 +56,13 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
             ctx.connection().send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
+
+            ctx.connection().send(new NodeDiscoveryPacket(
+                    clusterManager.remoteNodes().stream()
+                            .filter(n -> n.status() == NodeStatus.CONNECTED && !n.id().equals(nodeId))
+                            .map(n -> (ClusterNode) n)
+                            .toList()
+            ));
         }
     }
 }

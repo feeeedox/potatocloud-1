@@ -1,6 +1,9 @@
 package net.potatocloud.network.netty;
 
 import io.netty.buffer.ByteBuf;
+import net.potatocloud.api.cluster.ClusterNode;
+import net.potatocloud.api.cluster.NodeStatus;
+import net.potatocloud.api.cluster.impl.AbstractClusterNode;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
@@ -9,6 +12,7 @@ import net.potatocloud.api.property.Property;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +165,34 @@ public class PacketBuffer {
             map.put(property.getName(), property);
         }
         return map;
+    }
+
+    public void writeClusterNode(ClusterNode node) {
+        writeUUID(node.id());
+        writeString(node.name());
+        writeString(node.host());
+        writeInt(node.port());
+        writeString(node.status().name());
+    }
+
+    public ClusterNode readClusterNode() {
+        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt(), NodeStatus.valueOf(readString()));
+    }
+
+    public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
+        writeInt(nodes.size());
+        for (ClusterNode node : nodes) {
+            writeClusterNode(node);
+        }
+    }
+
+    public List<ClusterNode> readClusterNodeList() {
+        final int size = readInt();
+        final List<ClusterNode> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(readClusterNode());
+        }
+        return list;
     }
 
     public void writeUUID(UUID uuid) {

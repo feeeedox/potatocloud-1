@@ -10,9 +10,11 @@ import net.potatocloud.network.netty.client.NettyNetworkClient;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketManager;
 import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
+import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
 import net.potatocloud.node.cluster.listeners.HeartbeatListener;
+import net.potatocloud.node.cluster.listeners.NodeDiscoveryListener;
 import net.potatocloud.node.cluster.listeners.NodeDisconnectListener;
 import net.potatocloud.node.cluster.listeners.NodeJoinListener;
 import net.potatocloud.node.cluster.listeners.NodeLeaveListener;
@@ -48,6 +50,7 @@ public class ClusterManagerImpl implements ClusterManager {
         server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
+        server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));
         server.addDisconnectListener(new NodeDisconnectListener(this, logger));
 
         heartbeatScheduler = new HeartbeatScheduler(this, localNode, logger);
@@ -69,26 +72,25 @@ public class ClusterManagerImpl implements ClusterManager {
                 continue;
             }
 
-            try {
-                connect(parts[0], Integer.parseInt(parts[1]));
-            } catch (Exception e) {
-                logger.warn("Failed to connect to cluster node " + address + " &8(&7" + e.getMessage() + "&8)");
-            }
+            connect(parts[0], Integer.parseInt(parts[1]));
         }
     }
 
-    private void connect(String host, int port) {
+    public void connect(String host, int port) {
         final NettyNetworkClient client = new NettyNetworkClient(packetManager);
 
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
-
             outboundConnections.add(connection);
             connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port()));
         });
 
-        client.connect(host, port);
-        clients.add(client);
+        try {
+            client.connect(host, port);
+            clients.add(client);
+        } catch (Exception e) {
+            logger.warn("Failed to connect to cluster node " + host + ":" + port + " &8(&7" + e.getMessage() + "&8)");
+        }
     }
 
     public void add(ClusterNodeImpl node) {
