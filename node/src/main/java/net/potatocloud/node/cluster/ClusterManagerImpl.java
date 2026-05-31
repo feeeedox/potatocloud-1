@@ -59,7 +59,11 @@ public class ClusterManagerImpl implements ClusterManager {
                 continue;
             }
 
-            connect(parts[0], Integer.parseInt(parts[1]));
+            try {
+                connect(parts[0], Integer.parseInt(parts[1]));
+            } catch (Exception e) {
+                logger.warn("Failed to connect to cluster node " + address + " &8(&7" + e.getMessage() + "&8)");
+            }
         }
     }
 
