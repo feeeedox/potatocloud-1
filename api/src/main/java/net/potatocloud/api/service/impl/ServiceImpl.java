@@ -7,7 +7,7 @@ import net.potatocloud.api.service.ServiceStatus;
 
 import java.util.Map;
 
-public abstract class ServiceImpl implements Service {
+public class ServiceImpl implements Service {
 
     private final int serviceId;
     private final int port;
