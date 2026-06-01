@@ -2,8 +2,6 @@ package net.potatocloud.connector.service.listeners;
 
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
-import net.potatocloud.connector.service.ConnectorService;
 import net.potatocloud.connector.service.ServiceManagerImpl;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -20,18 +18,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
     @Override
     public void handle(PacketContext<ServiceAddPacket> ctx) {
         final ServiceAddPacket packet = ctx.packet();
-
-        final Service service = new ConnectorService(
-                packet.serviceName(),
-                packet.serviceId(),
-                packet.port(),
-                packet.startTimestamp(),
-                packet.groupName(),
-                packet.propertyMap(),
-                ServiceStatus.valueOf(packet.status()),
-                packet.maxPlayers(),
-                0
-        );
+        final Service service = packet.service();
 
         final List<Service> services = serviceManager.getAllServices();
         if (!services.contains(service)) {

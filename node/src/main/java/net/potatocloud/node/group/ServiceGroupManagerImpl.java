@@ -106,23 +106,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         addServiceGroup(group);
 
         // Send group add packet to clients
-        server.broadcast().connectors().send(new GroupAddPacket(
-                name,
-                platformName,
-                platformVersionName,
-                javaCommand,
-                customJvmFlags,
-                maxPlayers,
-                maxMemory,
-                minOnlineCount,
-                maxOnlineCount,
-                isStatic,
-                fallback,
-                startPriority,
-                startPercentage,
-                group.getServiceTemplates(),
-                propertyMap
-        ));
+        server.broadcast().connectors().send(new GroupAddPacket(group));
 
         logger.info("Group &a" + name + " &7was successfully created");
     }

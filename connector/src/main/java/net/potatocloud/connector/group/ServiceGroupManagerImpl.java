@@ -76,23 +76,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 propertyMap
         );
 
-        client.send(new GroupAddPacket(
-                name,
-                platformName,
-                platformVersionName,
-                javaCommand,
-                customJvmFlags,
-                maxPlayers,
-                maxMemory,
-                minOnlineCount,
-                maxOnlineCount,
-                isStatic,
-                fallback,
-                startPriority,
-                startPercentage,
-                group.getServiceTemplates(),
-                propertyMap
-        ));
+        client.send(new GroupAddPacket(group));
 
         addServiceGroup(group);
     }

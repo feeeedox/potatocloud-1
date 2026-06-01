@@ -1,8 +1,6 @@
 package net.potatocloud.node.player.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.player.CloudPlayer;
-import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -20,9 +18,8 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
     @Override
     public void handle(PacketContext<CloudPlayerAddPacket> ctx) {
         final CloudPlayerAddPacket packet = ctx.packet();
-        final CloudPlayer player = new CloudPlayerImpl(packet.username(), packet.uniqueId(), packet.connectedProxyName());
 
-        playerManager.registerPlayer(player);
+        playerManager.registerPlayer(packet.player());
 
         final Node node = Node.getInstance();
 
@@ -30,8 +27,8 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
 
         final NodeConfig config = node.getConfig();
         if (config.console().logPlayerConnections()) {
-            node.getLogger().info("Player &a" + player.getUsername() + " &7connected to the network &8[&7UUID&8: &a"
-                    + player.getUniqueId() + "&8, &7Proxy&8: &a" + player.getConnectedProxyName() + "&8]");
+            node.getLogger().info("Player &a" + packet.player().getUsername() + " &7connected to the network &8[&7UUID&8: &a"
+                    + packet.player().getUniqueId() + "&8, &7Proxy&8: &a" + packet.player().getConnectedProxyName() + "&8]");
         }
     }
 }

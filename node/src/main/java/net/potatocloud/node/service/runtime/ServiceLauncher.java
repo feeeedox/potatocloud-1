@@ -51,17 +51,7 @@ public final class ServiceLauncher {
 
         serviceManager.addService(service);
 
-        server.broadcast().connectors().send(new ServiceAddPacket(
-                service.getName(),
-                service.getServiceId(),
-                service.getPort(),
-                service.getStartTimestamp(),
-                service.getServiceGroup().getName(),
-                service.getPropertyMap(),
-                service.getStatus().name(),
-                service.getMaxPlayers(),
-                requestId
-        ));
+        server.broadcast().connectors().send(new ServiceAddPacket(service, requestId));
 
         service.start();
         return service;
