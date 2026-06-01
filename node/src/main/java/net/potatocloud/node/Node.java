@@ -166,7 +166,7 @@ public class Node extends CloudAPI {
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
 
         if (config.cluster().enabled()) {
-            clusterManager.start();
+            clusterManager.start((ServiceGroupManagerImpl) groupManager, (ServiceManagerImpl) serviceManager, (CloudPlayerManagerImpl) playerManager);
         }
 
         final List<ServiceGroup> groups = groupManager.getAllServiceGroups();

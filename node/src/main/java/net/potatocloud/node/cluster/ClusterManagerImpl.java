@@ -8,16 +8,21 @@ import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketManager;
+import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
+import net.potatocloud.node.cluster.listeners.ClusterSyncListener;
 import net.potatocloud.node.cluster.listeners.HeartbeatListener;
 import net.potatocloud.node.cluster.listeners.NodeDiscoveryListener;
 import net.potatocloud.node.cluster.listeners.NodeDisconnectListener;
 import net.potatocloud.node.cluster.listeners.NodeJoinListener;
 import net.potatocloud.node.cluster.listeners.NodeLeaveListener;
 import net.potatocloud.node.config.ClusterConfig;
+import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.player.CloudPlayerManagerImpl;
+import net.potatocloud.node.service.ServiceManagerImpl;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,11 +51,12 @@ public class ClusterManagerImpl implements ClusterManager {
         this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, System.currentTimeMillis(), null);
     }
 
-    public void start() {
-        server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger));
+    public void start(ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+        server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger, groupManager, serviceManager, playerManager));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));
+        server.on(ClusterSyncPacket.class, new ClusterSyncListener(groupManager, serviceManager, playerManager));
         server.addDisconnectListener(new NodeDisconnectListener(this, logger));
 
         heartbeatScheduler = new HeartbeatScheduler(this, localNode, logger);

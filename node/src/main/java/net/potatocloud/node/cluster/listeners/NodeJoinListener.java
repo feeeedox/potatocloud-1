@@ -6,10 +6,14 @@ import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
+import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.player.CloudPlayerManagerImpl;
+import net.potatocloud.node.service.ServiceManagerImpl;
 
 import java.util.UUID;
 
@@ -18,11 +22,17 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
     private final ClusterNode localNode;
     private final ClusterManagerImpl clusterManager;
     private final Logger logger;
+    private final ServiceGroupManagerImpl groupManager;
+    private final ServiceManagerImpl serviceManager;
+    private final CloudPlayerManagerImpl playerManager;
 
-    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, Logger logger) {
+    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, Logger logger, ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
         this.localNode = localNode;
         this.clusterManager = clusterManager;
         this.logger = logger;
+        this.groupManager = groupManager;
+        this.serviceManager = serviceManager;
+        this.playerManager = playerManager;
     }
 
     @Override
@@ -51,6 +61,12 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
                             .filter(n -> !n.id().equals(nodeId))
                             .map(n -> (ClusterNode) n)
                             .toList()
+            ));
+
+            connection.send(new ClusterSyncPacket(
+                    groupManager.getAllServiceGroups(),
+                    serviceManager.getAllServices(),
+                    playerManager.getOnlinePlayers()
             ));
         }
     }
