@@ -19,7 +19,7 @@ public class NodeDisconnectListener implements Consumer<NetworkConnection> {
     @Override
     public void accept(NetworkConnection connection) {
         // only warn if no clean leave packet was received before disconnect
-        clusterManager.getByConnection(connection).ifPresent(node -> {
+        clusterManager.remoteNode(connection).ifPresent(node -> {
             clusterManager.remove(node);
             logger.warn("Cluster node &a" + node.name() + " &7lost connection");
         });

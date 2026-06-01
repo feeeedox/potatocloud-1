@@ -18,7 +18,7 @@ public class NodeLeaveListener implements PacketListener<NodeLeavePacket> {
 
     @Override
     public void handle(PacketContext<NodeLeavePacket> ctx) {
-        clusterManager.getNode(ctx.packet().nodeId()).ifPresent(node -> {
+        clusterManager.remoteNode(ctx.packet().nodeId()).ifPresent(node -> {
             clusterManager.remove(node);
             logger.info("Cluster node &a" + node.name() + " &7left the cluster");
         });

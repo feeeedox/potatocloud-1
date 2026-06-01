@@ -17,10 +17,7 @@ public class NodeDiscoveryListener implements PacketListener<NodeDiscoveryPacket
     @Override
     public void handle(PacketContext<NodeDiscoveryPacket> ctx) {
         for (ClusterNode node : ctx.packet().nodes()) {
-            if (node.id().equals(clusterManager.localNode().id())) {
-                continue;
-            }
-            if (clusterManager.getNode(node.id()).isPresent()) {
+            if (clusterManager.remoteNode(node.id()).isPresent()) {
                 continue;
             }
             clusterManager.connect(node.host(), node.port());

@@ -113,6 +113,14 @@ public class ClusterManagerImpl implements ClusterManager {
         return outboundConnections.contains(connection);
     }
 
+    public void sendTo(UUID nodeId, Packet packet) {
+        final ClusterNodeImpl node = nodes.get(nodeId);
+        if (node == null || node.connection() == null) {
+            return;
+        }
+        node.connection().send(packet);
+    }
+
     public void broadcast(Packet packet) {
         nodes.values().stream()
                 .filter(node -> node.connection() != null)
@@ -152,11 +160,11 @@ public class ClusterManagerImpl implements ClusterManager {
         return Optional.ofNullable(nodes.get(nodeId));
     }
 
-    public Optional<ClusterNodeImpl> getNode(UUID nodeId) {
+    public Optional<ClusterNodeImpl> remoteNode(UUID nodeId) {
         return Optional.ofNullable(nodes.get(nodeId));
     }
 
-    public Optional<ClusterNodeImpl> getByConnection(NetworkConnection connection) {
+    public Optional<ClusterNodeImpl> remoteNode(NetworkConnection connection) {
         return nodes.values().stream()
                 .filter(node -> connection.equals(node.connection()))
                 .findFirst();
