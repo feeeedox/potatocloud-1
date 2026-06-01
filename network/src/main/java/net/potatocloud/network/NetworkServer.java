@@ -19,7 +19,7 @@ public interface NetworkServer extends NetworkComponent {
 
     default void addDisconnectListener(Consumer<NetworkConnection> listener) {}
 
-    default Broadcast generateBroadcast() {
+    default Broadcast broadcast() {
         return new Broadcast(this);
     }
 }

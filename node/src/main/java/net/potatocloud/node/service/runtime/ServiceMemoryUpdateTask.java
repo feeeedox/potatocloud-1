@@ -14,7 +14,7 @@ public class ServiceMemoryUpdateTask {
 
                 // Send current memory to the connector to keep it updated
                 // We use a separate packet from ServiceUpdatePacket for performance because ServiceUpdatePacket contains stuff that does not need constant syncing
-                server.generateBroadcast().broadcast(new ServiceMemoryUpdatePacket(service.getName(), service.getUsedMemory()));
+                server.broadcast().connectors().send(new ServiceMemoryUpdatePacket(service.getName(), service.getUsedMemory()));
 
                 try {
                     Thread.sleep(UPDATE_INTERVAL);

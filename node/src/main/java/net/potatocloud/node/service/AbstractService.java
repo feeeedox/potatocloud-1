@@ -144,7 +144,7 @@ public abstract class AbstractService implements Service {
                 screenManager.switchTo(Screen.NODE_SCREEN);
             }
 
-            server.generateBroadcast().broadcast(new ServiceRemovePacket(name, getPort()));
+            server.broadcast().connectors().send(new ServiceRemovePacket(name, getPort()));
             eventBus.publish(new ServiceStoppedEvent(name));
 
             if (!group.isStatic() && Files.exists(directory)) {

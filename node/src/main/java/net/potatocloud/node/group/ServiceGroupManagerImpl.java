@@ -106,7 +106,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         addServiceGroup(group);
 
         // Send group add packet to clients
-        server.generateBroadcast().broadcast(new GroupAddPacket(
+        server.broadcast().connectors().send(new GroupAddPacket(
                 name,
                 platformName,
                 platformVersionName,
@@ -146,7 +146,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             return;
         }
 
-        server.generateBroadcast().broadcast(new GroupDeletePacket(name));
+        server.broadcast().connectors().send(new GroupDeletePacket(name));
     }
 
     public boolean deleteServiceGroupLocal(String name) {
@@ -173,7 +173,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     public void updateServiceGroup(ServiceGroup group) {
         ServiceGroupStorage.save(group, groupsPath);
 
-        server.generateBroadcast().broadcast(new GroupUpdatePacket(
+        server.broadcast().connectors().send(new GroupUpdatePacket(
                 group.getName(),
                 group.getCustomJvmFlags(),
                 group.getMaxPlayers(),

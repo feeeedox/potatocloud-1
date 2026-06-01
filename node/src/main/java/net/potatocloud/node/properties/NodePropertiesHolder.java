@@ -31,7 +31,7 @@ public class NodePropertiesHolder implements PropertyHolder {
             propertyMap.put(packet.property().getName(), packet.property());
 
             // Add the property on all other connectors as well
-            server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
+            server.broadcast().connectors().exclude(ctx.connection()).send(packet);
         });
 
         server.on(PropertyUpdatePacket.class, ctx -> {
@@ -41,7 +41,7 @@ public class NodePropertiesHolder implements PropertyHolder {
             }
 
             // Update the property on all other connectors as well
-            server.generateBroadcast().exclude(ctx.connection()).broadcast(ctx.packet());
+            server.broadcast().exclude(ctx.connection()).send(ctx.packet());
         });
     }
 
@@ -52,10 +52,10 @@ public class NodePropertiesHolder implements PropertyHolder {
 
         if (existing == null) {
             // Property was just created, so send the add packet to the connector
-            server.generateBroadcast().broadcast(new PropertyAddPacket(property));
+            server.broadcast().connectors().send(new PropertyAddPacket(property));
         } else {
             // Property was just updated, so send the update packet to the connector
-            server.generateBroadcast().broadcast(new PropertyUpdatePacket(property.getName(), value));
+            server.broadcast().connectors().send(new PropertyUpdatePacket(property.getName(), value));
         }
     }
 

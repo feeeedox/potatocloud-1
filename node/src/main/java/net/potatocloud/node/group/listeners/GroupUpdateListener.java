@@ -51,6 +51,6 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
             ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
         }
 
-        server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
+        server.broadcast().connectors().exclude(ctx.connection()).send(packet);
     }
 }

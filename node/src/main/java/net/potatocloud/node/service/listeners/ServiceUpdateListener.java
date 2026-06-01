@@ -32,6 +32,6 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
             PropertyUtil.setPropertyUnchecked(service, property);
         }
 
-        server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
+        server.broadcast().connectors().exclude(ctx.connection()).send(packet);
     }
 }

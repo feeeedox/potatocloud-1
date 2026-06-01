@@ -51,7 +51,7 @@ public final class ServiceLauncher {
 
         serviceManager.addService(service);
 
-        server.generateBroadcast().broadcast(new ServiceAddPacket(
+        server.broadcast().connectors().send(new ServiceAddPacket(
                 service.getName(),
                 service.getServiceId(),
                 service.getPort(),

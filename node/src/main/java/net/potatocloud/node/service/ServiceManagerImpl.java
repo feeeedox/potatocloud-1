@@ -77,7 +77,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void updateService(Service service) {
-        server.generateBroadcast().broadcast(new ServiceUpdatePacket(
+        server.broadcast().connectors().send(new ServiceUpdatePacket(
                 service.getName(),
                 service.getStatus().name(),
                 service.getMaxPlayers(),

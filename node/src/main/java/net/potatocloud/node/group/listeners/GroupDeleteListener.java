@@ -20,6 +20,6 @@ public class GroupDeleteListener implements PacketListener<GroupDeletePacket> {
             return;
         }
 
-        server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
+        server.broadcast().connectors().exclude(ctx.connection()).send(packet);
     }
 }

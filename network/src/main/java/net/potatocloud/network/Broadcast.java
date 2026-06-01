@@ -9,27 +9,30 @@ import java.util.function.Predicate;
 public class Broadcast {
 
     private final NetworkServer server;
+    private final Set<NetworkConnection> excludedConnections = new HashSet<>();
+    private Predicate<NetworkConnection> filter;
 
     public Broadcast(NetworkServer server) {
         this.server = server;
     }
 
-    private final Set<NetworkConnection> excludeConnections = new HashSet<>();
-    private Predicate<NetworkConnection> filter = null;
-
     public Broadcast exclude(NetworkConnection connection) {
-        excludeConnections.add(connection);
+        excludedConnections.add(connection);
         return this;
     }
 
     public Broadcast filter(Predicate<NetworkConnection> predicate) {
-        this.filter = predicate;
+        this.filter = this.filter == null ? predicate : this.filter.and(predicate);
         return this;
     }
 
-    public void broadcast(Packet packet) {
+    public Broadcast connectors() {
+        return filter(connection -> connection.type() == ConnectionType.CONNECTOR);
+    }
+
+    public void send(Packet packet) {
         server.connectedSessions().forEach(connection -> {
-            if (excludeConnections.contains(connection)) {
+            if (excludedConnections.contains(connection)) {
                 return;
             }
 

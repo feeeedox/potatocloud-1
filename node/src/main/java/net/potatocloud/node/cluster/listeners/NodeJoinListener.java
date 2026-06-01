@@ -2,6 +2,7 @@ package net.potatocloud.node.cluster.listeners;
 
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.logging.Logger;
+import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
@@ -31,6 +32,8 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         if (nodeId.equals(localNode.id())) {
             return;
         }
+
+        ctx.connection().type(ConnectionType.NODE);
 
         final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), packet.startedAt(), ctx.connection());
         clusterManager.add(node);
