@@ -63,11 +63,15 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
                             .toList()
             ));
 
+            final long syncStart = System.currentTimeMillis();
+
             connection.send(new ClusterSyncPacket(
                     groupManager.getAllServiceGroups(),
                     serviceManager.getAllServices(),
                     playerManager.getOnlinePlayers()
             ));
+
+            logger.debug("Cluster sync sent to node &a" + node.name() + " &7in &a" + (System.currentTimeMillis() - syncStart) + "&7ms");
         }
     }
 }
