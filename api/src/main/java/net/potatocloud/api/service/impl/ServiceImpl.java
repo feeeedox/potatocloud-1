@@ -1,5 +1,6 @@
 package net.potatocloud.api.service.impl;
 
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
@@ -12,7 +13,7 @@ public class ServiceImpl implements Service {
     private final int serviceId;
     private final int port;
     private final String name;
-    private final ServiceGroup group;
+    private final String groupName;
     private final Map<String, Property<?>> propertyMap;
 
     private long startTimestamp;
@@ -20,11 +21,11 @@ public class ServiceImpl implements Service {
     private int maxPlayers;
     private int usedMemory;
 
-    public ServiceImpl(int serviceId, int port, String name, ServiceGroup group, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceStatus status, int maxPlayers, int usedMemory) {
+    public ServiceImpl(int serviceId, int port, String name, String groupName, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceStatus status, int maxPlayers, int usedMemory) {
         this.serviceId = serviceId;
         this.port = port;
         this.name = name;
-        this.group = group;
+        this.groupName = groupName;
         this.propertyMap = propertyMap;
         this.startTimestamp = startTimestamp;
         this.status = status;
@@ -34,7 +35,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public ServiceGroup getServiceGroup() {
-        return group;
+        return CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(groupName);
     }
 
     @Override

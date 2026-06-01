@@ -68,7 +68,7 @@ public abstract class AbstractService extends ServiceImpl {
             ServicePreparer preparer,
             ServiceRuntime runtime
     ) {
-        super(serviceId, port, group.getName() + config.service().splitter() + serviceId, group, new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
+        super(serviceId, port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;

@@ -1,7 +1,6 @@
 package net.potatocloud.network.netty;
 
 import io.netty.buffer.ByteBuf;
-import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.cluster.impl.AbstractClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
@@ -290,7 +289,7 @@ public class PacketBuffer {
                 readInt(),
                 readInt(),
                 readString(),
-                CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(readString()),
+                readString(),
                 readPropertyMap(),
                 readLong(),
                 ServiceStatus.valueOf(readString()),
