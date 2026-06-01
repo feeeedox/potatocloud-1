@@ -6,10 +6,9 @@ import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.api.property.Property;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.impl.ServiceImpl;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
@@ -24,44 +23,35 @@ import net.potatocloud.node.template.TemplateManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class AbstractService implements Service {
+public abstract class AbstractService extends ServiceImpl {
 
-    private final int serviceId;
-    private final int port;
     protected final ServiceGroup group;
-    protected final String name;
     protected final Path directory;
-
     protected final NodeConfig config;
     protected final Logger logger;
+    protected final TemplateManager templateManager;
 
     private final NetworkServer server;
     private final EventBus eventBus;
     private final ServiceManager serviceManager;
-    protected final TemplateManager templateManager;
     private final ScreenManager screenManager;
-
-    private final Screen screen;
     private final Console console;
+    private final Screen screen;
     private final List<String> logs = new ArrayList<>();
-    private final Map<String, Property<?>> propertyMap;
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     private final ServicePreparer preparer;
     private final ServiceRuntime runtime;
 
     protected ServiceProcessChecker processChecker;
-
-    private ServiceStatus status = ServiceStatus.STOPPED;
-
-    private long startTimestamp;
-
-    private int maxPlayers;
 
     protected AbstractService(
             int serviceId,
@@ -78,8 +68,7 @@ public abstract class AbstractService implements Service {
             ServicePreparer preparer,
             ServiceRuntime runtime
     ) {
-        this.serviceId = serviceId;
-        this.port = port;
+        super(serviceId, port, group.getName() + config.service().splitter() + serviceId, group, new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;
@@ -91,11 +80,8 @@ public abstract class AbstractService implements Service {
         this.console = console;
         this.preparer = preparer;
         this.runtime = runtime;
-        this.name = group.getName() + config.service().splitter() + serviceId;
-        this.screen = new Screen(name);
+        this.screen = new Screen(getName());
         this.directory = resolveDirectory();
-        this.maxPlayers = group.getMaxPlayers();
-        this.propertyMap = new HashMap<>(group.getPropertyMap());
     }
 
     public void start() {
@@ -103,32 +89,31 @@ public abstract class AbstractService implements Service {
             return;
         }
 
-        startTimestamp = System.currentTimeMillis();
+        setStartTimestamp(System.currentTimeMillis());
         screenManager.register(screen);
 
-        status = ServiceStatus.PREPARING;
-        preparer.prepare(directory, name, port);
+        setStatus(ServiceStatus.PREPARING);
+        preparer.prepare(directory, getName(), getPort());
 
-        status = ServiceStatus.STARTING;
+        setStatus(ServiceStatus.STARTING);
         runtime.start(directory, this);
 
-        logger.info("Service &a" + name + "&7 is now starting&8... "
-                + "&8[&7Port&8: &a" + port
+        logger.info("Service &a" + getName() + "&7 is now starting&8... "
+                + "&8[&7Port&8: &a" + getPort()
                 + "&8, &7Group&8: &a" + group.getName() + "&8]"
         );
 
-        eventBus.publish(new PreparedServiceStartingEvent(name));
+        eventBus.publish(new PreparedServiceStartingEvent(getName()));
     }
 
-    @Override
     public CompletableFuture<Void> shutdown() {
-        if (status == ServiceStatus.STOPPED || status == ServiceStatus.STOPPING) {
+        if (getStatus() == ServiceStatus.STOPPED || getStatus() == ServiceStatus.STOPPING) {
             return CompletableFuture.completedFuture(null);
         }
 
-        status = ServiceStatus.STOPPING;
-        logger.info("Service &a" + name + "&7 is now stopping&8...");
-        eventBus.publish(new ServiceStoppingEvent(name));
+        setStatus(ServiceStatus.STOPPING);
+        logger.info("Service &a" + getName() + "&7 is now stopping&8...");
+        eventBus.publish(new ServiceStoppingEvent(getName()));
 
         return CompletableFuture.runAsync(() -> {
             if (processChecker != null) {
@@ -140,26 +125,25 @@ public abstract class AbstractService implements Service {
             ((ServiceManagerImpl) serviceManager).removeService(this);
             screenManager.unregister(screen.name());
 
-            if (screenManager.getCurrentScreen().name().equals(name)) {
+            if (screenManager.getCurrentScreen().name().equals(getName())) {
                 screenManager.switchTo(Screen.NODE_SCREEN);
             }
 
-            server.broadcast().connectors().send(new ServiceRemovePacket(name, getPort()));
-            eventBus.publish(new ServiceStoppedEvent(name));
+            server.broadcast().connectors().send(new ServiceRemovePacket(getName(), getPort()));
+            eventBus.publish(new ServiceStoppedEvent(getName()));
 
             if (!group.isStatic() && Files.exists(directory)) {
                 FileUtils.deleteDirectory(directory);
             }
 
             synchronized (this) {
-                status = ServiceStatus.STOPPED;
+                setStatus(ServiceStatus.STOPPED);
             }
 
-            logger.info("Service &a" + name + " &7has been stopped");
+            logger.info("Service &a" + getName() + " &7has been stopped");
         }, executorService);
     }
 
-    @Override
     public void copy(String template, String filter) {
         final Path templatesDirectory = Path.of(config.folders().templates());
 
@@ -183,72 +167,17 @@ public abstract class AbstractService implements Service {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public boolean executeCommand(String command) {
+        return runtime.executeCommand(command);
     }
 
-    @Override
-    public int getServiceId() {
-        return serviceId;
-    }
-
-    @Override
-    public ServiceStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public void setStatus(ServiceStatus status) {
-        this.status = status;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public int getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    @Override
-    public void setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
+    public boolean alive() {
+        return runtime.alive();
     }
 
     @Override
     public int getUsedMemory() {
         return runtime.usedMemory();
-    }
-
-    @Override
-    public int getPort() {
-        return port;
-    }
-
-    @Override
-    public ServiceGroup getServiceGroup() {
-        return group;
-    }
-
-    @Override
-    public boolean executeCommand(String command) {
-        return runtime.executeCommand(command);
-    }
-
-    @Override
-    public Map<String, Property<?>> getPropertyMap() {
-        return propertyMap;
-    }
-
-    @Override
-    public String getPropertyHolderName() {
-        return name;
-    }
-
-    public boolean alive() {
-        return runtime.alive();
     }
 
     public Logger getLogger() {
@@ -263,20 +192,19 @@ public abstract class AbstractService implements Service {
         this.processChecker = processChecker;
     }
 
-
     public void log(String log) {
         logs.add(log);
         screen.addLog(log);
         // TODO Remove console
-        if (screenManager.getCurrentScreen().name().equals(name)) {
+        if (screenManager.getCurrentScreen().name().equals(getName())) {
             console.println(log);
         }
     }
 
     private Path resolveDirectory() {
         if (group.isStatic()) {
-            return Path.of(config.folders().staticServices()).resolve(name);
+            return Path.of(config.folders().staticServices()).resolve(getName());
         }
-        return Path.of(config.folders().tempServices()).resolve(name + "-" + UUID.randomUUID());
+        return Path.of(config.folders().tempServices()).resolve(getName() + "-" + UUID.randomUUID());
     }
 }

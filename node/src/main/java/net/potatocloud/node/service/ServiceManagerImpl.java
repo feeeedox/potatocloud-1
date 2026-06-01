@@ -95,6 +95,33 @@ public class ServiceManagerImpl implements ServiceManager {
         return CompletableFuture.completedFuture(launcher.start(groupName, null));
     }
 
+    @Override
+    public CompletableFuture<Void> stopService(String name) {
+        final Service service = getService(name);
+        if (service == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+        return service.shutdown();
+    }
+
+    @Override
+    public boolean executeCommand(String name, String command) {
+        final Service service = getService(name);
+        if (service == null) {
+            return false;
+        }
+        return service.executeCommand(command);
+    }
+
+    @Override
+    public void copy(String name, String template, String filter) {
+        final Service service = getService(name);
+        if (service == null) {
+            return;
+        }
+        service.copy(template, filter);
+    }
+
     public void startServiceInternal(String groupName, String requestId) {
         launcher.start(groupName, requestId);
     }

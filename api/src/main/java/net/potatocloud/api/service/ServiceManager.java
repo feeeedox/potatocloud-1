@@ -152,6 +152,84 @@ public interface ServiceManager {
     }
 
     /**
+     * Shuts down a service.
+     *
+     * @param name the name of the service to shutdown
+     * @return a CompletableFuture that completes when the shutdown is done
+     */
+    CompletableFuture<Void> stopService(String name);
+
+    /**
+     * Shuts down a service.
+     *
+     * @param service the service to shutdown
+     * @return a CompletableFuture that completes when the shutdown is done
+     */
+    default CompletableFuture<Void> stopService(Service service) {
+        return stopService(service.getName());
+    }
+
+    /**
+     * Executes a command on a service.
+     *
+     * @param name    the name of the service to execute the command on
+     * @param command the command to execute
+     * @return {@code true} if the command was executed successfully, otherwise {@code false}
+     */
+    boolean executeCommand(String name, String command);
+
+    /**
+     * Executes a command on a service.
+     *
+     * @param service the service to execute the command on
+     * @param command the command to execute
+     * @return {@code true} if the command was executed successfully, otherwise {@code false}
+     */
+    default boolean executeCommand(Service service, String command) {
+        return executeCommand(service.getName(), command);
+    }
+
+    /**
+     * Copies service files to a template.
+     *
+     * @param name     the name of the service to copy files from
+     * @param template the template to copy to
+     * @param filter   the filter to apply
+     */
+    void copy(String name, String template, String filter);
+
+    /**
+     * Copies service files to a template.
+     *
+     * @param name     the name of the service to copy files from
+     * @param template the template to copy to
+     */
+    default void copy(String name, String template) {
+        copy(name, template, "");
+    }
+
+    /**
+     * Copies service files to a template.
+     *
+     * @param service  the service to copy files from
+     * @param template the template to copy to
+     * @param filter   the filter to apply
+     */
+    default void copy(Service service, String template, String filter) {
+        copy(service.getName(), template, filter);
+    }
+
+    /**
+     * Copies service files to a template.
+     *
+     * @param service  the service to copy files from
+     * @param template the template to copy to
+     */
+    default void copy(Service service, String template) {
+        copy(service.getName(), template, "");
+    }
+
+    /**
      * Gets the current service the api is running on.
      * <p>
      * This only works if the API is used from within a plugin.

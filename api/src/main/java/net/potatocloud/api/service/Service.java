@@ -153,7 +153,9 @@ public interface Service extends PropertyHolder {
      *
      * @return a CompletableFuture that completes when the shutdown is done
      */
-    CompletableFuture<Void> shutdown();
+    default CompletableFuture<Void> shutdown() {
+        return CloudAPI.getInstance().getServiceManager().stopService(this);
+    }
 
     /**
      * Executes a command on the service.
@@ -161,7 +163,9 @@ public interface Service extends PropertyHolder {
      * @param command the command to execute
      * @return {@code true} if the command was executed successfully, otherwise {@code false}
      */
-    boolean executeCommand(String command);
+    default boolean executeCommand(String command) {
+        return CloudAPI.getInstance().getServiceManager().executeCommand(this, command);
+    }
 
     /**
      * Copies service files to a template.
@@ -169,7 +173,9 @@ public interface Service extends PropertyHolder {
      * @param template the template to copy to
      * @param filter   the filter to apply
      */
-    void copy(String template, String filter);
+    default void copy(String template, String filter) {
+        CloudAPI.getInstance().getServiceManager().copy(this, template, filter);
+    }
 
     /**
      * Copies service files to a template.
@@ -177,7 +183,7 @@ public interface Service extends PropertyHolder {
      * @param template the template to copy to
      */
     default void copy(String template) {
-        copy(template, "");
+        CloudAPI.getInstance().getServiceManager().copy(this, template);
     }
 
     /**
