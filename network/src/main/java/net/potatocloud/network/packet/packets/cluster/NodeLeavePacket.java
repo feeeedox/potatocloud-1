@@ -5,18 +5,18 @@ import net.potatocloud.network.packet.Packet;
 
 import java.util.UUID;
 
-public record NodeLeavePacket(UUID nodeId) implements Packet {
+public record NodeLeavePacket(String nodeName) implements Packet {
 
     public static final Codec<NodeLeavePacket> CODEC = new Codec<>() {
 
         @Override
         public void encode(NodeLeavePacket packet, PacketBuffer buf) {
-            buf.writeUUID(packet.nodeId());
+            buf.writeString(packet.nodeName());
         }
 
         @Override
         public NodeLeavePacket decode(PacketBuffer buf) {
-            return new NodeLeavePacket(buf.readUUID());
+            return new NodeLeavePacket(buf.readString());
         }
     };
 }

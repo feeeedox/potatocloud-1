@@ -17,7 +17,7 @@ public class ClusterNodeArgument extends ArgumentType<ClusterNode> {
         final ClusterNode local = Node.getInstance().getClusterManager().localNode();
 
         return Node.getInstance().getClusterManager().nodes().stream()
-                .filter(node -> !node.id().equals(local.id()))
+                .filter(node -> !node.name().equals(local.name()))
                 .filter(node -> node.name().equalsIgnoreCase(input))
                 .findFirst()
                 .map(ParseResult::success)
@@ -29,8 +29,8 @@ public class ClusterNodeArgument extends ArgumentType<ClusterNode> {
         final ClusterNode local = Node.getInstance().getClusterManager().localNode();
 
         return Node.getInstance().getClusterManager().nodes().stream()
-                .filter(n -> !n.id().equals(local.id()))
                 .map(ClusterNode::name)
+                .filter(name -> !name.equals(local.name()))
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

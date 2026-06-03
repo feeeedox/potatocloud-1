@@ -24,7 +24,6 @@ public class ClusterCommand extends Command {
                     final long uptime = System.currentTimeMillis() - local.startedAt();
 
                     logger.info("Local node&8:");
-                    logger.info("&8» &7Id&8: &a" + local.id());
                     logger.info("&8» &7Name&8: &a" + local.name());
                     logger.info("&8» &7Address&8: &a" + local.host() + "&8:&a" + local.port());
                     logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(local.startedAt()));
@@ -42,7 +41,7 @@ public class ClusterCommand extends Command {
 
                     logger.info("&7All connected cluster nodes:");
                     for (ClusterNode node : nodes) {
-                        final boolean isLocal = node.id().equals(local.id());
+                        final boolean isLocal = node.name().equals(local.name());
 
                         logger.info("&8» &a" + node.name()+ " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)" + (isLocal ? " &8[&7Local&8]" : ""));
                     }
@@ -58,7 +57,6 @@ public class ClusterCommand extends Command {
                     final long uptime = System.currentTimeMillis() - node.startedAt();
 
                     logger.info("Node &a" + node.name() + "&8:");
-                    logger.info("&8» &7Id&8: &a" + node.id());
                     logger.info("&8» &7Name&8: &a" + node.name());
                     logger.info("&8» &7Address&8: &a" + node.host() + "&8:&a" + node.port());
                     logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(node.startedAt()));

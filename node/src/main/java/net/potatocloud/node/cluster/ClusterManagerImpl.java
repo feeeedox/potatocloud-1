@@ -36,7 +36,7 @@ public class ClusterManagerImpl implements ClusterManager {
     private final NetworkServer server;
     private final Logger logger;
 
-    private final Map<UUID, ClusterNodeImpl> nodes = new ConcurrentHashMap<>();
+    private final Map<String, ClusterNodeImpl> nodes = new ConcurrentHashMap<>();
     private final Set<NetworkConnection> outboundConnections = ConcurrentHashMap.newKeySet();
     private final List<NettyNetworkClient> clients = new ArrayList<>();
     private final Set<String> connectingAddresses = ConcurrentHashMap.newKeySet();
@@ -48,7 +48,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.packetManager = packetManager;
         this.server = server;
         this.logger = logger;
-        this.localNode = new ClusterNodeImpl(NodeId.load(), config.name(), localHost, localPort, System.currentTimeMillis(), null);
+        this.localNode = new ClusterNodeImpl(config.name(), localHost, localPort, System.currentTimeMillis(), null);
     }
 
     public void start(ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
@@ -62,7 +62,7 @@ public class ClusterManagerImpl implements ClusterManager {
         heartbeatScheduler = new HeartbeatScheduler(this, localNode, logger);
         heartbeatScheduler.start();
 
-        logger.info("Cluster enabled &8(&aid&8: &a" + localNode.id() + "&8, &aname&8: &a" + localNode.name() + "&8)");
+        logger.info("Cluster enabled &8(&aname&8: &a" + localNode.name() + "&8)");
 
         if (config.nodes() != null) {
             connectAll();
@@ -92,7 +92,7 @@ public class ClusterManagerImpl implements ClusterManager {
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
         });
 
         try {
@@ -104,11 +104,11 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     public void add(ClusterNodeImpl node) {
-        nodes.put(node.id(), node);
+        nodes.put(node.name(), node);
     }
 
     public void remove(ClusterNodeImpl node) {
-        nodes.remove(node.id());
+        nodes.remove(node.name());
         if (node.connection() != null) {
             outboundConnections.remove(node.connection());
         }
@@ -138,7 +138,7 @@ public class ClusterManagerImpl implements ClusterManager {
             heartbeatScheduler.stop();
         }
 
-        broadcast(new NodeLeavePacket(localNode.id()));
+        broadcast(new NodeLeavePacket(localNode.name()));
         clients.forEach(NettyNetworkClient::close);
     }
 
@@ -159,15 +159,15 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     @Override
-    public Optional<ClusterNode> get(UUID nodeId) {
-        if (localNode.id().equals(nodeId)) {
+    public Optional<ClusterNode> get(String name) {
+        if (localNode.name().equals(name)) {
             return Optional.of(localNode);
         }
-        return Optional.ofNullable(nodes.get(nodeId));
+        return Optional.ofNullable(nodes.get(name));
     }
 
-    public Optional<ClusterNodeImpl> remoteNode(UUID nodeId) {
-        return Optional.ofNullable(nodes.get(nodeId));
+    public Optional<ClusterNodeImpl> remoteNode(String nodeName) {
+        return Optional.ofNullable(nodes.get(nodeName));
     }
 
     public Optional<ClusterNodeImpl> remoteNode(NetworkConnection connection) {

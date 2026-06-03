@@ -29,7 +29,7 @@ public class HeartbeatScheduler {
     }
 
     private void run() {
-        clusterManager.broadcast(new HeartbeatPacket(localNode.id()));
+        clusterManager.broadcast(new HeartbeatPacket(localNode.name()));
 
         for (ClusterNodeImpl node : clusterManager.remoteNodes()) {
             if (node.isTimedOut(TIMEOUT_MS)) {

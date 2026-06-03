@@ -15,8 +15,6 @@ import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
-import java.util.UUID;
-
 public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
     private final ClusterNode localNode;
@@ -39,26 +37,26 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
     public void handle(PacketContext<NodeJoinPacket> ctx) {
         final NodeJoinPacket packet = ctx.packet();
         final NetworkConnection connection = ctx.connection();
-        final UUID nodeId = packet.nodeId();
+        final String nodeName = packet.nodeName();
 
-        if (nodeId.equals(localNode.id())) {
+        if (nodeName.equals(localNode.name())) {
             return;
         }
 
         connection.type(ConnectionType.NODE);
 
-        final ClusterNodeImpl node = new ClusterNodeImpl(nodeId, packet.name(), packet.host(), packet.port(), packet.startedAt(), connection);
+        final ClusterNodeImpl node = new ClusterNodeImpl(nodeName, packet.host(), packet.port(), packet.startedAt(), connection);
         clusterManager.add(node);
 
         if (clusterManager.isOutbound(connection)) {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            connection.send(new NodeJoinPacket(localNode.id(), localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
 
             connection.send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()
-                            .filter(n -> !n.id().equals(nodeId))
+                            .filter(n -> !n.name().equals(nodeName))
                             .map(n -> (ClusterNode) n)
                             .toList()
             ));

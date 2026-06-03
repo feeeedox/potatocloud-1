@@ -16,6 +16,6 @@ public class HeartbeatListener implements PacketListener<HeartbeatPacket> {
 
     @Override
     public void handle(PacketContext<HeartbeatPacket> ctx) {
-        clusterManager.remoteNode(ctx.packet().nodeId()).ifPresent(ClusterNodeImpl::updateHeartbeat);
+        clusterManager.remoteNode(ctx.packet().nodeName()).ifPresent(ClusterNodeImpl::updateHeartbeat);
     }
 }

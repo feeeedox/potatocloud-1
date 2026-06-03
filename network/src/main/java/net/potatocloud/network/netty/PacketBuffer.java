@@ -174,7 +174,6 @@ public class PacketBuffer {
     }
 
     public void writeClusterNode(ClusterNode node) {
-        writeUUID(node.id());
         writeString(node.name());
         writeString(node.host());
         writeInt(node.port());
@@ -182,7 +181,7 @@ public class PacketBuffer {
     }
 
     public ClusterNode readClusterNode() {
-        return new AbstractClusterNode(readUUID(), readString(), readString(), readInt(), readLong());
+        return new AbstractClusterNode(readString(), readString(), readInt(), readLong());
     }
 
     public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
