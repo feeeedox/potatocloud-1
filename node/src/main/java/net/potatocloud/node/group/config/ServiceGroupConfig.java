@@ -11,6 +11,7 @@ import java.util.*;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ServiceGroupConfig(
         String name,
+        String node,
         String platform,
         @JsonProperty("platform-version") String platformVersion,
         @JsonProperty("java-command") String javaCommand,
@@ -30,6 +31,7 @@ public record ServiceGroupConfig(
     public static ServiceGroupConfig from(ServiceGroup group) {
         return new ServiceGroupConfig(
                 group.getName(),
+                group.nodeName(),
                 group.getPlatformName(),
                 group.getPlatformVersionName(),
                 group.getJavaCommand(),
@@ -69,6 +71,7 @@ public record ServiceGroupConfig(
 
         return new ServiceGroupImpl(
                 name,
+                node,
                 platform,
                 platformVersion,
                 javaCommand,

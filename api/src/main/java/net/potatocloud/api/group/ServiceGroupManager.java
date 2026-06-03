@@ -29,6 +29,7 @@ public interface ServiceGroupManager {
      */
     default void createServiceGroup(
             String name,
+            String nodeName,
             String platformName,
             String platformVersionName,
             int minOnlineCount,
@@ -42,6 +43,7 @@ public interface ServiceGroupManager {
     ) {
         createServiceGroup(
                 name,
+                nodeName,
                 platformName,
                 platformVersionName,
                 minOnlineCount,
@@ -63,6 +65,7 @@ public interface ServiceGroupManager {
      */
     void createServiceGroup(
             String name,
+            String nodeName,
             String platformName,
             String platformVersionName,
             int minOnlineCount,

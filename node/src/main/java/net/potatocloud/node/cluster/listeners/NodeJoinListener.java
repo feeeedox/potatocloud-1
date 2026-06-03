@@ -75,7 +75,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
                     playerManager.getOnlinePlayers()
             ));
 
-            logger.debug("Cluster sync sent to node &a" + node.name() + " &7in &a" + (System.currentTimeMillis() - syncStart) + "&7ms");
+            logger.debug("Cluster sync sent to node &a" + node.name() + " &7in &a" + (System.currentTimeMillis() - syncStart) + "ms");
         }
     }
 }

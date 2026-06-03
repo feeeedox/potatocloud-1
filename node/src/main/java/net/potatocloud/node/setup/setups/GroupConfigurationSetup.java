@@ -116,6 +116,7 @@ public class GroupConfigurationSetup extends Setup {
         final String name = answers.get("name");
         groupManager.createServiceGroup(
                 name,
+                Node.getInstance().getConfig().cluster().name(), // todo ugly
                 answers.get("platform"),
                 answers.get("platform_version"),
                 Integer.parseInt(answers.get("min_online_count")),

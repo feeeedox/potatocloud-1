@@ -67,6 +67,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     @Override
     public void createServiceGroup(
             String name,
+            String nodeName,
             String platformName,
             String platformVersionName,
             int minOnlineCount,
@@ -88,6 +89,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
         final ServiceGroup group = new ServiceGroupImpl(
                 name,
+                nodeName,
                 platformName,
                 platformVersionName,
                 javaCommand,

@@ -235,6 +235,7 @@ public class PacketBuffer {
 
     public void writeServiceGroup(ServiceGroup group) {
         writeString(group.getName());
+        writeString(group.nodeName());
         writeString(group.getPlatformName());
         writeString(group.getPlatformVersionName());
         writeString(group.getJavaCommand());
@@ -253,6 +254,7 @@ public class PacketBuffer {
 
     public ServiceGroup readServiceGroup() {
         return new ServiceGroupImpl(
+                readString(),
                 readString(),
                 readString(),
                 readString(),

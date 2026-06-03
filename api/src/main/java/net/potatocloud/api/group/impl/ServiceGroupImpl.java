@@ -18,6 +18,7 @@ import java.util.Map;
 public class ServiceGroupImpl implements ServiceGroup {
 
     private final String name;
+    private final String nodeName;
     private final String platformName;
     private final String platformVersionName;
     private String javaCommand;
@@ -35,6 +36,7 @@ public class ServiceGroupImpl implements ServiceGroup {
 
     public ServiceGroupImpl(
             String name,
+            String nodeName,
             String platformName,
             String platformVersionName,
             String javaCommand,
@@ -50,6 +52,7 @@ public class ServiceGroupImpl implements ServiceGroup {
             Map<String, Property<?>> propertyMap
     ) {
         this.name = name;
+        this.nodeName = nodeName;
         this.platformName = platformName;
         this.platformVersionName = platformVersionName;
         this.javaCommand = javaCommand;
@@ -85,6 +88,11 @@ public class ServiceGroupImpl implements ServiceGroup {
                 service.update();
             }
         }
+    }
+
+    @Override
+    public String nodeName() {
+        return nodeName;
     }
 
     @Override

@@ -47,6 +47,7 @@ import net.potatocloud.node.version.UpdateChecker;
 import net.potatocloud.node.version.VersionFile;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -237,16 +238,32 @@ public class Node extends CloudAPI {
 
         moduleManager.disableAll();
 
-        if (config.cluster().enabled()) {
+        final boolean clustered = config.cluster().enabled();
+
+        if (clustered) {
             clusterManager.close();
         }
 
-        final List<Service> services = serviceManager.getAllServices();
+        final List<Service> servicesToStop = new ArrayList<>();
 
-        if (!services.isEmpty()) {
+        if (clustered) {
+            final String localNodeName = config.cluster().name();
+
+            for (Service service : serviceManager.getAllServices()) {
+                final String nodeName = service.getServiceGroup().nodeName();
+
+                if (nodeName == null || nodeName.equals(localNodeName)) {
+                    servicesToStop.add(service);
+                }
+            }
+        } else {
+            servicesToStop.addAll(serviceManager.getAllServices());
+        }
+
+        if (!servicesToStop.isEmpty()) {
             logger.info("Shutting down all running services...");
 
-            final CompletableFuture<?>[] futures = services.stream()
+            final CompletableFuture<?>[] futures = servicesToStop.stream()
                     .map(Service::shutdown)
                     .toArray(CompletableFuture[]::new);
 
