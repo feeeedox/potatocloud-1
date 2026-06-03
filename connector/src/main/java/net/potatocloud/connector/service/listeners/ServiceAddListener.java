@@ -7,7 +7,6 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceAddPacket;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
@@ -20,8 +19,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
         final ServiceAddPacket packet = ctx.packet();
         final Service service = packet.service();
 
-        final List<Service> services = serviceManager.getAllServices();
-        if (!services.contains(service)) {
+        if (serviceManager.getService(service.getName()) == null) {
             serviceManager.addService(service);
         }
 

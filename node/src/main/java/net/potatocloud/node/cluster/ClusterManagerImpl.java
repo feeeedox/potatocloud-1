@@ -70,7 +70,7 @@ public class ClusterManagerImpl implements ClusterManager {
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));
-        server.on(ClusterSyncPacket.class, new ClusterSyncListener(groupManager, serviceManager, playerManager));
+        server.on(ClusterSyncPacket.class, new ClusterSyncListener(groupManager, serviceManager, playerManager, server));
         server.addDisconnectListener(new NodeDisconnectListener(this, logger));
 
         heartbeatScheduler = new HeartbeatScheduler(this, localNode, logger);
