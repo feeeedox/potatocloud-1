@@ -119,8 +119,8 @@ public class ClusterManagerImpl implements ClusterManager {
         return outboundConnections.contains(connection);
     }
 
-    public void sendTo(UUID nodeId, Packet packet) {
-        final ClusterNodeImpl node = nodes.get(nodeId);
+    public void sendTo(String nodeName, Packet packet) {
+        final ClusterNodeImpl node = nodes.get(nodeName);
         if (node == null || node.connection() == null) {
             return;
         }

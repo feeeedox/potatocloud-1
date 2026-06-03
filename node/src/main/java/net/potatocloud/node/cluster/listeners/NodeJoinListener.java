@@ -43,6 +43,12 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             return;
         }
 
+        if (clusterManager.remoteNode(nodeName).isPresent()) {
+            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7duplicate name&8)");
+            connection.close();
+            return;
+        }
+
         connection.type(ConnectionType.NODE);
 
         final ClusterNodeImpl node = new ClusterNodeImpl(nodeName, packet.host(), packet.port(), packet.startedAt(), connection);
