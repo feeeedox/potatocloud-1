@@ -126,6 +126,13 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         groups.add(group);
     }
 
+    public void registerServiceGroup(ServiceGroup group) {
+        if (group == null || existsServiceGroup(group.getName())) {
+            return;
+        }
+        groups.add(group);
+    }
+
     @Override
     public void deleteServiceGroup(String name) {
         if (!deleteServiceGroupLocal(name)) {

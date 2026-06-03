@@ -23,9 +23,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         final ClusterSyncPacket packet = ctx.packet();
 
         for (ServiceGroup group : packet.groups()) {
-            if (!groupManager.existsServiceGroup(group.getName())) {
-                groupManager.addServiceGroup(group);
-            }
+            groupManager.registerServiceGroup(group);
         }
 
         for (Service service : packet.services()) {
