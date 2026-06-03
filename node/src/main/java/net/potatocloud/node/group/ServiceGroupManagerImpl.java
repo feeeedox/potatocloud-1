@@ -133,6 +133,10 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         groups.add(group);
     }
 
+    public void unregisterServiceGroup(String name) {
+        groups.removeIf(group -> group.getName().equalsIgnoreCase(name));
+    }
+
     @Override
     public void deleteServiceGroup(String name) {
         if (!deleteServiceGroupLocal(name)) {

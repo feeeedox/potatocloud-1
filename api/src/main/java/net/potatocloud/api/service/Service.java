@@ -1,11 +1,13 @@
 package net.potatocloud.api.service;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.utils.TimeFormatter;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -18,6 +20,26 @@ public interface Service extends PropertyHolder {
      * @return the name of the service
      */
     String getName();
+
+    /**
+     * Gets the name of the cluster node this service's group is assigned to.
+     *
+     * @return the node name, or {@code null} if the group is not assigned to a specific node
+     */
+    default String nodeName() {
+        final ServiceGroup group = getServiceGroup();
+        return group != null ? group.nodeName() : null;
+    }
+
+    /**
+     * Gets the cluster node this service's group is assigned to.
+     *
+     * @return the cluster node, or an empty optional if not assigned
+     */
+    default Optional<ClusterNode> node() {
+        final ServiceGroup group = getServiceGroup();
+        return group != null ? group.node() : Optional.empty();
+    }
 
     /**
      * Gets the id of the service.

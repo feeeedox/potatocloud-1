@@ -2,7 +2,10 @@ package net.potatocloud.node.cluster;
 
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.cluster.ClusterNode;
+import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
+import net.potatocloud.api.player.CloudPlayer;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
@@ -13,6 +16,9 @@ import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
+import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
+import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
+import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
 import net.potatocloud.node.cluster.listeners.ClusterSyncListener;
 import net.potatocloud.node.cluster.listeners.HeartbeatListener;
 import net.potatocloud.node.cluster.listeners.NodeDiscoveryListener;
@@ -43,6 +49,10 @@ public class ClusterManagerImpl implements ClusterManager {
 
     private HeartbeatScheduler heartbeatScheduler;
 
+    private ServiceGroupManagerImpl groupManager;
+    private ServiceManagerImpl serviceManager;
+    private CloudPlayerManagerImpl playerManager;
+
     public ClusterManagerImpl(String localHost, int localPort, ClusterConfig config, PacketManager packetManager, NetworkServer server, Logger logger) {
         this.config = config;
         this.packetManager = packetManager;
@@ -52,6 +62,10 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     public void start(ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+        this.groupManager = groupManager;
+        this.serviceManager = serviceManager;
+        this.playerManager = playerManager;
+
         server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger, groupManager, serviceManager, playerManager));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
@@ -108,7 +122,31 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     public void remove(ClusterNodeImpl node) {
-        nodes.remove(node.name());
+        final String nodeName = node.name();
+
+        groupManager.getAllServiceGroups().stream()
+                .filter(group -> nodeName.equals(group.nodeName()))
+                .toList()
+                .forEach(group -> {
+                    groupManager.unregisterServiceGroup(group.getName());
+                    server.broadcast().connectors().send(new GroupDeletePacket(group.getName()));
+                });
+
+        serviceManager.getAllServices().stream()
+                .filter(service -> nodeName.equals(service.nodeName()))
+                .forEach(service -> {
+                    serviceManager.removeService(service);
+                    server.broadcast().connectors().send(new ServiceRemovePacket(service.getName(), service.getPort()));
+                });
+
+        playerManager.getOnlinePlayers().stream()
+                .filter(player -> nodeName.equals(player.nodeName()))
+                .forEach(player -> {
+                    playerManager.unregisterPlayer(player);
+                    server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.getUniqueId()));
+                });
+
+        nodes.remove(nodeName);
         if (node.connection() != null) {
             outboundConnections.remove(node.connection());
         }
