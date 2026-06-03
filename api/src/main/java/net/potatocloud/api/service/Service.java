@@ -157,6 +157,13 @@ public interface Service extends PropertyHolder {
     int getUsedMemory();
 
     /**
+     * Gets the host of the node this service runs on.
+     *
+     * @return the host address of the node
+     */
+    String host();
+
+    /**
      * Gets the port of the service.
      *
      * @return the port of the service

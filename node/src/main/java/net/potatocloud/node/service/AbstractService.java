@@ -71,7 +71,7 @@ public abstract class AbstractService extends ServiceImpl {
             ServiceRuntime runtime,
             ClusterManagerImpl clusterManager
     ) {
-        super(serviceId, port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
+        super(serviceId, clusterManager.localNode().host(), port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;
@@ -104,7 +104,8 @@ public abstract class AbstractService extends ServiceImpl {
 
         logger.info("Service &a" + getName() + "&7 is now starting&8... "
                 + "&8[&7Port&8: &a" + getPort()
-                + "&8, &7Group&8: &a" + group.getName() + "&8]"
+                + "&8, &7Group&8: &a" + group.getName()
+                + "&8, &7Node&8: &a" + clusterManager.localNode().name() + "&8]"
         );
 
         eventBus.publish(new PreparedServiceStartingEvent(getName()));

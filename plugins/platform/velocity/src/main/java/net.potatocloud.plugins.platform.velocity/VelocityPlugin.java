@@ -80,7 +80,7 @@ public class VelocityPlugin implements PlatformPlugin {
         });
 
         api.getClient().on(ServiceRemovePacket.class, ctx -> {
-            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress("0.0.0.0", ctx.packet().servicePort())));
+            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort())));
         });
     }
 
@@ -102,7 +102,7 @@ public class VelocityPlugin implements PlatformPlugin {
         if (service.getServiceGroup().getPlatform().isProxy()) {
             return;
         }
-        server.registerServer(new ServerInfo(service.getName(), new InetSocketAddress("0.0.0.0", service.getPort())));
+        server.registerServer(new ServerInfo(service.getName(), new InetSocketAddress(service.host(), service.getPort())));
     }
 
     @Subscribe

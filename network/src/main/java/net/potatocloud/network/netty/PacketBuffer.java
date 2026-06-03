@@ -275,6 +275,7 @@ public class PacketBuffer {
 
     public void writeService(Service service) {
         writeInt(service.getServiceId());
+        writeString(service.host());
         writeInt(service.getPort());
         writeString(service.getName());
         writeString(service.getServiceGroup().getName());
@@ -288,6 +289,7 @@ public class PacketBuffer {
     public Service readService() {
         return new ServiceImpl(
                 readInt(),
+                readString(),
                 readInt(),
                 readString(),
                 readString(),
