@@ -12,6 +12,7 @@ import net.potatocloud.api.service.impl.ServiceImpl;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.Screen;
@@ -44,6 +45,7 @@ public abstract class AbstractService extends ServiceImpl {
     private final ServiceManager serviceManager;
     private final ScreenManager screenManager;
     private final Console console;
+    private final ClusterManagerImpl clusterManager;
     private final Screen screen;
     private final List<String> logs = new ArrayList<>();
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
@@ -66,7 +68,8 @@ public abstract class AbstractService extends ServiceImpl {
             ScreenManager screenManager,
             Console console,
             ServicePreparer preparer,
-            ServiceRuntime runtime
+            ServiceRuntime runtime,
+            ClusterManagerImpl clusterManager
     ) {
         super(serviceId, port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
         this.group = group;
@@ -80,6 +83,7 @@ public abstract class AbstractService extends ServiceImpl {
         this.console = console;
         this.preparer = preparer;
         this.runtime = runtime;
+        this.clusterManager = clusterManager;
         this.screen = new Screen(getName());
         this.directory = resolveDirectory();
     }
@@ -130,6 +134,7 @@ public abstract class AbstractService extends ServiceImpl {
             }
 
             server.broadcast().connectors().send(new ServiceRemovePacket(getName(), getPort()));
+            clusterManager.broadcast(new ServiceRemovePacket(getName(), getPort()));
             eventBus.publish(new ServiceStoppedEvent(getName()));
 
             if (!group.isStatic() && Files.exists(directory)) {

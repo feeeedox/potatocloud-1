@@ -5,6 +5,7 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.ScreenManager;
@@ -28,8 +29,9 @@ public final class LocalService extends AbstractService {
             ScreenManager screenManager,
             Console console,
             ServicePreparer preparer,
-            ServiceRuntime runtime
+            ServiceRuntime runtime,
+            ClusterManagerImpl clusterManager
     ) {
-        super(serviceId, port, group, config, logger, server, eventBus, serviceManager, templateManager, screenManager, console, preparer, runtime);
+        super(serviceId, port, group, config, logger, server, eventBus, serviceManager, templateManager, screenManager, console, preparer, runtime, clusterManager);
     }
 }

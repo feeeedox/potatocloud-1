@@ -14,6 +14,7 @@ import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.group.config.ServiceGroupStorage;
 import net.potatocloud.node.group.listeners.GroupAddListener;
 import net.potatocloud.node.group.listeners.GroupDeleteListener;
@@ -37,16 +38,18 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
     private final NetworkServer server;
     private final Logger logger;
+    private final ClusterManagerImpl clusterManager;
 
-    public ServiceGroupManagerImpl(Path groupsPath, NetworkServer server, Logger logger) {
+    public ServiceGroupManagerImpl(Path groupsPath, NetworkServer server, Logger logger, ClusterManagerImpl clusterManager) {
         this.groupsPath = groupsPath;
         this.server = server;
         this.logger = logger;
+        this.clusterManager = clusterManager;
 
         server.on(RequestGroupsPacket.class, new RequestGroupsListener(this));
-        server.on(GroupUpdatePacket.class, new GroupUpdateListener(this, server));
-        server.on(GroupAddPacket.class, new GroupAddListener(this, server));
-        server.on(GroupDeletePacket.class, new GroupDeleteListener(this, server));
+        server.on(GroupUpdatePacket.class, new GroupUpdateListener(this, server, clusterManager));
+        server.on(GroupAddPacket.class, new GroupAddListener(this, server, clusterManager));
+        server.on(GroupDeletePacket.class, new GroupDeleteListener(this, server, clusterManager));
 
         loadGroups();
     }
@@ -107,8 +110,8 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
         addServiceGroup(group);
 
-        // Send group add packet to clients
         server.broadcast().connectors().send(new GroupAddPacket(group));
+        clusterManager.broadcast(new GroupAddPacket(group));
 
         logger.info("Group &a" + name + " &7was successfully created");
     }
@@ -144,6 +147,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         }
 
         server.broadcast().connectors().send(new GroupDeletePacket(name));
+        clusterManager.broadcast(new GroupDeletePacket(name));
     }
 
     public boolean deleteServiceGroupLocal(String name) {
@@ -170,7 +174,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     public void updateServiceGroup(ServiceGroup group) {
         ServiceGroupStorage.save(group, groupsPath);
 
-        server.broadcast().connectors().send(new GroupUpdatePacket(
+        final GroupUpdatePacket updatePacket = new GroupUpdatePacket(
                 group.getName(),
                 group.getCustomJvmFlags(),
                 group.getMaxPlayers(),
@@ -182,7 +186,9 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 group.getStartPercentage(),
                 group.getServiceTemplates(),
                 group.getPropertyMap()
-        ));
+        );
+        server.broadcast().connectors().send(updatePacket);
+        clusterManager.broadcast(updatePacket);
     }
 
     @Override

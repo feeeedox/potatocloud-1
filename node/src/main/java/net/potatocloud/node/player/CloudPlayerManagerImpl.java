@@ -4,6 +4,7 @@ import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.player.*;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.player.listeners.CloudPlayerAddListener;
 import net.potatocloud.node.player.listeners.CloudPlayerRemoveListener;
 import net.potatocloud.node.player.listeners.CloudPlayerUpdateListener;
@@ -18,12 +19,12 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     private final Set<CloudPlayer> onlinePlayers = new HashSet<>();
     private final NetworkServer server;
 
-    public CloudPlayerManagerImpl(NetworkServer server) {
+    public CloudPlayerManagerImpl(NetworkServer server, ClusterManagerImpl clusterManager) {
         this.server = server;
 
-        server.on(CloudPlayerAddPacket.class, new CloudPlayerAddListener(this, server));
-        server.on(CloudPlayerRemovePacket.class, new CloudPlayerRemoveListener(this));
-        server.on(CloudPlayerUpdatePacket.class, new CloudPlayerUpdateListener(this, server));
+        server.on(CloudPlayerAddPacket.class, new CloudPlayerAddListener(this, server, clusterManager));
+        server.on(CloudPlayerRemovePacket.class, new CloudPlayerRemoveListener(this, clusterManager));
+        server.on(CloudPlayerUpdatePacket.class, new CloudPlayerUpdateListener(this, server, clusterManager));
         server.on(RequestCloudPlayersPacket.class, new RequestCloudPlayersListener(this));
     }
 

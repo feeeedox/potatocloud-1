@@ -11,7 +11,9 @@ import net.potatocloud.api.utils.TimeFormatter;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceStartedPacket;
+import net.potatocloud.network.packet.packets.service.ServiceUpdatePacket;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.runtime.ServiceMemoryUpdateTask;
 import net.potatocloud.node.service.runtime.ServiceProcessChecker;
@@ -22,6 +24,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
     private final ServiceManager serviceManager;
     private final Logger logger;
     private final EventBus eventBus;
+    private final ClusterManagerImpl clusterManager;
 
     @Override
     public void handle(PacketContext<ServiceStartedPacket> ctx) {
@@ -37,6 +40,10 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
 
         service.setStatus(ServiceStatus.RUNNING);
         service.update();
+
+        clusterManager.broadcast(new ServiceUpdatePacket(
+                service.getName(), service.getStatus().name(), service.getMaxPlayers(), service.getPropertyMap()
+        ));
 
         eventBus.publish(new ServiceStartedEvent(packet.serviceName()));
 

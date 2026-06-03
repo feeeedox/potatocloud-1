@@ -1,0 +1,27 @@
+package net.potatocloud.node.service.listeners;
+
+import lombok.RequiredArgsConstructor;
+import net.potatocloud.network.NetworkServer;
+import net.potatocloud.network.packet.PacketContext;
+import net.potatocloud.network.packet.PacketListener;
+import net.potatocloud.network.packet.packets.service.ServiceAddPacket;
+import net.potatocloud.node.service.ServiceManagerImpl;
+
+@RequiredArgsConstructor
+public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
+
+    private final ServiceManagerImpl serviceManager;
+    private final NetworkServer server;
+
+    @Override
+    public void handle(PacketContext<ServiceAddPacket> ctx) {
+        final ServiceAddPacket packet = ctx.packet();
+
+        if (serviceManager.getService(packet.service().getName()) != null) {
+            return;
+        }
+
+        serviceManager.addService(packet.service());
+        server.broadcast().connectors().send(new ServiceAddPacket(packet.service(), null));
+    }
+}

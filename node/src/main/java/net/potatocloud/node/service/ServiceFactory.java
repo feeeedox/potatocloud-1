@@ -6,6 +6,7 @@ import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.node.Node;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.cache.CacheManager;
@@ -26,6 +27,7 @@ public final class ServiceFactory {
     private final ServiceManager serviceManager;
     private final ScreenManager screenManager;
     private final TemplateManager templateManager;
+    private final ClusterManagerImpl clusterManager;
 
     private final DownloadManager downloadManager;
     private final CacheManager cacheManager;
@@ -39,7 +41,8 @@ public final class ServiceFactory {
             ScreenManager screenManager,
             TemplateManager templateManager,
             DownloadManager downloadManager,
-            CacheManager cacheManager
+            CacheManager cacheManager,
+            ClusterManagerImpl clusterManager
     ) {
         this.config = config;
         this.logger = logger;
@@ -50,6 +53,7 @@ public final class ServiceFactory {
         this.templateManager = templateManager;
         this.downloadManager = downloadManager;
         this.cacheManager = cacheManager;
+        this.clusterManager = clusterManager;
     }
 
     public AbstractService create(ServiceType type, int serviceId, int port, ServiceGroup group) {
@@ -62,7 +66,7 @@ public final class ServiceFactory {
                 yield new LocalService(
                         serviceId, port, group,
                         config, logger, server, eventBus, serviceManager, templateManager,
-                        screenManager, Node.getInstance().getConsole(), preparer, runtime // TODO Remove console
+                        screenManager, Node.getInstance().getConsole(), preparer, runtime, clusterManager // TODO Remove console
                 );
             }
         };

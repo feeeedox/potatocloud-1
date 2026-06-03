@@ -8,6 +8,7 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.*;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.cache.CacheManager;
@@ -41,7 +42,8 @@ public class ServiceManagerImpl implements ServiceManager {
             ScreenManager screenManager,
             TemplateManager templateManager,
             DownloadManager downloadManager,
-            CacheManager cacheManager
+            CacheManager cacheManager,
+            ClusterManagerImpl clusterManager
     ) {
         this.config = config;
         this.logger = logger;
@@ -49,13 +51,15 @@ public class ServiceManagerImpl implements ServiceManager {
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
 
-        final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager);
+        final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager, clusterManager);
 
-        this.launcher = new ServiceLauncher(this, groupManager, factory, config, server);
+        this.launcher = new ServiceLauncher(this, groupManager, factory, config, server, clusterManager);
 
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
-        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus));
-        server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server));
+        server.on(ServiceAddPacket.class, new ServiceAddListener(this, server));
+        server.on(ServiceRemovePacket.class, new ServiceRemoveListener(this, server));
+        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus, clusterManager));
+        server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server, clusterManager));
         server.on(StartServicePacket.class, new StartServiceListener(this, groupManager));
         server.on(StopServicePacket.class, new StopServiceListener(this));
         server.on(ServiceExecuteCommandPacket.class, new ServiceExecuteCommandListener(this));

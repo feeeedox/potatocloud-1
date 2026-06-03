@@ -119,10 +119,10 @@ public class Node extends CloudAPI {
         this.clusterManager = new ClusterManagerImpl(config.node().host(), config.node().port(), config.cluster(), packetManager, server, logger);
 
         this.propertiesHolder = new NodePropertiesHolder(server);
-        this.playerManager = new CloudPlayerManagerImpl(server);
+        this.playerManager = new CloudPlayerManagerImpl(server, this.clusterManager);
 
         this.templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
-        this.groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger);
+        this.groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger, this.clusterManager);
         this.platformManager = new PlatformManagerImpl(logger, server);
         this.downloadManager = new DownloadManager(Path.of(config.folders().platforms()), logger);
         this.cacheManager = new CacheManager(logger);
@@ -131,7 +131,7 @@ public class Node extends CloudAPI {
         this.moduleLoader = new ModuleLoader(moduleManager);
 
         this.serviceManager = new ServiceManagerImpl(
-                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
+                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager, this.clusterManager
         );
         this.serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
     }
