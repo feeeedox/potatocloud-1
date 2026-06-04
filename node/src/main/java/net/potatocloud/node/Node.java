@@ -250,7 +250,8 @@ public class Node extends CloudAPI {
             final String localNodeName = config.cluster().name();
 
             for (Service service : serviceManager.getAllServices()) {
-                final String nodeName = service.getServiceGroup().nodeName();
+                final ServiceGroup group = service.getServiceGroup();
+                final String nodeName = group == null ? null : group.nodeName();
 
                 if (nodeName == null || nodeName.equals(localNodeName)) {
                     servicesToStop.add(service);
