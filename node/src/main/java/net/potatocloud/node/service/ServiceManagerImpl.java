@@ -58,7 +58,7 @@ public class ServiceManagerImpl implements ServiceManager {
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
         server.on(ServiceAddPacket.class, new ServiceAddListener(this, server));
         server.on(ServiceRemovePacket.class, new ServiceRemoveListener(this, server));
-        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus, clusterManager));
+        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus, clusterManager, server));
         server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server, clusterManager));
         server.on(StartServicePacket.class, new StartServiceListener(this, groupManager));
         server.on(StopServicePacket.class, new StopServiceListener(this));

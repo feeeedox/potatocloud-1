@@ -67,12 +67,6 @@ public class VelocityPlugin implements PlatformPlugin {
             registerServer(ser);
         }
 
-        // todo check if one can be removed
-        api.getEventBus().subscribe(ServiceStartedEvent.class, startedEvent -> {
-            final Service startedService = api.getServiceManager().getService(startedEvent.serviceName());
-            registerServer(startedService);
-        });
-
         api.getClient().on(ServiceStartedPacket.class, ctx -> {
             final Service startedService = api.getServiceManager().getService(ctx.packet().serviceName());
             registerServer(startedService);
