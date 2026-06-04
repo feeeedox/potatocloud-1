@@ -157,6 +157,10 @@ public class ClusterManagerImpl implements ClusterManager {
         return outboundConnections.contains(connection);
     }
 
+    public boolean isLocal(String nodeName) {
+        return nodeName == null || nodeName.equals(localNode.name());
+    }
+
     public void sendTo(String nodeName, Packet packet) {
         final ClusterNodeImpl node = nodes.get(nodeName);
         if (node == null || node.connection() == null) {

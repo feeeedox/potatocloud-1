@@ -51,7 +51,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
 
         eventBus.publish(new ServiceStartedEvent(packet.serviceName()));
 
-        if (service.nodeName().equals(clusterManager.localNode().name())) {
+        if (clusterManager.isLocal(service.nodeName())) {
             if (service instanceof AbstractService abstractService) {
                 abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));
             }
