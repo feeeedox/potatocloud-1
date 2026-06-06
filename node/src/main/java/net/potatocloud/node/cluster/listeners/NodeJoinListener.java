@@ -10,6 +10,7 @@ import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
+import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
@@ -47,20 +48,21 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         }
 
         if (!clusterToken.equals(packet.clusterToken())) {
-            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7invalid cluster token&8)");
+            connection.send(new NodeJoinRejectPacket("Wrong cluster token"));
             connection.close();
             return;
         }
 
         final String localVersion = CloudAPI.VERSION.toString();
         if (!localVersion.equals(packet.nodeVersion())) {
-            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7version mismatch: remote=&a" + packet.nodeVersion() + " &7local=&a" + localVersion + "&8)");
+            connection.send(new NodeJoinRejectPacket("Version mismatch: Cluster node is running version " + localVersion + " but you are running version " + packet.nodeVersion()
+            ));
             connection.close();
             return;
         }
 
         if (clusterManager.remoteNode(nodeName).isPresent()) {
-            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7duplicate name&8)");
+            connection.send(new NodeJoinRejectPacket("Cluster node '" + nodeName + "' is already connected to this cluster"));
             connection.close();
             return;
         }

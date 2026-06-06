@@ -13,6 +13,7 @@ import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
+import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
@@ -65,6 +66,9 @@ public class ClusterManagerImpl implements ClusterManager {
         this.playerManager = playerManager;
 
         server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, config.token(), logger, groupManager, serviceManager, playerManager));
+        server.on(NodeJoinRejectPacket.class, ctx -> {
+            logger.warn("Could not join the cluster&8: &c" + ctx.packet().reason());
+        });
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));

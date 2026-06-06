@@ -1,7 +1,6 @@
 package net.potatocloud.network.packet;
 
 import net.potatocloud.network.packet.packets.cluster.*;
-import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
