@@ -11,6 +11,7 @@ import net.potatocloud.api.module.Module;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.eventbus.ServerEventBus;
@@ -252,6 +253,7 @@ public class Node extends CloudAPI {
             clusterManager.close();
         }
 
+        // todo refactor this
         final List<Service> servicesToStop = new ArrayList<>();
 
         if (clustered) {
@@ -262,11 +264,13 @@ public class Node extends CloudAPI {
                 final String nodeName = group == null ? null : group.nodeName();
 
                 if (nodeName == null || nodeName.equals(localNodeName)) {
-                    servicesToStop.add(service);
+                    if (service.getStatus() != ServiceStatus.STOPPING || service.getStatus() != ServiceStatus.STOPPED) {
+                        servicesToStop.add(service);
+                    }
                 }
             }
         } else {
-            servicesToStop.addAll(serviceManager.getAllServices());
+            servicesToStop.addAll(serviceManager.getAllServices().stream().filter(service -> service.getStatus() != ServiceStatus.STOPPING && service.getStatus() != ServiceStatus.STOPPED).toList());
         }
 
         if (!servicesToStop.isEmpty()) {

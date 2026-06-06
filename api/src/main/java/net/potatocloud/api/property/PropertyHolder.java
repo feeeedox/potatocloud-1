@@ -80,7 +80,7 @@ public interface PropertyHolder {
 
         if (fireEvent) {
             CloudAPI.getInstance().getEventBus().publish(
-                    new PropertyChangedEvent(getPropertyHolderName(), property, oldValue, value)
+                    new PropertyChangedEvent(getPropertyHolderName(), property.getName(), oldValue, value)
             );
         }
     }
