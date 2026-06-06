@@ -12,6 +12,7 @@ import net.potatocloud.api.service.impl.ServiceImpl;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
+import net.potatocloud.network.packet.packets.service.ServiceStartingPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.console.Console;
@@ -102,11 +103,12 @@ public abstract class AbstractService extends ServiceImpl {
         setStatus(ServiceStatus.STARTING);
         runtime.start(directory, this);
 
-        logger.info("Service &a" + getName() + "&7 is now starting&8... "
-                + "&8[&7Port&8: &a" + getPort()
-                + "&8, &7Group&8: &a" + group.getName()
-                + "&8, &7Node&8: &a" + clusterManager.localNode().name() + "&8]"
+        logger.info("Service &a" + getName() + "&7 is starting on Node &a" + nodeName()
+                + " &8[&7Port&8: &a" + getPort()
+                + "&8, &7Group&8: &a" + group.getName() + "&8]"
         );
+
+        clusterManager.broadcast(new ServiceStartingPacket(getName()));
 
         eventBus.publish(new PreparedServiceStartingEvent(getName()));
     }

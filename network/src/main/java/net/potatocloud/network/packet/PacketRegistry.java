@@ -1,6 +1,7 @@
 package net.potatocloud.network.packet;
 
 import net.potatocloud.network.packet.packets.cluster.*;
+import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
@@ -34,6 +35,7 @@ public final class PacketRegistry {
         manager.register(7, ServiceExecuteCommandPacket.class, ServiceExecuteCommandPacket.CODEC);
         manager.register(8, ServiceCopyPacket.class, ServiceCopyPacket.CODEC);
         manager.register(9, ServiceMemoryUpdatePacket.class, ServiceMemoryUpdatePacket.CODEC);
+        manager.register(10, ServiceStartingPacket.class, ServiceStartingPacket.CODEC);
 
         manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket.CODEC);
         manager.register(101, GroupAddPacket.class, GroupAddPacket.CODEC);
@@ -65,5 +67,6 @@ public final class PacketRegistry {
         manager.register(702, HeartbeatPacket.class, HeartbeatPacket.CODEC);
         manager.register(703, NodeDiscoveryPacket.class, NodeDiscoveryPacket.CODEC);
         manager.register(704, ClusterSyncPacket.class, ClusterSyncPacket.CODEC);
+        manager.register(705, NodeJoinRejectPacket.class, NodeJoinRejectPacket.CODEC);
     }
 }

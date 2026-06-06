@@ -15,6 +15,6 @@ public final class NodeConfigPatcher {
     }
 
     private static void replaceClusterTokenIfDefault(Path configPath) {
-        FileUtils.replaceInFile(configPath,"token: change-me", "token: " + UUID.randomUUID().toString().replace("-", ""));
+        FileUtils.replaceInFile(configPath, "token: change-me", "token: " + UUID.randomUUID().toString().replace("-", ""));
     }
 }
