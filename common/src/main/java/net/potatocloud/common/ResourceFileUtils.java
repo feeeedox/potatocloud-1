@@ -12,7 +12,11 @@ public final class ResourceFileUtils {
     }
 
     public static void copyResourceFile(String resourceName, Path targetPath) {
-        try (InputStream stream = ResourceFileUtils.class.getClassLoader().getResourceAsStream(resourceName)) {
+        copyResourceFile(ResourceFileUtils.class.getClassLoader(), resourceName, targetPath);
+    }
+
+    public static void copyResourceFile(ClassLoader classLoader, String resourceName, Path targetPath) {
+        try (InputStream stream = classLoader.getResourceAsStream(resourceName)) {
             if (stream == null) {
                 throw new IllegalStateException(resourceName + " not found in resources!");
             }
