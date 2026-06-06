@@ -2,10 +2,12 @@ package net.potatocloud.node.player;
 
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.player.*;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.player.listeners.CloudPlayerAddListener;
+import net.potatocloud.node.player.listeners.CloudPlayerConnectListener;
 import net.potatocloud.node.player.listeners.CloudPlayerRemoveListener;
 import net.potatocloud.node.player.listeners.CloudPlayerUpdateListener;
 import net.potatocloud.node.player.listeners.RequestCloudPlayersListener;
@@ -18,14 +20,17 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     private final Set<CloudPlayer> onlinePlayers = new HashSet<>();
     private final NetworkServer server;
+    private final ClusterManagerImpl clusterManager;
 
     public CloudPlayerManagerImpl(NetworkServer server, ClusterManagerImpl clusterManager) {
         this.server = server;
+        this.clusterManager = clusterManager;
 
         server.on(CloudPlayerAddPacket.class, new CloudPlayerAddListener(this, server, clusterManager));
         server.on(CloudPlayerRemovePacket.class, new CloudPlayerRemoveListener(this, clusterManager));
         server.on(CloudPlayerUpdatePacket.class, new CloudPlayerUpdateListener(this, server, clusterManager));
         server.on(RequestCloudPlayersPacket.class, new RequestCloudPlayersListener(this));
+        server.on(CloudPlayerConnectPacket.class, new CloudPlayerConnectListener(server));
     }
 
     public void registerPlayer(CloudPlayer player) {
@@ -59,7 +64,16 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     @Override
     public void connectPlayerWithService(String playerName, String serviceName) {
-        server.broadcast().connectors().send(new CloudPlayerConnectPacket(playerName, serviceName));
+        final CloudPlayerConnectPacket packet = new CloudPlayerConnectPacket(playerName, serviceName);
+        final CloudPlayer player = getCloudPlayer(playerName);
+        final Service proxy = player != null ? player.getConnectedProxy() : null;
+
+        if (proxy != null && !clusterManager.isLocal(proxy.nodeName())) {
+            clusterManager.sendTo(proxy.nodeName(), packet);
+            return;
+        }
+
+        server.broadcast().connectors().send(packet);
     }
 
     @Override
