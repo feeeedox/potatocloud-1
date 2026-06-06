@@ -7,6 +7,7 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.StopServicePacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
+import net.potatocloud.node.service.AbstractService;
 
 @AllArgsConstructor
 public class StopServiceListener implements PacketListener<StopServicePacket> {
@@ -27,6 +28,8 @@ public class StopServiceListener implements PacketListener<StopServicePacket> {
             return;
         }
 
-        service.shutdown();
+        if (service instanceof AbstractService abstractService) {
+            abstractService.shutdown();
+        }
     }
 }

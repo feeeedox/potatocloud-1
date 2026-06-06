@@ -138,7 +138,11 @@ public class ServiceManagerImpl implements ServiceManager {
             return CompletableFuture.completedFuture(null);
         }
 
-        return service.shutdown();
+        if (!(service instanceof AbstractService abstractService)) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return abstractService.shutdown();
     }
 
     @Override
