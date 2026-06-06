@@ -111,6 +111,7 @@ public abstract class AbstractService extends ServiceImpl {
         eventBus.publish(new PreparedServiceStartingEvent(getName()));
     }
 
+    @Override
     public CompletableFuture<Void> shutdown() {
         if (getStatus() == ServiceStatus.STOPPED || getStatus() == ServiceStatus.STOPPING) {
             return CompletableFuture.completedFuture(null);

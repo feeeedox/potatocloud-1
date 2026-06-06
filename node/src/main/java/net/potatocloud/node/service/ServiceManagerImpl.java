@@ -32,6 +32,8 @@ public class ServiceManagerImpl implements ServiceManager {
     private final NetworkServer server;
     private final Logger logger;
     private final NodeConfig config;
+    private final ClusterManagerImpl clusterManager;
+    private final ServiceGroupManager groupManager;
 
     public ServiceManagerImpl(
             NodeConfig config,
@@ -48,6 +50,8 @@ public class ServiceManagerImpl implements ServiceManager {
         this.config = config;
         this.logger = logger;
         this.server = server;
+        this.clusterManager = clusterManager;
+        this.groupManager = groupManager;
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
 
@@ -64,6 +68,7 @@ public class ServiceManagerImpl implements ServiceManager {
         server.on(StopServicePacket.class, new StopServiceListener(this, clusterManager));
         server.on(ServiceExecuteCommandPacket.class, new ServiceExecuteCommandListener(this, clusterManager));
         server.on(ServiceCopyPacket.class, new ServiceCopyListener(this, clusterManager));
+        server.on(ServiceMemoryUpdatePacket.class, new ServiceMemoryUpdateListener(this, server));
     }
 
     @Override
@@ -81,21 +86,43 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void updateService(Service service) {
-        server.broadcast().connectors().send(new ServiceUpdatePacket(
+        final ServiceUpdatePacket packet = new ServiceUpdatePacket(
                 service.getName(),
                 service.getStatus().name(),
                 service.getMaxPlayers(),
                 service.getPropertyMap()
-        ));
+        );
+        server.broadcast().connectors().send(packet);
+        clusterManager.broadcast(packet);
     }
 
     @Override
     public void startService(String groupName) {
+        final ServiceGroup group = groupManager.getServiceGroup(groupName);
+        if (group == null) {
+            return;
+        }
+
+        if (!clusterManager.isLocal(group.nodeName())) {
+            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
+            return;
+        }
+
         launcher.start(groupName, null);
     }
 
     @Override
     public CompletableFuture<Service> startServiceAsync(String groupName) {
+        final ServiceGroup group = groupManager.getServiceGroup(groupName);
+        if (group == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (!clusterManager.isLocal(group.nodeName())) {
+            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
+            return CompletableFuture.completedFuture(null);
+        }
+
         return CompletableFuture.completedFuture(launcher.start(groupName, null));
     }
 
@@ -105,6 +132,12 @@ public class ServiceManagerImpl implements ServiceManager {
         if (service == null) {
             return CompletableFuture.completedFuture(null);
         }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new StopServicePacket(name));
+            return CompletableFuture.completedFuture(null);
+        }
+
         return service.shutdown();
     }
 
@@ -114,6 +147,12 @@ public class ServiceManagerImpl implements ServiceManager {
         if (service == null) {
             return false;
         }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new ServiceExecuteCommandPacket(name, command));
+            return true;
+        }
+
         return service.executeCommand(command);
     }
 
@@ -123,6 +162,12 @@ public class ServiceManagerImpl implements ServiceManager {
         if (service == null) {
             return;
         }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new ServiceCopyPacket(name, template, filter));
+            return;
+        }
+
         service.copy(template, filter);
     }
 
