@@ -28,20 +28,22 @@ public class ModuleLoader {
             FileUtils.list(modulesPath).stream()
                     .filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".jar"))
                     .forEach(this::loadJar);
-
         } catch (Exception e) {
             throw new RuntimeException("Error loading modules: " + e.getMessage());
         }
     }
 
     private void loadJar(Path jar) {
-        try (URLClassLoader loader = new URLClassLoader(new URL[]{jar.toUri().toURL()}, getClass().getClassLoader())) {
+        try {
+            URLClassLoader loader = new URLClassLoader(new URL[]{jar.toUri().toURL()}, getClass().getClassLoader());
+
             try (InputStream stream = loader.getResourceAsStream("module.yml")) {
                 if (stream == null) {
+                    loader.close();
                     return;
                 }
 
-                final ModuleConfig config = JacksonUtils.JSON_MAPPER.readValue(stream, ModuleConfig.class);
+                final ModuleConfig config = JacksonUtils.YAML_MAPPER.readValue(stream, ModuleConfig.class);
 
                 final Class<?> clazz = Class.forName(config.mainClass(), true, loader);
                 final Module module = (Module) clazz.getDeclaredConstructor().newInstance();
@@ -55,7 +57,7 @@ public class ModuleLoader {
                 moduleManager.register(module);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error loading module: " + e.getMessage());
+            throw new RuntimeException("Error loading module " + jar.getFileName() + ": " + e.getMessage(), e);
         }
     }
 }
