@@ -1,11 +1,9 @@
 package net.potatocloud.node.cluster;
 
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.api.player.CloudPlayer;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
@@ -106,7 +104,7 @@ public class ClusterManagerImpl implements ClusterManager {
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString()));
         });
 
         try {

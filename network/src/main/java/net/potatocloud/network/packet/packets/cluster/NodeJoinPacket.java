@@ -3,7 +3,7 @@ package net.potatocloud.network.packet.packets.cluster;
 import net.potatocloud.network.netty.PacketBuffer;
 import net.potatocloud.network.packet.Packet;
 
-public record NodeJoinPacket(String nodeName, String host, int port, long startedAt) implements Packet {
+public record NodeJoinPacket(String nodeName, String host, int port, long startedAt, String nodeVersion) implements Packet {
 
     public static final Codec<NodeJoinPacket> CODEC = new Codec<>() {
 
@@ -13,11 +13,12 @@ public record NodeJoinPacket(String nodeName, String host, int port, long starte
             buf.writeString(packet.host());
             buf.writeInt(packet.port());
             buf.writeLong(packet.startedAt());
+            buf.writeString(packet.nodeVersion());
         }
 
         @Override
         public NodeJoinPacket decode(PacketBuffer buf) {
-            return new NodeJoinPacket(buf.readString(), buf.readString(), buf.readInt(), buf.readLong());
+            return new NodeJoinPacket(buf.readString(), buf.readString(), buf.readInt(), buf.readLong(), buf.readString());
         }
     };
 }

@@ -1,5 +1,6 @@
 package net.potatocloud.node.cluster.listeners;
 
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.network.ConnectionType;
@@ -43,6 +44,13 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             return;
         }
 
+        final String localVersion = CloudAPI.VERSION.toString();
+        if (!localVersion.equals(packet.nodeVersion())) {
+            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7version mismatch: remote=&a" + packet.nodeVersion() + " &7local=&a" + localVersion + "&8)");
+            connection.close();
+            return;
+        }
+
         if (clusterManager.remoteNode(nodeName).isPresent()) {
             logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7duplicate name&8)");
             connection.close();
@@ -58,7 +66,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString()));
 
             connection.send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()
