@@ -18,8 +18,11 @@ import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.server.NettyNetworkServer;
 import net.potatocloud.network.packet.PacketManager;
 import net.potatocloud.network.packet.PacketRegistry;
+import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.logging.LogMessagePacket;
+import net.potatocloud.node.cluster.ClusterEventBus;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
+import net.potatocloud.node.cluster.listeners.ClusterEventListener;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.command.commands.*;
 import net.potatocloud.node.config.NodeConfig;
@@ -114,9 +117,10 @@ public class Node extends CloudAPI {
         this.packetManager = new PacketManager();
         PacketRegistry.registerPackets(packetManager);
         this.server = new NettyNetworkServer(packetManager);
-        this.eventBus = new ServerEventBus(server);
 
         this.clusterManager = new ClusterManagerImpl(config.node().host(), config.node().port(), config.cluster(), packetManager, server, logger);
+
+        this.eventBus = new ClusterEventBus(new ServerEventBus(server), clusterManager);
 
         this.propertiesHolder = new NodePropertiesHolder(server);
         this.playerManager = new CloudPlayerManagerImpl(server, this.clusterManager);
@@ -167,7 +171,11 @@ public class Node extends CloudAPI {
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
 
         if (config.cluster().enabled()) {
-            clusterManager.start((ServiceGroupManagerImpl) groupManager, (ServiceManagerImpl) serviceManager, (CloudPlayerManagerImpl) playerManager);
+            if (eventBus instanceof ClusterEventBus clusterBus) {
+                server.on(EventPacket.class, new ClusterEventListener(clusterBus));
+            }
+
+            clusterManager.start((ServiceGroupManagerImpl) groupManager, serviceManager, (CloudPlayerManagerImpl) playerManager);
         }
 
         final List<ServiceGroup> groups = groupManager.getAllServiceGroups();

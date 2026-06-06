@@ -28,7 +28,6 @@ public class ServerEventBus implements EventBus {
     @Override
     public <T extends Event> void publish(T event, PublishTarget target) {
         switch (target) {
-            // Todo nodes
             case LOCAL -> local.publish(event);
             case NETWORK -> server.broadcast().connectors().send(JsonEventCodec.encode(event));
             case BOTH -> {
