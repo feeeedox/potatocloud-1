@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 public final class NodeConfigLoader {
 
-    public static final String CONFIG_FILE_NAME = "config.yml";
+    private static final String CONFIG_FILE_NAME = "config.yml";
 
     private final Path configPath;
 
