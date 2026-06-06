@@ -122,7 +122,7 @@ public class Node extends CloudAPI {
 
         this.eventBus = new ClusterEventBus(new ServerEventBus(server), clusterManager);
 
-        this.propertiesHolder = new NodePropertiesHolder(server);
+        this.propertiesHolder = new NodePropertiesHolder(server, clusterManager);
         this.playerManager = new CloudPlayerManagerImpl(server, this.clusterManager);
 
         this.templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
