@@ -55,7 +55,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
             if (service instanceof AbstractService abstractService) {
                 abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));
             }
-            new ServiceMemoryUpdateTask(service, Node.getInstance().getServer());
+            new ServiceMemoryUpdateTask(service, Node.getInstance().getServer(), clusterManager);
         }
     }
 }
