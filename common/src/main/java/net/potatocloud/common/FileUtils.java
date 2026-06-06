@@ -3,6 +3,7 @@ package net.potatocloud.common;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -88,6 +89,23 @@ public final class FileUtils {
             return stream.toList();
         } catch (IOException e) {
             throw new RuntimeException("Failed to list directory: " + directory, e);
+        }
+    }
+
+    public static void replaceInFile(Path path, String target, String replacement) {
+        try {
+            final String content = Files.readString(path, StandardCharsets.UTF_8);
+            if (!content.contains(target)) {
+                return;
+            }
+
+            Files.writeString(
+                    path,
+                    content.replace(target, replacement),
+                    StandardCharsets.UTF_8
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update " + path.getFileName(), e);
         }
     }
 }
