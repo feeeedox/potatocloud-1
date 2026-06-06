@@ -14,6 +14,10 @@ public class YamlConfig extends AbstractConfig {
         super(new YamlSource(), path);
     }
 
+    public YamlConfig(Path path, ClassLoader classLoader) {
+        super(new YamlSource(), path, classLoader);
+    }
+
     @Override
     public ConfigNode get(String path) {
         return new JacksonConfigNode(resolve(path));
