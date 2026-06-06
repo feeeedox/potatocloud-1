@@ -38,7 +38,7 @@ public final class PacketRegistry {
         manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket.CODEC);
         manager.register(101, GroupAddPacket.class, GroupAddPacket.CODEC);
         manager.register(102, GroupUpdatePacket.class, GroupUpdatePacket.CODEC);
-        manager.register(104, GroupDeletePacket.class, GroupDeletePacket.CODEC);
+        manager.register(103, GroupDeletePacket.class, GroupDeletePacket.CODEC);
 
         manager.register(200, CloudPlayerAddPacket.class, CloudPlayerAddPacket.CODEC);
         manager.register(201, CloudPlayerRemovePacket.class, CloudPlayerRemovePacket.CODEC);
