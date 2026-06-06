@@ -20,14 +20,16 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
     private final ClusterNode localNode;
     private final ClusterManagerImpl clusterManager;
+    private final String clusterToken;
     private final Logger logger;
     private final ServiceGroupManagerImpl groupManager;
     private final ServiceManagerImpl serviceManager;
     private final CloudPlayerManagerImpl playerManager;
 
-    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, Logger logger, ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, String clusterToken, Logger logger, ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
         this.localNode = localNode;
         this.clusterManager = clusterManager;
+        this.clusterToken = clusterToken;
         this.logger = logger;
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
@@ -41,6 +43,12 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         final String nodeName = packet.nodeName();
 
         if (nodeName.equals(localNode.name())) {
+            return;
+        }
+
+        if (!clusterToken.equals(packet.clusterToken())) {
+            logger.warn("Cluster node &a" + nodeName + " &7join rejected &8(&7invalid cluster token&8)");
+            connection.close();
             return;
         }
 
@@ -66,7 +74,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString(), clusterToken));
 
             connection.send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()

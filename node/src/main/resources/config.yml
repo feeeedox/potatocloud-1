@@ -65,6 +65,8 @@ cluster:
   # Name of this node
   name: Node-1
 
+  token: change-me
+
   # Other cluster nodes to connect to
   nodes:
   #  - 127.0.0.1:16001

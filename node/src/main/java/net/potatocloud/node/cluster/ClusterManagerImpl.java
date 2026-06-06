@@ -64,7 +64,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.serviceManager = serviceManager;
         this.playerManager = playerManager;
 
-        server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, logger, groupManager, serviceManager, playerManager));
+        server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, config.token(), logger, groupManager, serviceManager, playerManager));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));
@@ -104,7 +104,7 @@ public class ClusterManagerImpl implements ClusterManager {
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString(), config.token()));
         });
 
         try {
