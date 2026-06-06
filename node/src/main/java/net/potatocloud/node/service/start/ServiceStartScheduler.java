@@ -54,7 +54,7 @@ public class ServiceStartScheduler {
 
         // Handle game state changes
         eventBus.subscribe(PropertyChangedEvent.class, event -> {
-            if (!event.property().getName().equals(DefaultProperties.GAME_STATE.getName())) {
+            if (!event.propertyName().equals(DefaultProperties.GAME_STATE.getName())) {
                 return;
             }
 
