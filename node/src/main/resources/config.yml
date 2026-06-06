@@ -65,6 +65,7 @@ cluster:
   # Name of this node
   name: Node-1
 
+  # Cluster token
   token: change-me
 
   # Other cluster nodes to connect to
