@@ -1,25 +1,27 @@
 package net.potatocloud.node.properties;
 
-import lombok.Getter;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.property.PropertyHolder;
+import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.property.PropertyAddPacket;
 import net.potatocloud.network.packet.packets.property.PropertyUpdatePacket;
 import net.potatocloud.network.packet.packets.property.RequestPropertiesPacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 public class NodePropertiesHolder implements PropertyHolder {
 
     private final NetworkServer server;
+    private final ClusterManagerImpl clusterManager;
 
     private final Map<String, Property<?>> propertyMap = new HashMap<>();
 
-    public NodePropertiesHolder(NetworkServer server) {
+    public NodePropertiesHolder(NetworkServer server, ClusterManagerImpl clusterManager) {
         this.server = server;
+        this.clusterManager = clusterManager;
 
         server.on(RequestPropertiesPacket.class, ctx -> {
             propertyMap.values().forEach(property -> ctx.connection().send(new PropertyAddPacket(property)));
@@ -30,8 +32,11 @@ public class NodePropertiesHolder implements PropertyHolder {
 
             propertyMap.put(packet.property().getName(), packet.property());
 
-            // Add the property on all other connectors as well
             server.broadcast().connectors().exclude(ctx.connection()).send(packet);
+
+            if (ctx.connection().type() == ConnectionType.CONNECTOR) {
+                clusterManager.broadcast(packet);
+            }
         });
 
         server.on(PropertyUpdatePacket.class, ctx -> {
@@ -40,8 +45,11 @@ public class NodePropertiesHolder implements PropertyHolder {
                 property.setValueObject(ctx.packet().propertyValue());
             }
 
-            // Update the property on all other connectors as well
-            server.broadcast().exclude(ctx.connection()).send(ctx.packet());
+            server.broadcast().connectors().exclude(ctx.connection()).send(ctx.packet());
+
+            if (ctx.connection().type() == ConnectionType.CONNECTOR) {
+                clusterManager.broadcast(ctx.packet());
+            }
         });
     }
 
@@ -51,12 +59,21 @@ public class NodePropertiesHolder implements PropertyHolder {
         PropertyHolder.super.setProperty(property, value, fireEvent);
 
         if (existing == null) {
-            // Property was just created, so send the add packet to the connector
-            server.broadcast().connectors().send(new PropertyAddPacket(property));
+            final PropertyAddPacket packet = new PropertyAddPacket(property);
+
+            server.broadcast().connectors().send(packet);
+            clusterManager.broadcast(packet);
         } else {
-            // Property was just updated, so send the update packet to the connector
-            server.broadcast().connectors().send(new PropertyUpdatePacket(property.getName(), value));
+            final PropertyUpdatePacket packet = new PropertyUpdatePacket(property.getName(), value);
+
+            server.broadcast().connectors().send(packet);
+            clusterManager.broadcast(packet);
         }
+    }
+
+    @Override
+    public Map<String, Property<?>> getPropertyMap() {
+        return propertyMap;
     }
 
     @Override
