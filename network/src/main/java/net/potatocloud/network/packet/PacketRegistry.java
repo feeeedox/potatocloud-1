@@ -1,5 +1,6 @@
 package net.potatocloud.network.packet;
 
+import net.potatocloud.network.packet.packets.cluster.*;
 import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
@@ -33,11 +34,12 @@ public final class PacketRegistry {
         manager.register(7, ServiceExecuteCommandPacket.class, ServiceExecuteCommandPacket.CODEC);
         manager.register(8, ServiceCopyPacket.class, ServiceCopyPacket.CODEC);
         manager.register(9, ServiceMemoryUpdatePacket.class, ServiceMemoryUpdatePacket.CODEC);
+        manager.register(10, ServiceStartingPacket.class, ServiceStartingPacket.CODEC);
 
         manager.register(100, RequestGroupsPacket.class, RequestGroupsPacket.CODEC);
         manager.register(101, GroupAddPacket.class, GroupAddPacket.CODEC);
         manager.register(102, GroupUpdatePacket.class, GroupUpdatePacket.CODEC);
-        manager.register(104, GroupDeletePacket.class, GroupDeletePacket.CODEC);
+        manager.register(103, GroupDeletePacket.class, GroupDeletePacket.CODEC);
 
         manager.register(200, CloudPlayerAddPacket.class, CloudPlayerAddPacket.CODEC);
         manager.register(201, CloudPlayerRemovePacket.class, CloudPlayerRemovePacket.CODEC);
@@ -58,5 +60,16 @@ public final class PacketRegistry {
         manager.register(503, PropertyAddPacket.class, PropertyAddPacket.CODEC);
 
         manager.register(600, LogMessagePacket.class, LogMessagePacket.CODEC);
+
+        manager.register(700, NodeJoinPacket.class, NodeJoinPacket.CODEC);
+        manager.register(701, NodeLeavePacket.class, NodeLeavePacket.CODEC);
+        manager.register(702, HeartbeatPacket.class, HeartbeatPacket.CODEC);
+        manager.register(703, NodeDiscoveryPacket.class, NodeDiscoveryPacket.CODEC);
+        manager.register(704, ClusterSyncPacket.class, ClusterSyncPacket.CODEC);
+        manager.register(705, NodeJoinRejectPacket.class, NodeJoinRejectPacket.CODEC);
+        manager.register(706, RequestClusterNodesPacket.class, RequestClusterNodesPacket.CODEC);
+        manager.register(707, ClusterNodesResponsePacket.class, ClusterNodesResponsePacket.CODEC);
+        manager.register(708, ClusterNodeAddPacket.class, ClusterNodeAddPacket.CODEC);
+        manager.register(709, ClusterNodeRemovePacket.class, ClusterNodeRemovePacket.CODEC);
     }
 }

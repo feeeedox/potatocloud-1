@@ -13,17 +13,20 @@ import net.potatocloud.network.netty.NettyUtils;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.PacketManager;
-import net.potatocloud.network.packet.PacketRegistry;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public class NettyNetworkServer implements NetworkServer {
 
     private final PacketManager packetManager;
     private final Map<Channel, NetworkConnection> sessionMap = new ConcurrentHashMap<>();
+    private final List<Consumer<NetworkConnection>> disconnectListeners = new CopyOnWriteArrayList<>();
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -37,7 +40,6 @@ public class NettyNetworkServer implements NetworkServer {
     @Override
     public void start(String hostname, int port) {
         this.port = port;
-        PacketRegistry.registerPackets(packetManager);
 
         bossGroup = NettyUtils.createEventLoopGroup();
         workerGroup = NettyUtils.createEventLoopGroup();
@@ -78,6 +80,15 @@ public class NettyNetworkServer implements NetworkServer {
 
     public Map<Channel, NetworkConnection> sessionMap() {
         return sessionMap;
+    }
+
+    @Override
+    public void addDisconnectListener(Consumer<NetworkConnection> listener) {
+        disconnectListeners.add(listener);
+    }
+
+    public void handleDisconnect(NetworkConnection connection) {
+        disconnectListeners.forEach(listener -> listener.accept(connection));
     }
 
     public PacketManager packetManager() {

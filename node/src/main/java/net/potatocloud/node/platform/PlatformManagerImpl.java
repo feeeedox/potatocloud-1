@@ -53,7 +53,7 @@ public class PlatformManagerImpl implements PlatformManager {
 
         addPlatform(platform);
 
-        server.generateBroadcast().broadcast(new PlatformAddPacket(platform));
+        server.broadcast().connectors().send(new PlatformAddPacket(platform));
 
         logger.info("Platform &a" + name + " &7was successfully created");
 
@@ -62,7 +62,7 @@ public class PlatformManagerImpl implements PlatformManager {
 
     @Override
     public void updatePlatform(Platform platform) {
-        server.generateBroadcast().broadcast(new PlatformUpdatePacket(platform));
+        server.broadcast().connectors().send(new PlatformUpdatePacket(platform));
 
         fileHandler.savePlatform(platform);
     }

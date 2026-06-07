@@ -11,4 +11,8 @@ public interface NetworkConnection extends Closeable {
 
     void send(Packet packet);
 
+    ConnectionType type();
+
+    NetworkConnection type(ConnectionType type);
+
 }

@@ -8,6 +8,7 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.*;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.platform.DownloadManager;
 import net.potatocloud.node.platform.cache.CacheManager;
@@ -31,6 +32,8 @@ public class ServiceManagerImpl implements ServiceManager {
     private final NetworkServer server;
     private final Logger logger;
     private final NodeConfig config;
+    private final ClusterManagerImpl clusterManager;
+    private final ServiceGroupManager groupManager;
 
     public ServiceManagerImpl(
             NodeConfig config,
@@ -41,25 +44,32 @@ public class ServiceManagerImpl implements ServiceManager {
             ScreenManager screenManager,
             TemplateManager templateManager,
             DownloadManager downloadManager,
-            CacheManager cacheManager
+            CacheManager cacheManager,
+            ClusterManagerImpl clusterManager
     ) {
         this.config = config;
         this.logger = logger;
         this.server = server;
+        this.clusterManager = clusterManager;
+        this.groupManager = groupManager;
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
 
-        final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager);
+        final ServiceFactory factory = new ServiceFactory(config, logger, server, eventBus, this, screenManager, templateManager, downloadManager, cacheManager, clusterManager);
 
-        this.launcher = new ServiceLauncher(this, groupManager, factory, config, server);
+        this.launcher = new ServiceLauncher(this, groupManager, factory, config, server, clusterManager);
 
         server.on(RequestServicesPacket.class, new RequestServicesListener(this));
-        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus));
-        server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server));
-        server.on(StartServicePacket.class, new StartServiceListener(this, groupManager));
-        server.on(StopServicePacket.class, new StopServiceListener(this));
-        server.on(ServiceExecuteCommandPacket.class, new ServiceExecuteCommandListener(this));
-        server.on(ServiceCopyPacket.class, new ServiceCopyListener(this));
+        server.on(ServiceAddPacket.class, new ServiceAddListener(this, server));
+        server.on(ServiceRemovePacket.class, new ServiceRemoveListener(this, server));
+        server.on(ServiceStartedPacket.class, new ServiceStartedListener(this, logger, eventBus, clusterManager, server));
+        server.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this, server, clusterManager));
+        server.on(ServiceStartingPacket.class, new ServiceStartingListener(logger, this));
+        server.on(StartServicePacket.class, new StartServiceListener(this, groupManager, clusterManager));
+        server.on(StopServicePacket.class, new StopServiceListener(this, clusterManager));
+        server.on(ServiceExecuteCommandPacket.class, new ServiceExecuteCommandListener(this, clusterManager));
+        server.on(ServiceCopyPacket.class, new ServiceCopyListener(this, clusterManager));
+        server.on(ServiceMemoryUpdatePacket.class, new ServiceMemoryUpdateListener(this, server));
     }
 
     @Override
@@ -77,22 +87,93 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void updateService(Service service) {
-        server.generateBroadcast().broadcast(new ServiceUpdatePacket(
+        final ServiceUpdatePacket packet = new ServiceUpdatePacket(
                 service.getName(),
                 service.getStatus().name(),
                 service.getMaxPlayers(),
                 service.getPropertyMap()
-        ));
+        );
+        server.broadcast().connectors().send(packet);
+        clusterManager.broadcast(packet);
     }
 
     @Override
     public void startService(String groupName) {
+        final ServiceGroup group = groupManager.getServiceGroup(groupName);
+        if (group == null) {
+            return;
+        }
+
+        if (!clusterManager.isLocal(group.nodeName())) {
+            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
+            return;
+        }
+
         launcher.start(groupName, null);
     }
 
     @Override
     public CompletableFuture<Service> startServiceAsync(String groupName) {
+        final ServiceGroup group = groupManager.getServiceGroup(groupName);
+        if (group == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (!clusterManager.isLocal(group.nodeName())) {
+            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
+            return CompletableFuture.completedFuture(null);
+        }
+
         return CompletableFuture.completedFuture(launcher.start(groupName, null));
+    }
+
+    @Override
+    public CompletableFuture<Void> stopService(String name) {
+        final Service service = getService(name);
+        if (service == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new StopServicePacket(name));
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (!(service instanceof AbstractService abstractService)) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return abstractService.shutdown();
+    }
+
+    @Override
+    public boolean executeCommand(String name, String command) {
+        final Service service = getService(name);
+        if (service == null) {
+            return false;
+        }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new ServiceExecuteCommandPacket(name, command));
+            return true;
+        }
+
+        return service.executeCommand(command);
+    }
+
+    @Override
+    public void copy(String name, String template, String filter) {
+        final Service service = getService(name);
+        if (service == null) {
+            return;
+        }
+
+        if (!clusterManager.isLocal(service.nodeName())) {
+            clusterManager.sendTo(service.nodeName(), new ServiceCopyPacket(name, template, filter));
+            return;
+        }
+
+        service.copy(template, filter);
     }
 
     public void startServiceInternal(String groupName, String requestId) {

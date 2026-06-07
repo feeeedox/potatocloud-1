@@ -1,9 +1,11 @@
 package net.potatocloud.api.player;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface CloudPlayer extends PropertyHolder {
@@ -14,6 +16,26 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the username of the player
      */
     String getUsername();
+
+    /**
+     * Gets the name of the cluster node this player's proxy is running on.
+     *
+     * @return the node name, or {@code null} if not found
+     */
+    default String nodeName() {
+        final Service service = getConnectedService();
+        return service != null ? service.nodeName() : null;
+    }
+
+    /**
+     * Gets the cluster node this player's proxy is running on.
+     *
+     * @return the cluster node, or an empty optional if not found
+     */
+    default Optional<ClusterNode> node() {
+        final Service service = getConnectedService();
+        return service != null ? service.node() : Optional.empty();
+    }
 
     /**
      * Gets the unique id of the player.

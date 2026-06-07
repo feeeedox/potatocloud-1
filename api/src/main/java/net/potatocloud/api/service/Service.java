@@ -1,11 +1,13 @@
 package net.potatocloud.api.service;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.utils.TimeFormatter;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -18,6 +20,26 @@ public interface Service extends PropertyHolder {
      * @return the name of the service
      */
     String getName();
+
+    /**
+     * Gets the name of the cluster node this service's group is assigned to.
+     *
+     * @return the node name, or {@code null} if the group is not assigned to a specific node
+     */
+    default String nodeName() {
+        final ServiceGroup group = getServiceGroup();
+        return group != null ? group.nodeName() : null;
+    }
+
+    /**
+     * Gets the cluster node this service's group is assigned to.
+     *
+     * @return the cluster node, or an empty optional if not assigned
+     */
+    default Optional<ClusterNode> node() {
+        final ServiceGroup group = getServiceGroup();
+        return group != null ? group.node() : Optional.empty();
+    }
 
     /**
      * Gets the id of the service.
@@ -135,6 +157,13 @@ public interface Service extends PropertyHolder {
     int getUsedMemory();
 
     /**
+     * Gets the host of the node this service runs on.
+     *
+     * @return the host address of the node
+     */
+    String host();
+
+    /**
      * Gets the port of the service.
      *
      * @return the port of the service
@@ -153,7 +182,9 @@ public interface Service extends PropertyHolder {
      *
      * @return a CompletableFuture that completes when the shutdown is done
      */
-    CompletableFuture<Void> shutdown();
+    default CompletableFuture<Void> shutdown() {
+        return CloudAPI.getInstance().getServiceManager().stopService(this);
+    }
 
     /**
      * Executes a command on the service.
@@ -161,7 +192,9 @@ public interface Service extends PropertyHolder {
      * @param command the command to execute
      * @return {@code true} if the command was executed successfully, otherwise {@code false}
      */
-    boolean executeCommand(String command);
+    default boolean executeCommand(String command) {
+        return CloudAPI.getInstance().getServiceManager().executeCommand(this, command);
+    }
 
     /**
      * Copies service files to a template.
@@ -169,7 +202,9 @@ public interface Service extends PropertyHolder {
      * @param template the template to copy to
      * @param filter   the filter to apply
      */
-    void copy(String template, String filter);
+    default void copy(String template, String filter) {
+        CloudAPI.getInstance().getServiceManager().copy(this, template, filter);
+    }
 
     /**
      * Copies service files to a template.
@@ -177,7 +212,7 @@ public interface Service extends PropertyHolder {
      * @param template the template to copy to
      */
     default void copy(String template) {
-        copy(template, "");
+        CloudAPI.getInstance().getServiceManager().copy(this, template);
     }
 
     /**

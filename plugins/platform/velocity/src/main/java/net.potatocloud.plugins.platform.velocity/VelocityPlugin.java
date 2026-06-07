@@ -30,6 +30,7 @@ import net.potatocloud.connector.player.CloudPlayerManagerImpl;
 import net.potatocloud.connector.utils.PlatformPlugin;
 import net.potatocloud.network.packet.packets.player.CloudPlayerConnectPacket;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
+import net.potatocloud.network.packet.packets.service.ServiceStartedPacket;
 
 import java.net.InetSocketAddress;
 import java.util.Comparator;
@@ -66,8 +67,8 @@ public class VelocityPlugin implements PlatformPlugin {
             registerServer(ser);
         }
 
-        api.getEventBus().subscribe(ServiceStartedEvent.class, startedEvent -> {
-            final Service startedService = api.getServiceManager().getService(startedEvent.serviceName());
+        api.getClient().on(ServiceStartedPacket.class, ctx -> {
+            final Service startedService = api.getServiceManager().getService(ctx.packet().serviceName());
             registerServer(startedService);
         });
 
@@ -80,7 +81,7 @@ public class VelocityPlugin implements PlatformPlugin {
         });
 
         api.getClient().on(ServiceRemovePacket.class, ctx -> {
-            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress("0.0.0.0", ctx.packet().servicePort())));
+            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort())));
         });
     }
 
@@ -99,21 +100,35 @@ public class VelocityPlugin implements PlatformPlugin {
     }
 
     private void registerServer(Service service) {
+        if (service == null) {
+            return;
+        }
+
+        if (server.getServer(service.getName()).isPresent()) {
+            return;
+        }
+
         if (service.getServiceGroup().getPlatform().isProxy()) {
             return;
         }
-        server.registerServer(new ServerInfo(service.getName(), new InetSocketAddress("0.0.0.0", service.getPort())));
+
+        server.registerServer(new ServerInfo(service.getName(), new InetSocketAddress(service.host(), service.getPort())));
     }
 
     @Subscribe
     public void onPlayerChooseInitialServer(PlayerChooseInitialServerEvent event) {
-        final Optional<RegisteredServer> bestFallbackServer = server.getServer(getBestFallback().getName());
-        if (bestFallbackServer.isEmpty()) {
+        final Service bestFallback = getBestFallback();
+        if (bestFallback == null) {
             return;
         }
-        event.setInitialServer(bestFallbackServer.get());
-    }
 
+        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.getName());
+        if (fallback.isEmpty()) {
+            return;
+        }
+
+        event.setInitialServer(fallback.get());
+    }
 
     @Subscribe
     public void onProxyPing(ProxyPingEvent event) {
@@ -176,7 +191,12 @@ public class VelocityPlugin implements PlatformPlugin {
     @Subscribe
     public void onKicked(KickedFromServerEvent event) {
         final RegisteredServer kickedFrom = event.getServer();
-        final Optional<RegisteredServer> fallback = server.getServer(getBestFallback().getName());
+        final Service bestFallback = getBestFallback();
+        if (bestFallback == null) {
+            return;
+        }
+
+        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.getName());
         if (fallback.isEmpty()) {
             return;
         }
@@ -190,7 +210,7 @@ public class VelocityPlugin implements PlatformPlugin {
 
     private Service getBestFallback() {
         return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
-                .filter(service -> service.getServiceGroup().isFallback())
+                .filter(service -> service.getServiceGroup() != null && service.getServiceGroup().isFallback())
                 .filter(service -> service.getStatus() == ServiceStatus.RUNNING)
                 .min(Comparator.comparingInt(Service::getOnlinePlayerCount))
                 .orElse(null);

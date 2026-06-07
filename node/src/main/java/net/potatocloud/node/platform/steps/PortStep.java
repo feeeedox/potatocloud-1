@@ -1,10 +1,10 @@
 package net.potatocloud.node.platform.steps;
 
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.common.FileUtils;
 import net.potatocloud.node.platform.AbstractPrepareStep;
 import net.potatocloud.node.utils.PropertiesFileUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -29,14 +29,11 @@ public class PortStep extends AbstractPrepareStep {
 
             if (platform.isProxy() && platform.isVelocityBased()) {
                 final Path velocityToml = serverDirectory.resolve("velocity.toml");
+                if (!Files.exists(velocityToml)) {
+                    return;
+                }
 
-                String fileContent = Files.readString(velocityToml);
-                fileContent = fileContent.replace(
-                        "bind = \"0.0.0.0:25565\"",
-                        "bind = \"0.0.0.0:" + port + "\""
-                );
-
-                Files.writeString(velocityToml, fileContent);
+                FileUtils.replaceInFile(velocityToml, "bind = \"0.0.0.0:25565\"", "bind = \"0.0.0.0:" + port + "\"");
             }
 
             if (platform.isLimboBased()) {
@@ -47,7 +44,7 @@ public class PortStep extends AbstractPrepareStep {
 
                 PropertiesFileUtils.saveProperties(properties, propertiesPath);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to execute PortStep for service: " + serviceName, e);
         }
     }

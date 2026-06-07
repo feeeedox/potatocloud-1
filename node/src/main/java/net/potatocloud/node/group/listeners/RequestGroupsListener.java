@@ -16,23 +16,7 @@ public class RequestGroupsListener implements PacketListener<RequestGroupsPacket
     @Override
     public void handle(PacketContext<RequestGroupsPacket> ctx) {
         for (ServiceGroup group : groupManager.getAllServiceGroups()) {
-            ctx.connection().send(new GroupAddPacket(
-                    group.getName(),
-                    group.getPlatformName(),
-                    group.getPlatformVersionName(),
-                    group.getJavaCommand(),
-                    group.getCustomJvmFlags(),
-                    group.getMaxPlayers(),
-                    group.getMaxMemory(),
-                    group.getMinOnlineCount(),
-                    group.getMaxOnlineCount(),
-                    group.isStatic(),
-                    group.isFallback(),
-                    group.getStartPriority(),
-                    group.getStartPercentage(),
-                    group.getServiceTemplates(),
-                    group.getPropertyMap()
-            ));
+            ctx.connection().send(new GroupAddPacket(group));
         }
     }
 }

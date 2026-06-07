@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ServiceStartScheduler {
 
+    private final NodeConfig config;
+
     private final ServiceGroupManager groupManager;
     private final ServiceManagerImpl serviceManager;
 
@@ -34,6 +36,7 @@ public class ServiceStartScheduler {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().factory());
 
     public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
+        this.config = config;
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
 
@@ -51,7 +54,7 @@ public class ServiceStartScheduler {
 
         // Handle game state changes
         eventBus.subscribe(PropertyChangedEvent.class, event -> {
-            if (!event.property().getName().equals(DefaultProperties.GAME_STATE.getName())) {
+            if (!event.propertyName().equals(DefaultProperties.GAME_STATE.getName())) {
                 return;
             }
 
@@ -80,12 +83,21 @@ public class ServiceStartScheduler {
     private void run() {
         groupManager.getAllServiceGroups().stream()
                 .filter(group -> groupManager.existsServiceGroup(group.getName()))
+                .filter(this::isLocalNode)
                 .sorted(Comparator.comparingInt(ServiceGroup::getStartPriority).reversed())
                 .forEach(group -> {
                     if (rules.stream().allMatch(rule -> rule.allows(group)) && conditions.stream().anyMatch(condition -> condition.shouldStart(group))) {
                         serviceManager.startService(group);
                     }
                 });
+    }
+
+    private boolean isLocalNode(ServiceGroup group) {
+        if (!config.cluster().enabled()) {
+            return true;
+        }
+        final String nodeName = group.nodeName();
+        return nodeName == null || nodeName.equals(config.cluster().name());
     }
 
     public void close() {

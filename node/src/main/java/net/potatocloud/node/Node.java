@@ -2,6 +2,7 @@ package net.potatocloud.node;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
@@ -10,13 +11,19 @@ import net.potatocloud.api.module.Module;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.eventbus.ServerEventBus;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.server.NettyNetworkServer;
 import net.potatocloud.network.packet.PacketManager;
+import net.potatocloud.network.packet.PacketRegistry;
+import net.potatocloud.network.packet.packets.event.EventPacket;
 import net.potatocloud.network.packet.packets.logging.LogMessagePacket;
+import net.potatocloud.node.cluster.ClusterEventBus;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
+import net.potatocloud.node.cluster.listeners.ClusterEventListener;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.command.commands.*;
 import net.potatocloud.node.config.NodeConfig;
@@ -44,6 +51,7 @@ import net.potatocloud.node.version.UpdateChecker;
 import net.potatocloud.node.version.VersionFile;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -69,6 +77,8 @@ public class Node extends CloudAPI {
     private final CloudPlayerManager playerManager;
     private final TemplateManager templateManager;
     private final ServiceGroupManager groupManager;
+
+    private final ClusterManagerImpl clusterManager;
 
     private final PlatformManagerImpl platformManager;
     private final DownloadManager downloadManager;
@@ -106,13 +116,18 @@ public class Node extends CloudAPI {
         this.updateChecker = new UpdateChecker(logger);
 
         this.packetManager = new PacketManager();
+        PacketRegistry.registerPackets(packetManager);
         this.server = new NettyNetworkServer(packetManager);
-        this.eventBus = new ServerEventBus(server);
-        this.propertiesHolder = new NodePropertiesHolder(server);
-        this.playerManager = new CloudPlayerManagerImpl(server);
+
+        this.clusterManager = new ClusterManagerImpl(config.node().host(), config.node().port(), config.cluster(), packetManager, server, logger);
+
+        this.eventBus = new ClusterEventBus(new ServerEventBus(server), clusterManager);
+
+        this.propertiesHolder = new NodePropertiesHolder(server, clusterManager);
+        this.playerManager = new CloudPlayerManagerImpl(server, this.clusterManager);
 
         this.templateManager = new TemplateManager(logger, Path.of(config.folders().templates()));
-        this.groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger);
+        this.groupManager = new ServiceGroupManagerImpl(Path.of(config.folders().groups()), server, logger, this.clusterManager);
         this.platformManager = new PlatformManagerImpl(logger, server);
         this.downloadManager = new DownloadManager(Path.of(config.folders().platforms()), logger);
         this.cacheManager = new CacheManager(logger);
@@ -121,7 +136,7 @@ public class Node extends CloudAPI {
         this.moduleLoader = new ModuleLoader(moduleManager);
 
         this.serviceManager = new ServiceManagerImpl(
-                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager
+                config, logger, server, eventBus, groupManager, screenManager, templateManager, downloadManager, cacheManager, this.clusterManager
         );
         this.serviceStartScheduler = new ServiceStartScheduler(config, groupManager, serviceManager, eventBus);
     }
@@ -155,6 +170,14 @@ public class Node extends CloudAPI {
         logger.info("Network server started using &aNetty &7on &a" + host + "&8:&a" + port);
 
         server.on(LogMessagePacket.class, ctx -> logger.log(Logger.Level.valueOf(ctx.packet().level()), ctx.packet().message()));
+
+        if (config.cluster().enabled()) {
+            if (eventBus instanceof ClusterEventBus clusterBus) {
+                server.on(EventPacket.class, new ClusterEventListener(clusterBus));
+            }
+
+            clusterManager.start((ServiceGroupManagerImpl) groupManager, serviceManager, (CloudPlayerManagerImpl) playerManager);
+        }
 
         final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
 
@@ -206,6 +229,10 @@ public class Node extends CloudAPI {
         commandManager.registerCommand(new PlayerCommand(logger, playerManager));
         commandManager.registerCommand(new ServiceCommand(logger, serviceManager, screenManager));
         commandManager.registerCommand(new ShutdownCommand(this));
+
+        if (config.cluster().enabled()) {
+            commandManager.registerCommand(new ClusterCommand(logger, clusterManager));
+        }
     }
 
     public void shutdown() {
@@ -220,12 +247,36 @@ public class Node extends CloudAPI {
 
         moduleManager.disableAll();
 
-        final List<Service> services = serviceManager.getAllServices();
+        final boolean clustered = config.cluster().enabled();
 
-        if (!services.isEmpty()) {
+        if (clustered) {
+            clusterManager.close();
+        }
+
+        // todo refactor this
+        final List<Service> servicesToStop = new ArrayList<>();
+
+        if (clustered) {
+            final String localNodeName = config.cluster().name();
+
+            for (Service service : serviceManager.getAllServices()) {
+                final ServiceGroup group = service.getServiceGroup();
+                final String nodeName = group == null ? null : group.nodeName();
+
+                if (nodeName == null || nodeName.equals(localNodeName)) {
+                    if (service.getStatus() != ServiceStatus.STOPPING || service.getStatus() != ServiceStatus.STOPPED) {
+                        servicesToStop.add(service);
+                    }
+                }
+            }
+        } else {
+            servicesToStop.addAll(serviceManager.getAllServices().stream().filter(service -> service.getStatus() != ServiceStatus.STOPPING && service.getStatus() != ServiceStatus.STOPPED).toList());
+        }
+
+        if (!servicesToStop.isEmpty()) {
             logger.info("Shutting down all running services...");
 
-            final CompletableFuture<?>[] futures = services.stream()
+            final CompletableFuture<?>[] futures = servicesToStop.stream()
                     .map(Service::shutdown)
                     .toArray(CompletableFuture[]::new);
 
@@ -254,5 +305,10 @@ public class Node extends CloudAPI {
     @Override
     public PropertyHolder getGlobalProperties() {
         return propertiesHolder;
+    }
+
+    @Override
+    public ClusterManager getClusterManager() {
+        return clusterManager;
     }
 }

@@ -1,6 +1,7 @@
 package net.potatocloud.api.group;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.player.CloudPlayer;
@@ -8,6 +9,7 @@ import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface ServiceGroup extends PropertyHolder {
@@ -18,6 +20,26 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the name of the group
      */
     String getName();
+
+    /**
+     * Gets the name of the cluster node this group is assigned to.
+     *
+     * @return the node name, or {@code null} if not assigned to a specific node
+     */
+    String nodeName();
+
+    /**
+     * Gets the cluster node this group is assigned to.
+     *
+     * @return the cluster node, or an empty optional if not assigned
+     */
+    default Optional<ClusterNode> node() {
+        final String nodeName = nodeName();
+        if (nodeName == null) {
+            return Optional.empty();
+        }
+        return CloudAPI.getInstance().getClusterManager().get(nodeName);
+    }
 
     /**
      * Gets the name of the platform of the group.

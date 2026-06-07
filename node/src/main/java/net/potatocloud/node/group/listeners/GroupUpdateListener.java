@@ -5,10 +5,12 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.common.PropertyUtil;
+import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.group.config.ServiceGroupStorage;
 
@@ -17,6 +19,7 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
 
     private final ServiceGroupManager groupManager;
     private final NetworkServer server;
+    private final ClusterManagerImpl clusterManager;
 
     @Override
     public void handle(PacketContext<GroupUpdatePacket> ctx) {
@@ -47,10 +50,13 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
             PropertyUtil.setPropertyUnchecked(group, property);
         }
 
-        if (groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
-            ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
+        if (ctx.connection().type() == ConnectionType.CONNECTOR) {
+            if (groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
+                ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
+            }
+            clusterManager.broadcast(packet);
         }
 
-        server.generateBroadcast().exclude(ctx.connection()).broadcast(packet);
+        server.broadcast().connectors().exclude(ctx.connection()).send(packet);
     }
 }

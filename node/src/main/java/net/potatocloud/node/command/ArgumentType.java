@@ -3,6 +3,7 @@ package net.potatocloud.node.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.player.CloudPlayer;
@@ -55,6 +56,10 @@ public abstract class ArgumentType<T> {
 
     public static ArgumentType<CloudPlayer> Player(String name) {
         return new CloudPlayerArgument(name);
+    }
+
+    public static ArgumentType<ClusterNode> ClusterNode(String name) {
+        return new ClusterNodeArgument(name);
     }
 
     public ArgumentType<T> asOptionalArgument() {

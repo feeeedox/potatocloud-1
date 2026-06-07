@@ -11,12 +11,18 @@ public abstract class AbstractConfig implements Config {
 
     private final ConfigSource source;
     private final Path path;
+    private final ClassLoader classLoader;
 
     protected JsonNode node;
 
     protected AbstractConfig(ConfigSource source, Path path) {
+        this(source, path, AbstractConfig.class.getClassLoader());
+    }
+
+    protected AbstractConfig(ConfigSource source, Path path, ClassLoader classLoader) {
         this.source = source;
         this.path = path;
+        this.classLoader = classLoader;
     }
 
     @Override
@@ -26,7 +32,7 @@ public abstract class AbstractConfig implements Config {
                 Files.createDirectories(path.getParent());
             }
             if (Files.notExists(path)) {
-                ResourceFileUtils.copyResourceFile(path.getFileName().toString(), path);
+                ResourceFileUtils.copyResourceFile(classLoader, path.getFileName().toString(), path);
             }
 
             node = source.read(path);

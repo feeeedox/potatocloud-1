@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 public final class NodeConfigLoader {
 
-    public static final String CONFIG_FILE_NAME = "config.yml";
+    private static final String CONFIG_FILE_NAME = "config.yml";
 
     private final Path configPath;
 
@@ -20,6 +20,7 @@ public final class NodeConfigLoader {
         if (!Files.exists(configPath)) {
             ResourceFileUtils.copyResourceFile(CONFIG_FILE_NAME, configPath);
         }
+        NodeConfigPatcher.apply(configPath);
         return JacksonUtils.YAML_MAPPER.readValue(configPath.toFile(), NodeConfig.class);
     }
 

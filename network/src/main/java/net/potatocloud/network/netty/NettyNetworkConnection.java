@@ -1,6 +1,7 @@
 package net.potatocloud.network.netty;
 
 import io.netty.channel.Channel;
+import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.packet.Packet;
 
@@ -9,8 +10,8 @@ import java.util.UUID;
 public class NettyNetworkConnection implements NetworkConnection {
 
     private final UUID id = UUID.randomUUID();
-
     private final Channel channel;
+    private ConnectionType type = ConnectionType.CONNECTOR;
 
     public NettyNetworkConnection(Channel channel) {
         this.channel = channel;
@@ -19,6 +20,17 @@ public class NettyNetworkConnection implements NetworkConnection {
     @Override
     public void send(Packet packet) {
         channel.writeAndFlush(packet);
+    }
+
+    @Override
+    public ConnectionType type() {
+        return type;
+    }
+
+    @Override
+    public NetworkConnection type(ConnectionType type) {
+        this.type = type;
+        return this;
     }
 
     public Channel channel() {

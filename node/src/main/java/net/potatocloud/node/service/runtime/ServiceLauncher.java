@@ -5,6 +5,7 @@ import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.service.ServiceAddPacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.ServiceFactory;
@@ -22,19 +23,22 @@ public final class ServiceLauncher {
     private final ServiceFactory factory;
     private final NodeConfig config;
     private final NetworkServer server;
+    private final ClusterManagerImpl clusterManager;
 
     public ServiceLauncher(
             ServiceManagerImpl serviceManager,
             ServiceGroupManager groupManager,
             ServiceFactory factory,
             NodeConfig config,
-            NetworkServer server
+            NetworkServer server,
+            ClusterManagerImpl clusterManager
     ) {
         this.serviceManager = serviceManager;
         this.groupManager = groupManager;
         this.factory = factory;
         this.config = config;
         this.server = server;
+        this.clusterManager = clusterManager;
     }
 
     public Service start(String groupName, String requestId) {
@@ -51,17 +55,8 @@ public final class ServiceLauncher {
 
         serviceManager.addService(service);
 
-        server.generateBroadcast().broadcast(new ServiceAddPacket(
-                service.getName(),
-                service.getServiceId(),
-                service.getPort(),
-                service.getStartTimestamp(),
-                service.getServiceGroup().getName(),
-                service.getPropertyMap(),
-                service.getStatus().name(),
-                service.getMaxPlayers(),
-                requestId
-        ));
+        server.broadcast().connectors().send(new ServiceAddPacket(service, requestId));
+        clusterManager.broadcast(new ServiceAddPacket(service, null));
 
         service.start();
         return service;

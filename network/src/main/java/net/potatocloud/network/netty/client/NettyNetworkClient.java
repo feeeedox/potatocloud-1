@@ -3,6 +3,7 @@ package net.potatocloud.network.netty.client;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -15,7 +16,6 @@ import net.potatocloud.network.netty.NettyUtils;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.PacketManager;
-import net.potatocloud.network.packet.PacketRegistry;
 import net.potatocloud.network.packet.request.RequestPacket;
 import net.potatocloud.network.packet.request.ResponsePacket;
 
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class NettyNetworkClient implements NetworkClient {
+
+    private static final int CONNECT_TIMEOUT_MILLIS = 5000;
 
     private final PacketManager packetManager;
     private volatile Channel channel;
@@ -37,13 +39,12 @@ public class NettyNetworkClient implements NetworkClient {
 
     @Override
     public void connect(String host, int port) {
-        PacketRegistry.registerPackets(packetManager);
-
         group = NettyUtils.createEventLoopGroup();
 
         final ChannelFuture connectFuture = new Bootstrap()
                 .group(group)
                 .channel(Epoll.isAvailable() ? EpollSocketChannel.class : NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT_MILLIS)
                 .handler(new NettyNetworkClientInitializer(packetManager, this))
                 .connect(host, port).syncUninterruptibly();
 

@@ -85,13 +85,17 @@ public class NodeLogger implements Logger {
 
         cache.add(colored);
 
-        final boolean nodeScreen = Node.getInstance()
-                .getScreenManager()
-                .getCurrentScreen()
-                .name()
-                .equals(Screen.NODE_SCREEN);
+        if (Node.getInstance().getScreenManager().getCurrentScreen() != null) {
+            final boolean nodeScreen = Node.getInstance()
+                    .getScreenManager()
+                    .getCurrentScreen()
+                    .name()
+                    .equals(Screen.NODE_SCREEN);
 
-        if (!level.equals(Level.COMMAND_INPUT) && nodeScreen) {
+            if (!level.equals(Level.COMMAND_INPUT) && nodeScreen) {
+                console.println(colored);
+            }
+        } else {
             console.println(colored);
         }
     }

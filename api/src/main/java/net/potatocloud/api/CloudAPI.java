@@ -1,6 +1,7 @@
 package net.potatocloud.api;
 
 import lombok.Getter;
+import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
@@ -76,6 +77,13 @@ public abstract class CloudAPI {
      * @return the global properties holder
      */
     public abstract PropertyHolder getGlobalProperties();
+
+    /**
+     * Gets the cluster manager.
+     *
+     * @return the cluster manager
+     */
+    public abstract ClusterManager getClusterManager();
 
     /**
      * @deprecated Use {@link ServiceManager#getCurrentService()} instead

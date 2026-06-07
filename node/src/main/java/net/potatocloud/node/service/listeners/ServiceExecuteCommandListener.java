@@ -6,11 +6,13 @@ import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceExecuteCommandPacket;
+import net.potatocloud.node.cluster.ClusterManagerImpl;
 
 @RequiredArgsConstructor
 public class ServiceExecuteCommandListener implements PacketListener<ServiceExecuteCommandPacket> {
 
     private final ServiceManager serviceManager;
+    private final ClusterManagerImpl clusterManager;
 
     @Override
     public void handle(PacketContext<ServiceExecuteCommandPacket> ctx) {
@@ -18,6 +20,13 @@ public class ServiceExecuteCommandListener implements PacketListener<ServiceExec
         if (service == null) {
             return;
         }
+
+        final String nodeName = service.nodeName();
+        if (!clusterManager.isLocal(nodeName)) {
+            clusterManager.sendTo(nodeName, ctx.packet());
+            return;
+        }
+
         service.executeCommand(ctx.packet().command());
     }
 }

@@ -65,6 +65,9 @@ public class GroupCommand extends Command {
                     final ServiceGroup group = ctx.get("group");
 
                     logger.info("&7Info for group &a" + group.getName() + "&8:");
+                    if (node.getConfig().cluster().enabled() && group.nodeName() != null) {
+                        logger.info("&8» &7Node: &a" + group.nodeName());
+                    }
                     logger.info("&8» &7Platform: &a" + group.getPlatform().getName());
                     logger.info("&8» &7Version: &a" + group.getPlatformVersion().getName());
                     logger.info("&8» &7Templates: &a" + String.join(", ", group.getServiceTemplates()));

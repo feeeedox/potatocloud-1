@@ -16,17 +16,7 @@ public class RequestServicesListener implements PacketListener<RequestServicesPa
     @Override
     public void handle(PacketContext<RequestServicesPacket> ctx) {
         for (Service service : serviceManager.getAllServices()) {
-            ctx.connection().send(new ServiceAddPacket(
-                    service.getName(),
-                    service.getServiceId(),
-                    service.getPort(),
-                    service.getStartTimestamp(),
-                    service.getServiceGroup().getName(),
-                    service.getPropertyMap(),
-                    service.getStatus().name(),
-                    service.getMaxPlayers(),
-                    null
-            ));
+            ctx.connection().send(new ServiceAddPacket(service, null));
         }
     }
 }

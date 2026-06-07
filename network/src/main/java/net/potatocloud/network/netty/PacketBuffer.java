@@ -1,17 +1,28 @@
 package net.potatocloud.network.netty;
 
 import io.netty.buffer.ByteBuf;
+import net.potatocloud.api.cluster.ClusterNode;
+import net.potatocloud.api.cluster.impl.AbstractClusterNode;
+import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.impl.ServiceGroupImpl;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
+import net.potatocloud.api.player.CloudPlayer;
+import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.property.Property;
+import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.impl.ServiceImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class PacketBuffer {
 
@@ -162,6 +173,42 @@ public class PacketBuffer {
         return map;
     }
 
+    public void writeClusterNode(ClusterNode node) {
+        writeString(node.name());
+        writeString(node.host());
+        writeInt(node.port());
+        writeLong(node.startedAt());
+    }
+
+    public ClusterNode readClusterNode() {
+        return new AbstractClusterNode(readString(), readString(), readInt(), readLong());
+    }
+
+    public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
+        writeInt(nodes.size());
+        for (ClusterNode node : nodes) {
+            writeClusterNode(node);
+        }
+    }
+
+    public List<ClusterNode> readClusterNodeList() {
+        final int size = readInt();
+        final List<ClusterNode> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(readClusterNode());
+        }
+        return list;
+    }
+
+    public void writeUUID(UUID uuid) {
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
+    }
+
+    public UUID readUUID() {
+        return new UUID(buf.readLong(), buf.readLong());
+    }
+
     public void writeLong(long value) {
         buf.writeLong(value);
     }
@@ -184,6 +231,92 @@ public class PacketBuffer {
 
     public double readDouble() {
         return buf.readDouble();
+    }
+
+    public void writeServiceGroup(ServiceGroup group) {
+        writeString(group.getName());
+        writeString(group.nodeName());
+        writeString(group.getPlatformName());
+        writeString(group.getPlatformVersionName());
+        writeString(group.getJavaCommand());
+        writeStringList(group.getCustomJvmFlags());
+        writeInt(group.getMaxPlayers());
+        writeInt(group.getMaxMemory());
+        writeInt(group.getMinOnlineCount());
+        writeInt(group.getMaxOnlineCount());
+        writeBoolean(group.isStatic());
+        writeBoolean(group.isFallback());
+        writeInt(group.getStartPriority());
+        writeInt(group.getStartPercentage());
+        writeStringList(group.getServiceTemplates());
+        writePropertyMap(group.getPropertyMap());
+    }
+
+    public ServiceGroup readServiceGroup() {
+        return new ServiceGroupImpl(
+                readString(),
+                readString(),
+                readString(),
+                readString(),
+                readString(),
+                readStringList(),
+                readInt(),
+                readInt(),
+                readInt(),
+                readInt(),
+                readBoolean(),
+                readBoolean(),
+                readInt(),
+                readInt(),
+                readStringList(),
+                readPropertyMap()
+        );
+    }
+
+    public void writeService(Service service) {
+        writeInt(service.getServiceId());
+        writeString(service.host());
+        writeInt(service.getPort());
+        writeString(service.getName());
+        writeString(service.getServiceGroup().getName());
+        writePropertyMap(service.getPropertyMap());
+        writeLong(service.getStartTimestamp());
+        writeString(service.getStatus().name());
+        writeInt(service.getMaxPlayers());
+        writeInt(service.getUsedMemory());
+    }
+
+    public Service readService() {
+        return new ServiceImpl(
+                readInt(),
+                readString(),
+                readInt(),
+                readString(),
+                readString(),
+                readPropertyMap(),
+                readLong(),
+                ServiceStatus.valueOf(readString()),
+                readInt(),
+                readInt()
+        );
+    }
+
+    public void writeCloudPlayer(CloudPlayer player) {
+        writeString(player.getUsername());
+        writeUUID(player.getUniqueId());
+        writeString(player.getConnectedProxyName());
+        writeString(player.getConnectedServiceName());
+        writePropertyMap(player.getPropertyMap());
+    }
+
+    public CloudPlayer readCloudPlayer() {
+        return new CloudPlayerImpl(
+                readString(),
+                readUUID(),
+                readString(),
+                readString(),
+                readPropertyMap()
+        );
     }
 
     public void writePlatform(Platform platform) {

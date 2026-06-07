@@ -30,11 +30,8 @@ public class ServiceManagerImpl implements ServiceManager {
         this.client = client;
 
         client.on(ServiceAddPacket.class, new ServiceAddListener(this));
-
         client.on(ServiceRemovePacket.class, ctx -> services.remove(getService(ctx.packet().serviceName())));
-
         client.on(ServiceUpdatePacket.class, new ServiceUpdateListener(this));
-
         client.on(ServiceMemoryUpdatePacket.class, new ServiceMemoryUpdateListener(this));
 
         client.send(new RequestServicesPacket());
@@ -81,6 +78,24 @@ public class ServiceManagerImpl implements ServiceManager {
         client.send(new StartServicePacket(groupName, requestId));
 
         return future;
+    }
+
+    @Override
+    public CompletableFuture<Void> stopService(String name) {
+        // TODO: Use response packets for shutdown instead of fire-and-forget.
+        client.send(new StopServicePacket(name));
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public boolean executeCommand(String name, String command) {
+        client.send(new ServiceExecuteCommandPacket(name, command));
+        return true;
+    }
+
+    @Override
+    public void copy(String name, String template, String filter) {
+        client.send(new ServiceCopyPacket(name, template, filter));
     }
 
     @Override
