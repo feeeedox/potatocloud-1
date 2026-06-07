@@ -9,12 +9,16 @@ import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
 import net.potatocloud.network.packet.Packet;
 import net.potatocloud.network.packet.PacketManager;
+import net.potatocloud.network.packet.packets.cluster.ClusterNodeAddPacket;
+import net.potatocloud.network.packet.packets.cluster.ClusterNodeRemovePacket;
 import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.cluster.HeartbeatPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeDiscoveryPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeLeavePacket;
+import net.potatocloud.network.packet.packets.cluster.RequestClusterNodesPacket;
+import net.potatocloud.node.cluster.listeners.RequestClusterNodesListener;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
@@ -58,6 +62,8 @@ public class ClusterManagerImpl implements ClusterManager {
         this.server = server;
         this.logger = logger;
         this.localNode = new ClusterNodeImpl(config.name(), localHost, localPort, System.currentTimeMillis(), null);
+
+        server.on(RequestClusterNodesPacket.class, new RequestClusterNodesListener(this));
     }
 
     public void start(ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
@@ -121,6 +127,7 @@ public class ClusterManagerImpl implements ClusterManager {
 
     public void add(ClusterNodeImpl node) {
         nodes.put(node.name(), node);
+        server.broadcast().connectors().send(new ClusterNodeAddPacket(node));
     }
 
     public void remove(ClusterNodeImpl node) {
@@ -152,6 +159,7 @@ public class ClusterManagerImpl implements ClusterManager {
         if (node.connection() != null) {
             outboundConnections.remove(node.connection());
         }
+        server.broadcast().connectors().send(new ClusterNodeRemovePacket(nodeName));
     }
 
     // returns true if we opened this connection

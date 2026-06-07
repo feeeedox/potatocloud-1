@@ -67,5 +67,9 @@ public final class PacketRegistry {
         manager.register(703, NodeDiscoveryPacket.class, NodeDiscoveryPacket.CODEC);
         manager.register(704, ClusterSyncPacket.class, ClusterSyncPacket.CODEC);
         manager.register(705, NodeJoinRejectPacket.class, NodeJoinRejectPacket.CODEC);
+        manager.register(706, RequestClusterNodesPacket.class, RequestClusterNodesPacket.CODEC);
+        manager.register(707, ClusterNodesResponsePacket.class, ClusterNodesResponsePacket.CODEC);
+        manager.register(708, ClusterNodeAddPacket.class, ClusterNodeAddPacket.CODEC);
+        manager.register(709, ClusterNodeRemovePacket.class, ClusterNodeRemovePacket.CODEC);
     }
 }
