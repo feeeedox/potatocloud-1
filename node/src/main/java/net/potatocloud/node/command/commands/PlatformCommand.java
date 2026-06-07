@@ -53,7 +53,7 @@ public class PlatformCommand extends Command {
                         return;
                     }
 
-                    node.getDownloadManager().downloadPlatformVersion(platform, version);
+                    node.downloadManager().downloadPlatformVersion(platform, version);
                 });
 
         sub("info", "Shows information of a platform")
