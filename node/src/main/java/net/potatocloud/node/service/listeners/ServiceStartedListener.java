@@ -36,7 +36,8 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
             return;
         }
 
-        logger.info("Service &a" + packet.serviceName() + "&7 started on node &a" + service.nodeName());
+        final boolean clustered = Node.getInstance().getConfig().cluster().enabled();
+        logger.info("Service &a" + packet.serviceName() + (clustered ? "&7 started on node &a" + service.nodeName() : "&7 started"));
 
         logger.debug("Service &a" + packet.serviceName() + "&7 took &a" + TimeFormatter.formatAsDuration(System.currentTimeMillis() - service.getStartTimestamp()) + "&7 to start");
 

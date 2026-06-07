@@ -103,7 +103,8 @@ public abstract class AbstractService extends ServiceImpl {
         setStatus(ServiceStatus.STARTING);
         runtime.start(directory, this);
 
-        logger.info("Service &a" + getName() + "&7 is starting on Node &a" + nodeName()
+        final String nodeInfo = config.cluster().enabled() ? " on Node &a" + nodeName() + "&7" : "";
+        logger.info("Service &a" + getName() + "&7 is starting" + nodeInfo
                 + " &8[&7Port&8: &a" + getPort()
                 + "&8, &7Group&8: &a" + group.getName() + "&8]"
         );
