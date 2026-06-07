@@ -62,17 +62,19 @@ public class ServiceStartScheduler {
                 return;
             }
 
-            final Service service = serviceManager.getService(event.holderName());
-            if (service == null) {
-                return;
-            }
+            serviceManager.find(event.holderName()).ifPresent(service -> {
+                final ServiceGroup group = service.group();
+                final int onlineServices = group.getAllServices().stream()
+                        .mapToInt(Service::playerCount)
+                        .sum();
 
-            final ServiceGroup group = service.getServiceGroup();
-            if (group.getOnlineServiceCount() >= group.getMaxOnlineCount()) {
-                return;
-            }
+                if (onlineServices >= group.getMaxOnlineCount()) {
+                    return;
+                }
 
-            serviceManager.startService(service.getServiceGroup());
+                serviceManager.start(service.group());
+            });
+
         });
     }
 
@@ -87,7 +89,7 @@ public class ServiceStartScheduler {
                 .sorted(Comparator.comparingInt(ServiceGroup::getStartPriority).reversed())
                 .forEach(group -> {
                     if (rules.stream().allMatch(rule -> rule.allows(group)) && conditions.stream().anyMatch(condition -> condition.shouldStart(group))) {
-                        serviceManager.startService(group);
+                        serviceManager.start(group);
                     }
                 });
     }

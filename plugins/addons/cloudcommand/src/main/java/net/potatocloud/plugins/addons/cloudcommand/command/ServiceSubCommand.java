@@ -13,6 +13,7 @@ import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class ServiceSubCommand {
@@ -32,13 +33,13 @@ public class ServiceSubCommand {
     }
 
     public void listServices() {
-        final List<Service> services = serviceManager.getAllServices();
+        final List<Service> services = serviceManager.services();
         player.sendMessage(messages.get("service.list.header"));
         for (Service service : services) {
             player.sendMessage(messages.get("service.list.entry")
-                    .replaceText(text -> text.match("%name%").replacement(service.getName()))
-                    .replaceText(text -> text.match("%group%").replacement(service.getServiceGroup().getName()))
-                    .replaceText(text -> text.match("%status%").replacement(service.getStatus().name())));
+                    .replaceText(text -> text.match("%name%").replacement(service.name()))
+                    .replaceText(text -> text.match("%group%").replacement(service.group().getName()))
+                    .replaceText(text -> text.match("%status%").replacement(service.state().name())));
         }
     }
 
@@ -67,7 +68,10 @@ public class ServiceSubCommand {
             }
         }
 
-        serviceManager.startServices(CloudAPI.instance().groupManager().getServiceGroup(groupName), amount);
+        for (int i = 0; i < amount; i++) {
+            serviceManager.start(CloudAPI.instance().groupManager().getServiceGroup(groupName));
+        }
+
         int finalAmount = amount;
         player.sendMessage(messages.get("service.start.starting")
                 .replaceText(text -> text.match("%amount%").replacement(String.valueOf(finalAmount)))
@@ -81,13 +85,8 @@ public class ServiceSubCommand {
         }
 
         final String name = args[2];
-        final Service service = serviceManager.getService(name);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
 
-        service.shutdown();
+        serviceManager.find(name).ifPresentOrElse(serviceManager::stop, () -> player.sendMessage(messages.get("no-service")));
     }
 
     public void infoService(String[] args) {
@@ -97,21 +96,18 @@ public class ServiceSubCommand {
         }
 
         final String name = args[2];
-        final Service service = serviceManager.getService(name);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
 
-        player.sendMessage(messages.get("service.info.name").replaceText(text -> text.match("%name%").replacement(service.getName())));
-        player.sendMessage(messages.get("service.info.group").replaceText(text -> text.match("%group%").replacement(service.getServiceGroup().getName())));
-        player.sendMessage(messages.get("service.info.port").replaceText(text -> text.match("%port%").replacement(String.valueOf(service.getPort()))));
-        player.sendMessage(messages.get("service.info.status").replaceText(text -> text.match("%status%").replacement(service.getStatus().name())));
-        player.sendMessage(messages.get("service.info.online-players").replaceText(text -> text.match("%players%").replacement(String.valueOf(service.getOnlinePlayerCount()))));
-        player.sendMessage(messages.get("service.info.max-players").replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(service.getMaxPlayers()))));
-        player.sendMessage(messages.get("service.info.online-time").replaceText(text -> text.match("%onlineTime%").replacement(String.valueOf(service.getFormattedUptime()))));
-        player.sendMessage(messages.get("service.info.start-time").replaceText(text -> text.match("%startTime%").replacement(String.valueOf(service.getFormattedStartTimestamp()))));
-        player.sendMessage(messages.get("service.info.used-memory").replaceText(text -> text.match("%usedMemory%").replacement(String.valueOf(service.getUsedMemory()))));
+        serviceManager.find(name).ifPresentOrElse(service -> {
+            player.sendMessage(messages.get("service.info.name").replaceText(text -> text.match("%name%").replacement(service.name())));
+            player.sendMessage(messages.get("service.info.group").replaceText(text -> text.match("%group%").replacement(service.group().getName())));
+            player.sendMessage(messages.get("service.info.port").replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port()))));
+            player.sendMessage(messages.get("service.info.status").replaceText(text -> text.match("%status%").replacement(service.state().name())));
+            player.sendMessage(messages.get("service.info.online-players").replaceText(text -> text.match("%players%").replacement(String.valueOf(service.playerCount()))));
+            player.sendMessage(messages.get("service.info.max-players").replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(service.maxPlayers()))));
+            player.sendMessage(messages.get("service.info.online-time").replaceText(text -> text.match("%onlineTime%").replacement(service.uptime().toString())));
+            player.sendMessage(messages.get("service.info.start-time").replaceText(text -> text.match("%startTime%").replacement(service.startedAt().toString())));
+            player.sendMessage(messages.get("service.info.used-memory").replaceText(text -> text.match("%usedMemory%").replacement(String.valueOf(service.usedMemory()))));
+        }, () -> player.sendMessage(messages.get("no-service")));
     }
 
     public void editService(String[] args) {
@@ -121,30 +117,26 @@ public class ServiceSubCommand {
         }
 
         final String name = args[2];
-        final Service service = serviceManager.getService(name);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
+        serviceManager.find(name).ifPresentOrElse(service -> {
+            final String key = args[3].toLowerCase();
+            final String value = args[4];
 
-        final String key = args[3].toLowerCase();
-        final String value = args[4];
-
-        try {
-            if (key.equals("maxplayers")) {
-                service.setMaxPlayers(Integer.parseInt(value));
-            } else {
+            try {
+                if (key.equals("maxplayers")) {
+                    service.maxPlayers(Integer.parseInt(value));
+                } else {
+                    player.sendMessage(messages.get("service.edit.usage"));
+                    return;
+                }
+                serviceManager.update(service);
+                player.sendMessage(messages.get("service.edit.success")
+                        .replaceText(text -> text.match("%key%").replacement(key))
+                        .replaceText(text -> text.match("%value%").replacement(value))
+                        .replaceText(text -> text.match("%name%").replacement(name)));
+            } catch (NumberFormatException e) {
                 player.sendMessage(messages.get("service.edit.usage"));
-                return;
             }
-            service.update();
-            player.sendMessage(messages.get("service.edit.success")
-                    .replaceText(text -> text.match("%key%").replacement(key))
-                    .replaceText(text -> text.match("%value%").replacement(value))
-                    .replaceText(text -> text.match("%name%").replacement(name)));
-        } catch (NumberFormatException e) {
-            player.sendMessage(messages.get("service.edit.usage"));
-        }
+        }, () -> player.sendMessage(messages.get("no-service")));
     }
 
     public void propertyService(String[] args) {
@@ -156,15 +148,15 @@ public class ServiceSubCommand {
         final String sub = args[2].toLowerCase();
         final String name = args[3];
 
-        final Service service = serviceManager.getService(name);
-        if (service == null) {
+        final Optional<Service> service = serviceManager.find(name);
+        if (service.isEmpty()) {
             player.sendMessage(messages.get("no-service"));
             return;
         }
 
         switch (sub) {
             case "list" -> {
-                final List<Property<?>> props = service.getProperties();
+                final List<Property<?>> props = service.get().getProperties();
 
                 if (props.isEmpty()) {
                     player.sendMessage(messages.get("service.property.empty")
@@ -189,7 +181,7 @@ public class ServiceSubCommand {
                 }
 
                 final String key = args[4];
-                final Property<?> property = service.getProperty(key);
+                final Property<?> property = service.get().getProperty(key);
 
                 if (property == null) {
                     player.sendMessage(messages.get("service.property.not-found")
@@ -197,8 +189,8 @@ public class ServiceSubCommand {
                     return;
                 }
 
-                service.getPropertyMap().remove(property.getName());
-                service.update();
+                service.get().getPropertyMap().remove(property.getName());
+                serviceManager.update(service.get());
 
                 player.sendMessage(messages.get("service.property.remove.success")
                         .replaceText(text -> text.match("%name%").replacement(name))
@@ -216,8 +208,8 @@ public class ServiceSubCommand {
 
                 try {
                     final Property<?> property = PropertyUtil.stringToProperty(key, value);
-                    service.setProperty(property);
-                    service.update();
+                    service.get().setProperty(property);
+                    serviceManager.update(service.get());
 
                     player.sendMessage(messages.get("service.property.set.success")
                             .replaceText(text -> text.match("%key%").replacement(key))
@@ -239,31 +231,26 @@ public class ServiceSubCommand {
         }
 
         final String name = args[2];
-        final Service service = serviceManager.getService(name);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
+        serviceManager.find(name).ifPresentOrElse(service -> {
+            final String template = args[3];
 
-        final String template = args[3];
+            String filter;
+            if (args.length >= 5) {
+                filter = args[4];
+            } else {
+                filter = "";
+            }
 
-        String filter;
-        if (args.length >= 5) {
-            filter = args[4];
-        } else {
-            filter = "";
-        }
+            if (filter.isEmpty()) {
+                serviceManager.copyTo(service, template);
+            } else {
+                serviceManager.copyTo(service, template, filter);
+            }
 
-
-        if (filter.isEmpty()) {
-            service.copy(template);
-        } else {
-            service.copy(template, filter);
-        }
-
-        player.sendMessage(messages.get("service.copy.success")
-                .replaceText(text -> text.match("%files%").replacement(filter.isEmpty() ? "all service files" : filter))
-                .replaceText(text -> text.match("%template%").replacement(template)));
+            player.sendMessage(messages.get("service.copy.success")
+                    .replaceText(text -> text.match("%files%").replacement(filter.isEmpty() ? "all service files" : filter))
+                    .replaceText(text -> text.match("%template%").replacement(template)));
+        }, () -> player.sendMessage(messages.get("no-service")));
     }
 
     public List<String> suggest(String[] args) {
@@ -280,19 +267,20 @@ public class ServiceSubCommand {
         String sub = args[1].toLowerCase();
 
         if (List.of("stop", "info", "edit", "copy").contains(sub) && args.length == 3) {
-            return serviceManager.getAllServices().stream()
-                    .map(Service::getName)
+            return serviceManager.services().stream()
+                    .map(Service::name)
                     .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
                     .toList();
         }
 
 
         if (sub.equalsIgnoreCase("copy") && args.length == 4) {
-            final Service service = serviceManager.getService(args[2]);
-            if (service == null) {
-                return List.of();
-            }
-            return service.getServiceGroup().getServiceTemplates().stream().toList();
+            return serviceManager.find(args[2])
+                    .map(service -> service.group()
+                            .getServiceTemplates()
+                            .stream()
+                            .toList())
+                    .orElse(List.of());
         }
 
         if (sub.equalsIgnoreCase("start") && args.length == 3) {
@@ -314,20 +302,19 @@ public class ServiceSubCommand {
             }
 
             if (args.length == 4) {
-                return serviceManager.getAllServices().stream()
-                        .map(Service::getName)
+                return serviceManager.services().stream()
+                        .map(Service::name)
                         .filter(name -> name.toLowerCase().startsWith(args[3].toLowerCase()))
                         .toList();
             }
 
             if (args.length == 5 && args[2].equalsIgnoreCase("remove")) {
-                Service service = serviceManager.getService(args[3]);
-                if (service != null) {
-                    return service.getProperties().stream()
-                            .map(Property::getName)
-                            .filter(p -> p.toLowerCase().startsWith(args[4].toLowerCase()))
-                            .toList();
-                }
+                return serviceManager.find(args[3])
+                        .map(service -> service.getProperties().stream()
+                                .map(Property::getName)
+                                .filter(p -> p.toLowerCase().startsWith(args[4].toLowerCase()))
+                                .toList())
+                        .orElse(List.of());
             }
 
             if (args.length == 5 && args[2].equalsIgnoreCase("set")) {

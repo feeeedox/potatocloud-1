@@ -90,7 +90,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
         connection.send(new ClusterSyncPacket(
                 groupManager.getAllServiceGroups(),
-                serviceManager.getAllServices(),
+                serviceManager.services(),
                 playerManager.getOnlinePlayers()
         ));
 

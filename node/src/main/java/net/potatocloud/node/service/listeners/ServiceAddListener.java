@@ -17,7 +17,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
     public void handle(PacketContext<ServiceAddPacket> ctx) {
         final ServiceAddPacket packet = ctx.packet();
 
-        if (serviceManager.getService(packet.service().getName()) != null) {
+        if (serviceManager.find(packet.service().name()).isPresent()) {
             return;
         }
 

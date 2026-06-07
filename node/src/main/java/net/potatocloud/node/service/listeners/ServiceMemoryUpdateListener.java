@@ -22,14 +22,11 @@ public class ServiceMemoryUpdateListener implements PacketListener<ServiceMemory
             return;
         }
 
-        final Service service = serviceManager.getService(ctx.packet().serviceName());
-        if (service == null) {
-            return;
-        }
-
-        if (service instanceof ServiceImpl serviceImpl) {
-            serviceImpl.setUsedMemory(ctx.packet().usedMemory());
-        }
+        serviceManager.find(ctx.packet().serviceName()).ifPresent(service -> {
+            if (service instanceof ServiceImpl serviceImpl) {
+                serviceImpl.usedMemory(ctx.packet().usedMemory());
+            }
+        });
 
         server.broadcast().connectors().send(ctx.packet());
     }

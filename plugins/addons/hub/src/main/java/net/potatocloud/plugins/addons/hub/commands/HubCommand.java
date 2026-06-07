@@ -8,7 +8,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.Comparator;
@@ -29,7 +29,7 @@ public class HubCommand implements SimpleCommand {
         }
 
         final Service playerService = CloudAPI.instance().playerManager().getCloudPlayer(player.getUniqueId()).getConnectedService();
-        if (playerService.getServiceGroup().isFallback()) {
+        if (playerService.group().isFallback()) {
             player.sendMessage(messagesConfig.get("alreadyOnFallback"));
             return;
         }
@@ -47,11 +47,11 @@ public class HubCommand implements SimpleCommand {
     }
 
     private Optional<RegisteredServer> getBestFallbackServer() {
-        return CloudAPI.instance().serviceManager().getAllServices().stream()
-                .filter(service -> service.getServiceGroup().isFallback())
-                .filter(service -> service.getStatus() == ServiceStatus.RUNNING)
-                .sorted(Comparator.comparingInt(Service::getOnlinePlayerCount))
-                .map(service -> server.getServer(service.getName()))
+        return CloudAPI.instance().serviceManager().services().stream()
+                .filter(service -> service.group().isFallback())
+                .filter(service -> service.state() == ServiceState.RUNNING)
+                .sorted(Comparator.comparingInt(Service::playerCount))
+                .map(service -> server.getServer(service.name()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();

@@ -68,16 +68,21 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
         final CloudPlayer player = getCloudPlayer(playerName);
         final Service proxy = player != null ? player.getConnectedProxy() : null;
 
-        if (proxy != null && !clusterManager.isLocal(proxy.nodeName())) {
-            clusterManager.sendTo(proxy.nodeName(), packet);
-            return;
+        if (proxy != null && proxy.node().isPresent()) {
+            final String nodeName = proxy.node().get().name();
+
+            if (!clusterManager.isLocal(nodeName)) {
+                clusterManager.sendTo(nodeName, packet);
+                return;
+            }
         }
 
         server.broadcast().connectors().send(packet);
     }
 
     @Override
-    public void updatePlayer(CloudPlayer player) {}
+    public void updatePlayer(CloudPlayer player) {
+    }
 
 }
 

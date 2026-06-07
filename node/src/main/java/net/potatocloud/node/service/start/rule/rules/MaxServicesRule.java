@@ -3,7 +3,7 @@ package net.potatocloud.node.service.start.rule.rules;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.start.rule.ServiceStartRule;
 
@@ -22,8 +22,8 @@ public class MaxServicesRule implements ServiceStartRule {
             return true;
         }
 
-        final long activeServices = serviceManager.getAllServices().stream()
-                .filter(service -> service.isOnline() || service.getStatus() == ServiceStatus.STARTING)
+        final long activeServices = serviceManager.services().stream()
+                .filter(service -> service.running() || service.state() == ServiceState.STARTING)
                 .count();
 
         return activeServices < maxServices;

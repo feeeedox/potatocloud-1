@@ -34,8 +34,8 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
     @Override
     public void start(Path directory, AbstractService service) {
-        this.serviceName = service.getName();
-        final List<String> args = buildArguments(directory, service.getName());
+        this.serviceName = service.name();
+        final List<String> args = buildArguments(directory, service.name());
 
         try {
             process = new ProcessBuilder(args)
@@ -43,7 +43,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
                     .start();
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to start server process for service " + service.getName(), e);
+            throw new RuntimeException("Failed to start server process for service " + service.name(), e);
         }
 
         osProcess = new SystemInfo().getOperatingSystem().getProcess((int) process.pid());

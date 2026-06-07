@@ -15,17 +15,14 @@ public class LabyModPlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(LabyModPlayerJoinEvent event) {
-        final Service service = CloudAPI.instance().serviceManager().getCurrentService();
-        if (service == null) {
-            return;
-        }
+        CloudAPI.instance().serviceManager().current().ifPresent(service -> {
+           final String notifyMessage = config.get("notify-message").asString()
+                   .replace("%service%", service.name())
+                   .replace("%group%", service.group().getName())
+                   .replace("%id%", String.valueOf(service.id()));
 
-        final String notifyMessage = config.get("notify-message").asString()
-                .replace("%service%", service.getName())
-                .replace("%group%", service.getServiceGroup().getName())
-                .replace("%id%", String.valueOf(service.getServiceId()));
-
-        // Send the game mode
-        event.labyModPlayer().sendPlayingGameMode(notifyMessage);
+           // Send the game mode
+           event.labyModPlayer().sendPlayingGameMode(notifyMessage);
+        });
     }
 }

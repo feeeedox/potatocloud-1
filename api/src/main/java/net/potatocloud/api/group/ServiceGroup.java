@@ -244,25 +244,7 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the list of all services of the group
      */
     default List<Service> getAllServices() {
-        return CloudAPI.instance().serviceManager().getAllServices(getName());
-    }
-
-    /**
-     * Gets all online services of the group.
-     *
-     * @return the list of all online services of the group
-     */
-    default List<Service> getOnlineServices() {
-        return CloudAPI.instance().serviceManager().getOnlineServices(getName());
-    }
-
-    /**
-     * Gets the online service count of the group.
-     *
-     * @return the online service count of the group
-     */
-    default int getOnlineServiceCount() {
-        return getOnlineServices().size();
+        return CloudAPI.instance().serviceManager().services(this);
     }
 
     /**

@@ -1,7 +1,6 @@
 package net.potatocloud.node.console;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.command.CommandManager;
 import net.potatocloud.node.screen.Screen;
@@ -63,12 +62,10 @@ public class ConsoleReader extends Thread {
                     continue;
                 }
 
-                final Service service = node.serviceManager().getService(currentScreen.name());
-                if (service == null) {
-                    continue;
-                }
+                node.serviceManager().find(currentScreen.name()).ifPresent(service -> {
+                    node.serviceManager().execute(service, input);
+                });
 
-                service.executeCommand(input);
             }
         } catch (UserInterruptException e) {
             Node.getInstance().shutdown();

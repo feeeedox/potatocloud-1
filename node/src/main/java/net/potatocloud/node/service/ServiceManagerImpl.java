@@ -21,6 +21,7 @@ import net.potatocloud.node.template.TemplateManager;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -73,24 +74,21 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public Service getService(String name) {
-        return services.stream()
-                .filter(service -> service.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
+    public Optional<Service> find(String name) {
+        return services.stream().filter(service -> service.name().equalsIgnoreCase(name)).findFirst();
     }
 
     @Override
-    public List<Service> getAllServices() {
+    public List<Service> services() {
         return Collections.unmodifiableList(services);
     }
 
     @Override
-    public void updateService(Service service) {
+    public void update(Service service) {
         final ServiceUpdatePacket packet = new ServiceUpdatePacket(
-                service.getName(),
-                service.getStatus().name(),
-                service.getMaxPlayers(),
+                service.name(),
+                service.state().name(),
+                service.maxPlayers(),
                 service.getPropertyMap()
         );
         server.broadcast().connectors().send(packet);
@@ -98,44 +96,24 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public void startService(String groupName) {
-        final ServiceGroup group = groupManager.getServiceGroup(groupName);
-        if (group == null) {
-            return;
-        }
-
-        if (!clusterManager.isLocal(group.nodeName())) {
-            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
-            return;
-        }
-
-        launcher.start(groupName, null);
-    }
-
-    @Override
-    public CompletableFuture<Service> startServiceAsync(String groupName) {
-        final ServiceGroup group = groupManager.getServiceGroup(groupName);
+    public CompletableFuture<Service> start(ServiceGroup group) {
         if (group == null) {
             return CompletableFuture.completedFuture(null);
         }
 
         if (!clusterManager.isLocal(group.nodeName())) {
-            clusterManager.sendTo(group.nodeName(), new StartServicePacket(groupName, null));
+            clusterManager.sendTo(group.nodeName(), new StartServicePacket(group.getName(), null));
             return CompletableFuture.completedFuture(null);
         }
 
-        return CompletableFuture.completedFuture(launcher.start(groupName, null));
+        return CompletableFuture.completedFuture(launcher.start(group.getName(), null));
     }
 
     @Override
-    public CompletableFuture<Void> stopService(String name) {
-        final Service service = getService(name);
-        if (service == null) {
-            return CompletableFuture.completedFuture(null);
-        }
-
-        if (!clusterManager.isLocal(service.nodeName())) {
-            clusterManager.sendTo(service.nodeName(), new StopServicePacket(name));
+    public CompletableFuture<Void> stop(Service service) {
+        // todo
+        if (!clusterManager.isLocal(service.node().get().name())) {
+            clusterManager.sendTo(service.node().get().name(), new StopServicePacket(service.name()));
             return CompletableFuture.completedFuture(null);
         }
 
@@ -147,33 +125,28 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public boolean executeCommand(String name, String command) {
-        final Service service = getService(name);
-        if (service == null) {
-            return false;
+    public void copyTo(Service service, String template, String filter) {
+        if (!clusterManager.isLocal(service.node().get().name())) {
+            clusterManager.sendTo(service.node().get().name(), new ServiceCopyPacket(service.name(), template, filter));
+            return;
         }
 
-        if (!clusterManager.isLocal(service.nodeName())) {
-            clusterManager.sendTo(service.nodeName(), new ServiceExecuteCommandPacket(name, command));
-            return true;
+        if (service instanceof AbstractService abstractService) {
+            abstractService.copy(template, filter);
         }
-
-        return service.executeCommand(command);
     }
 
     @Override
-    public void copy(String name, String template, String filter) {
-        final Service service = getService(name);
-        if (service == null) {
+    public void execute(Service service, String command) {
+        // todo
+        if (!clusterManager.isLocal(service.node().get().name())) {
+            clusterManager.sendTo(service.node().get().name(), new ServiceExecuteCommandPacket(service.name(), command));
             return;
         }
 
-        if (!clusterManager.isLocal(service.nodeName())) {
-            clusterManager.sendTo(service.nodeName(), new ServiceCopyPacket(name, template, filter));
-            return;
+        if (service instanceof AbstractService abstractService) {
+            abstractService.executeCommand(command);
         }
-
-        service.copy(template, filter);
     }
 
     public void startServiceInternal(String groupName, String requestId) {
@@ -194,7 +167,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
 
         final long usedMb = services.stream()
-                .mapToLong(service -> service.getServiceGroup().getMaxMemory())
+                .mapToLong(service -> service.group().getMaxMemory())
                 .sum();
 
         return (usedMb + group.getMaxMemory()) <= config.service().maxMemory();
@@ -202,7 +175,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
     public void logMemoryWarning(ServiceGroup group) {
         final long usedMb = services.stream()
-                .mapToLong(service -> service.getServiceGroup().getMaxMemory())
+                .mapToLong(service -> service.group().getMaxMemory())
                 .sum();
 
         logger.warn("Service(s) for group &a" + group.getName()
@@ -212,7 +185,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public Service getCurrentService() {
+    public Optional<Service> current() {
         throw new UnsupportedOperationException("getCurrentService() is only available when the API is used from within a connector.");
     }
 }

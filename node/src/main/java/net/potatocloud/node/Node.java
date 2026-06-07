@@ -12,7 +12,7 @@ import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.eventbus.ServerEventBus;
@@ -259,25 +259,25 @@ public class Node extends CloudAPI {
         if (clustered) {
             final String localNodeName = config.cluster().name();
 
-            for (Service service : serviceManager.getAllServices()) {
-                final ServiceGroup group = service.getServiceGroup();
+            for (Service service : serviceManager.services()) {
+                final ServiceGroup group = service.group();
                 final String nodeName = group == null ? null : group.nodeName();
 
                 if (nodeName == null || nodeName.equals(localNodeName)) {
-                    if (service.getStatus() != ServiceStatus.STOPPING || service.getStatus() != ServiceStatus.STOPPED) {
+                    if (service.state() != ServiceState.STOPPING || service.state() != ServiceState.STOPPED) {
                         servicesToStop.add(service);
                     }
                 }
             }
         } else {
-            servicesToStop.addAll(serviceManager.getAllServices().stream().filter(service -> service.getStatus() != ServiceStatus.STOPPING && service.getStatus() != ServiceStatus.STOPPED).toList());
+            servicesToStop.addAll(serviceManager.services().stream().filter(service -> service.state() != ServiceState.STOPPING && service.state() != ServiceState.STOPPED).toList());
         }
 
         if (!servicesToStop.isEmpty()) {
             logger.info("Shutting down all running services...");
 
             final CompletableFuture<?>[] futures = servicesToStop.stream()
-                    .map(Service::shutdown)
+                    .map(serviceManager::stop)
                     .toArray(CompletableFuture[]::new);
 
             CompletableFuture.allOf(futures).join();
@@ -363,7 +363,7 @@ public class Node extends CloudAPI {
         return startupTime;
     }
 
-    public DownloadManager getDownloadManager() {
+    public DownloadManager downloadManager() {
         return downloadManager;
     }
 

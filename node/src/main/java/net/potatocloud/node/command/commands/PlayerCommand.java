@@ -23,13 +23,13 @@ public class PlayerCommand extends Command {
                     final CloudPlayer player = ctx.get("player");
                     final Service service = ctx.get("service");
 
-                    if (player.getConnectedServiceName().equalsIgnoreCase(service.getName())) {
-                        logger.info("Player &a" + player.getUsername() + " &7is already connected to &a" + service.getName());
+                    if (player.getConnectedServiceName().equalsIgnoreCase(service.name())) {
+                        logger.info("Player &a" + player.getUsername() + " &7is already connected to &a" + service.name());
                         return;
                     }
 
                     player.connectWithService(service);
-                    logger.info("Successfully connected player &a" + player.getUsername() + " &7to service &a" + service.getName());
+                    logger.info("Successfully connected player &a" + player.getUsername() + " &7to service &a" + service.name());
                 });
 
         sub("list", "List online players")

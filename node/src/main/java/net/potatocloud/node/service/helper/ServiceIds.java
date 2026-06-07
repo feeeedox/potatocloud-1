@@ -14,8 +14,8 @@ public final class ServiceIds {
 
     public static int nextId(ServiceGroup group, List<Service> services) {
         final Set<Integer> usedIds = services.stream()
-                .filter(service -> service.getServiceGroup().equals(group))
-                .map(Service::getServiceId)
+                .filter(service -> service.group().equals(group))
+                .map(Service::id)
                 .collect(Collectors.toSet());
 
         int id = 1;

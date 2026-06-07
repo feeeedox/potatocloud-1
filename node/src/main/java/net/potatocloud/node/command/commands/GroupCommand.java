@@ -1,5 +1,6 @@
 package net.potatocloud.node.command.commands;
 
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
@@ -86,7 +87,7 @@ public class GroupCommand extends Command {
                     final ServiceGroup group = ctx.get("group");
 
                     for (Service service : group.getAllServices()) {
-                        service.shutdown();
+                        CloudAPI.instance().serviceManager().stop(service); // todo
                     }
                 });
 

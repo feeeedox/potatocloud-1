@@ -23,8 +23,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the node name, or {@code null} if not found
      */
     default String nodeName() {
-        final Service service = getConnectedService();
-        return service != null ? service.nodeName() : null;
+       return null; //todo
     }
 
     /**
@@ -64,7 +63,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the connected proxy of the player
      */
     default Service getConnectedProxy() {
-        return CloudAPI.instance().serviceManager().getService(getConnectedProxyName());
+        return CloudAPI.instance().serviceManager().find(getConnectedProxyName()).get();
     }
 
     /**
@@ -73,7 +72,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the connected service of the player
      */
     default Service getConnectedService() {
-        return CloudAPI.instance().serviceManager().getService(getConnectedServiceName());
+        return CloudAPI.instance().serviceManager().find(getConnectedServiceName()).get();
     }
 
     /**
@@ -91,7 +90,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @param serviceName the service name to connect with
      */
     default void connectWithService(String serviceName) {
-        connectWithService(CloudAPI.instance().serviceManager().getService(serviceName));
+        connectWithService(CloudAPI.instance().serviceManager().find(serviceName).get());
     }
 
     /**

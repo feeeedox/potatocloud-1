@@ -13,7 +13,7 @@ import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.api.service.impl.ServiceImpl;
 
 import java.nio.charset.StandardCharsets;
@@ -274,16 +274,16 @@ public class PacketBuffer {
     }
 
     public void writeService(Service service) {
-        writeInt(service.getServiceId());
+        writeInt(service.id());
         writeString(service.host());
-        writeInt(service.getPort());
-        writeString(service.getName());
-        writeString(service.getServiceGroup().getName());
+        writeInt(service.port());
+        writeString(service.name());
+        writeString(service.group().getName());
         writePropertyMap(service.getPropertyMap());
-        writeLong(service.getStartTimestamp());
-        writeString(service.getStatus().name());
-        writeInt(service.getMaxPlayers());
-        writeInt(service.getUsedMemory());
+        writeLong(service.startedAt().toEpochMilli());
+        writeString(service.state().name());
+        writeInt(service.maxPlayers());
+        writeInt(service.usedMemory());
     }
 
     public Service readService() {
@@ -295,7 +295,7 @@ public class PacketBuffer {
                 readString(),
                 readPropertyMap(),
                 readLong(),
-                ServiceStatus.valueOf(readString()),
+                ServiceState.valueOf(readString()),
                 readInt(),
                 readInt()
         );

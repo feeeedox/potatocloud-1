@@ -59,23 +59,23 @@ public class NotifyPlugin {
     }
 
     private void sendMessage(String serviceName, String key, boolean clickEvent) {
-        final Service service = cloudAPI.serviceManager().getService(serviceName);
+        cloudAPI.serviceManager().find(serviceName).ifPresent(service -> {
+            Component message = messages.get(key)
+                    .replaceText(text -> text.match("%service%").replacement(service.name()))
+                    .replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port())))
+                    .replaceText(text -> text.match("%group%").replacement(service.group().getName()));
 
-        Component message = messages.get(key)
-                .replaceText(text -> text.match("%service%").replacement(service.getName()))
-                .replaceText(text -> text.match("%port%").replacement(String.valueOf(service.getPort())))
-                .replaceText(text -> text.match("%group%").replacement(service.getServiceGroup().getName()));
+            if (clickEvent) {
+                message = message.clickEvent(ClickEvent.runCommand("/server " + serviceName)).hoverEvent(HoverEvent.showText(
+                        messages.get("hover-text").replaceText(text -> text.match("%service%").replacement(service.name()))
+                ));
+            }
 
-        if (clickEvent) {
-            message = message.clickEvent(ClickEvent.runCommand("/server " + serviceName)).hoverEvent(HoverEvent.showText(
-                    messages.get("hover-text").replaceText(text -> text.match("%service%").replacement(service.getName()))
-            ));
-        }
-
-        final Component finalMessage = message;
-        server.getAllPlayers().stream()
-                .filter(player -> player.hasPermission(config.get("permission").asString()))
-                .forEach(player -> player.sendMessage(finalMessage));
+            final Component finalMessage = message;
+            server.getAllPlayers().stream()
+                    .filter(player -> player.hasPermission(config.get("permission").asString()))
+                    .forEach(player -> player.sendMessage(finalMessage));
+        });
     }
 
     private void sendSimpleMessage(String key, String serviceName) {

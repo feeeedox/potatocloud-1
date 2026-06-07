@@ -1,12 +1,16 @@
 package net.potatocloud.api.service.impl;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 public class ServiceImpl implements Service {
 
@@ -18,11 +22,11 @@ public class ServiceImpl implements Service {
     private final Map<String, Property<?>> propertyMap;
 
     private long startTimestamp;
-    private ServiceStatus status;
+    private ServiceState status;
     private int maxPlayers;
     private int usedMemory;
 
-    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceStatus status, int maxPlayers, int usedMemory) {
+    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceState status, int maxPlayers, int usedMemory) {
         this.serviceId = serviceId;
         this.host = host;
         this.port = port;
@@ -36,33 +40,43 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public ServiceGroup getServiceGroup() {
+    public ServiceGroup group() {
         return CloudAPI.instance().groupManager().getServiceGroup(groupName);
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return name;
     }
 
     @Override
-    public int getServiceId() {
+    public int id() {
         return serviceId;
     }
 
     @Override
-    public ServiceStatus getStatus() {
+    public Optional<ClusterNode> node() {
+        return group().node();
+    }
+
+    @Override
+    public ServiceState state() {
         return status;
     }
 
     @Override
-    public void setStatus(ServiceStatus status) {
+    public void state(ServiceState status) {
         this.status = status;
     }
 
     @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
+    public Instant startedAt() {
+        return Instant.ofEpochMilli(startTimestamp);
+    }
+
+    @Override
+    public Duration uptime() {
+        return Duration.ofMillis(System.currentTimeMillis() - startTimestamp);
     }
 
     protected void setStartTimestamp(long startTimestamp) {
@@ -70,21 +84,21 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public int getMaxPlayers() {
+    public int maxPlayers() {
         return maxPlayers;
     }
 
     @Override
-    public void setMaxPlayers(int maxPlayers) {
+    public void maxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
     }
 
     @Override
-    public int getUsedMemory() {
+    public int usedMemory() {
         return usedMemory;
     }
 
-    public void setUsedMemory(int usedMemory) {
+    public void usedMemory(int usedMemory) {
         this.usedMemory = usedMemory;
     }
 
@@ -94,7 +108,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public int getPort() {
+    public int port() {
         return port;
     }
 

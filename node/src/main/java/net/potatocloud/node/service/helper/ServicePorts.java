@@ -20,7 +20,7 @@ public final class ServicePorts {
                 : config.service().serviceStartPort();
 
         final Set<Integer> usedPorts = services.stream()
-                .map(Service::getPort)
+                .map(Service::port)
                 .collect(Collectors.toSet());
 
         while (usedPorts.contains(port) || !NetworkUtils.isPortFree(port)) {

@@ -83,9 +83,9 @@ public class GroupSubCommand {
         }
 
         final ServiceGroup group = groupManager.getServiceGroup(name);
-        for (Service service : group.getOnlineServices()) {
-            service.shutdown();
-        }
+
+        group.getAllServices().stream().filter(Service::running).forEach(service -> CloudAPI.instance().serviceManager().stop(service));
+
         player.sendMessage(messages.get("group.shutdown.success")
                 .replaceText(text -> text.match("%name%").replacement(name)));
     }

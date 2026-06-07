@@ -1,6 +1,7 @@
 package net.potatocloud.node.group;
 
 import lombok.Getter;
+import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.group.impl.ServiceGroupImpl;
@@ -157,7 +158,9 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             return false;
         }
 
-        group.getAllServices().forEach(Service::shutdown);
+        for (Service service : group.getAllServices()) {
+            CloudAPI.instance().serviceManager().stop(service); // todo
+        }
 
         groups.remove(group);
 

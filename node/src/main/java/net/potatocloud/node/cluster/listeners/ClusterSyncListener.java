@@ -36,7 +36,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         }
 
         for (Service service : packet.services()) {
-            if (serviceManager.getService(service.getName()) != null) {
+            if (serviceManager.find(service.name()).isPresent()) {
                 continue;
             }
             serviceManager.addService(service);

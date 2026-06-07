@@ -141,11 +141,11 @@ public class ClusterManagerImpl implements ClusterManager {
                     server.broadcast().connectors().send(new GroupDeletePacket(group.getName()));
                 });
 
-        serviceManager.getAllServices().stream()
-                .filter(service -> nodeName.equals(service.nodeName()))
+        serviceManager.services().stream()
+                .filter(service -> nodeName.equals(service.node().get().name())) // todo
                 .forEach(service -> {
                     serviceManager.removeService(service);
-                    server.broadcast().connectors().send(new ServiceRemovePacket(service.getName(), service.getPort()));
+                    server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
                 });
 
         playerManager.getOnlinePlayers().stream()

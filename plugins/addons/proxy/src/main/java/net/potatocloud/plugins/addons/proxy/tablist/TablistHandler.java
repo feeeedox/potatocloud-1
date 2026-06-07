@@ -14,6 +14,8 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.shared.MessageUtils;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class TablistHandler {
 
@@ -41,26 +43,27 @@ public class TablistHandler {
             return;
         }
 
-        final Service service = CloudAPI.instance().serviceManager().getService(cloudPlayer.getConnectedServiceName());
-        if (service == null || service.getServiceGroup() == null) {
+        final Optional<Service> service = CloudAPI.instance().serviceManager().find(cloudPlayer.getConnectedServiceName());
+        if (service.isEmpty() || service.get().group() == null) {
             return;
         }
 
-        final String group = service.getServiceGroup().getName();
+        final String group = service.get().group().getName();
         final String proxy = cloudPlayer.getConnectedProxyName();
 
         final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
-        final int maxPlayers = CloudAPI.instance().serviceManager().getCurrentService().getMaxPlayers();
+
+        final int maxPlayers = CloudAPI.instance().serviceManager().current().get().maxPlayers(); //todo
 
         final Tablist tablist = new Tablist(
                 config.get("tablist.header").asString(),
                 config.get("tablist.footer").asString()
         );
 
-        final Component header = replacePlaceholders(tablist.header(), service.getName(), group,
+        final Component header = replacePlaceholders(tablist.header(), service.get().name(), group,
                 proxy, onlinePlayers, maxPlayers);
 
-        final Component footer = replacePlaceholders(tablist.footer(), service.getName(), group,
+        final Component footer = replacePlaceholders(tablist.footer(), service.get().name(), group,
                 proxy, onlinePlayers, maxPlayers);
 
         player.sendPlayerListHeaderAndFooter(header, footer);

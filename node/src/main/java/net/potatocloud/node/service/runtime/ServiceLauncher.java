@@ -47,7 +47,7 @@ public final class ServiceLauncher {
             return null;
         }
 
-        final List<Service> services = serviceManager.getAllServices();
+        final List<Service> services = serviceManager.services();
 
         final int serviceId = ServiceIds.nextId(group, services);
         final int port = ServicePorts.nextPort(group, config, services);

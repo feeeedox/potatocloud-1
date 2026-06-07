@@ -1,12 +1,15 @@
 package net.potatocloud.node.service.listeners;
 
 import lombok.RequiredArgsConstructor;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceExecuteCommandPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class ServiceExecuteCommandListener implements PacketListener<ServiceExecuteCommandPacket> {
@@ -16,17 +19,17 @@ public class ServiceExecuteCommandListener implements PacketListener<ServiceExec
 
     @Override
     public void handle(PacketContext<ServiceExecuteCommandPacket> ctx) {
-        final Service service = serviceManager.getService(ctx.packet().serviceName());
-        if (service == null) {
-            return;
-        }
+        final ServiceExecuteCommandPacket packet = ctx.packet();
 
-        final String nodeName = service.nodeName();
-        if (!clusterManager.isLocal(nodeName)) {
-            clusterManager.sendTo(nodeName, ctx.packet());
-            return;
-        }
+        serviceManager.find(packet.serviceName()).ifPresent(service -> {
+            final Optional<ClusterNode> node = service.node();
 
-        service.executeCommand(ctx.packet().command());
+            if (node.isPresent() && !clusterManager.isLocal(node.get().name())) {
+                clusterManager.sendTo(node.get().name(), packet);
+                return;
+            }
+
+            serviceManager.execute(service, packet.command());
+        });
     }
 }

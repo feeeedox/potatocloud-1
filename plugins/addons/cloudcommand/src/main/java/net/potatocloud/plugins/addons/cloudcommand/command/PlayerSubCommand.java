@@ -49,23 +49,19 @@ public class PlayerSubCommand {
             return;
         }
 
-        final Service service = CloudAPI.instance().serviceManager().getService(serviceName);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
+        CloudAPI.instance().serviceManager().find(serviceName).ifPresent(service -> {
+            if (cloudPlayer.getConnectedServiceName().equals(service.name())) {
+                player.sendMessage(messages.get("player.connect.already-connected")
+                        .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
+                        .replaceText(text -> text.match("%service%").replacement(service.name())));
+                return;
+            }
 
-        if (cloudPlayer.getConnectedServiceName().equals(service.getName())) {
-            player.sendMessage(messages.get("player.connect.already-connected")
+            cloudPlayer.connectWithService(service);
+            player.sendMessage(messages.get("player.connect.success")
                     .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
-                    .replaceText(text -> text.match("%service%").replacement(service.getName())));
-            return;
-        }
-
-        cloudPlayer.connectWithService(service);
-        player.sendMessage(messages.get("player.connect.success")
-                .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
-                .replaceText(text -> text.match("%service%").replacement(service.getName())));
+                    .replaceText(text -> text.match("%service%").replacement(service.name())));
+        });
     }
 
     public List<String> suggest(String[] args) {
@@ -83,9 +79,9 @@ public class PlayerSubCommand {
                         filter(input -> input.startsWith(args[2])).toList();
             }
             if (args.length == 4) {
-                return CloudAPI.instance().serviceManager().getAllServices().stream()
-                        .filter(service -> !service.getServiceGroup().getPlatform().isProxy())
-                        .map(Service::getName)
+                return CloudAPI.instance().serviceManager().services().stream()
+                        .filter(service -> !service.group().getPlatform().isProxy())
+                        .map(Service::name)
                         .filter(name -> name.startsWith(args[3]))
                         .toList();
             }
