@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class NotifyPlugin {
 
     private final ProxyServer server;
-    private final CloudAPI cloudAPI = CloudAPI.getInstance();
+    private final CloudAPI cloudAPI = CloudAPI.instance();
     private final Logger logger;
     private final Config config;
     private final MessagesConfig messages;
@@ -43,7 +43,7 @@ public class NotifyPlugin {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
-        final EventBus eventBus = cloudAPI.getEventBus();
+        final EventBus eventBus = cloudAPI.eventBus();
 
         if (config.get("messages.enable-service-starting").asBoolean()) {
             eventBus.subscribe(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
@@ -59,7 +59,7 @@ public class NotifyPlugin {
     }
 
     private void sendMessage(String serviceName, String key, boolean clickEvent) {
-        final Service service = cloudAPI.getServiceManager().getService(serviceName);
+        final Service service = cloudAPI.serviceManager().getService(serviceName);
 
         Component message = messages.get(key)
                 .replaceText(text -> text.match("%service%").replacement(service.getName()))

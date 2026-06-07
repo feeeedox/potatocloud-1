@@ -19,7 +19,7 @@ public class ServiceSubCommand {
 
     private final Player player;
     private final MessagesConfig messages;
-    private final ServiceManager serviceManager = CloudAPI.getInstance().getServiceManager();
+    private final ServiceManager serviceManager = CloudAPI.instance().serviceManager();
 
     public void sendHelp(Player player) {
         player.sendMessage(messages.get("service.help.list"));
@@ -49,7 +49,7 @@ public class ServiceSubCommand {
         }
 
         final String groupName = args[2];
-        if (!CloudAPI.getInstance().getServiceGroupManager().existsServiceGroup(groupName)) {
+        if (!CloudAPI.instance().groupManager().existsServiceGroup(groupName)) {
             player.sendMessage(messages.get("no-group").replaceText(text -> text.match("%name%").replacement(groupName)));
             return;
         }
@@ -67,7 +67,7 @@ public class ServiceSubCommand {
             }
         }
 
-        serviceManager.startServices(CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(groupName), amount);
+        serviceManager.startServices(CloudAPI.instance().groupManager().getServiceGroup(groupName), amount);
         int finalAmount = amount;
         player.sendMessage(messages.get("service.start.starting")
                 .replaceText(text -> text.match("%amount%").replacement(String.valueOf(finalAmount)))
@@ -296,7 +296,7 @@ public class ServiceSubCommand {
         }
 
         if (sub.equalsIgnoreCase("start") && args.length == 3) {
-            return CloudAPI.getInstance().getServiceGroupManager().getAllServiceGroups().stream().map(ServiceGroup::getName).toList();
+            return CloudAPI.instance().groupManager().getAllServiceGroups().stream().map(ServiceGroup::getName).toList();
         }
 
 

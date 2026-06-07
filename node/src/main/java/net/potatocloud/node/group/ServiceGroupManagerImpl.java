@@ -122,7 +122,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         }
 
         for (String templateName : group.getServiceTemplates()) {
-            Node.getInstance().getTemplateManager().createTemplate(templateName);
+            Node.getInstance().templateManager().createTemplate(templateName);
         }
 
         ServiceGroupStorage.save(group, groupsPath);

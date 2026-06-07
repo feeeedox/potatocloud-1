@@ -1,6 +1,5 @@
 package net.potatocloud.node;
 
-import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.event.EventBus;
@@ -8,9 +7,11 @@ import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.module.Module;
+import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.Service;
+import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.ServiceStatus;
 import net.potatocloud.api.version.Version;
 import net.potatocloud.common.FileUtils;
@@ -56,7 +57,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Getter
 public class Node extends CloudAPI {
 
     private final long startupTime;
@@ -217,7 +217,7 @@ public class Node extends CloudAPI {
     }
 
     public static Node getInstance() {
-        return (Node) CloudAPI.getInstance();
+        return (Node) CloudAPI.instance();
     }
 
     private void registerCommands() {
@@ -293,22 +293,91 @@ public class Node extends CloudAPI {
         console.close();
     }
 
+    public boolean ready() {
+        return ready;
+    }
+
+    public boolean stopping() {
+        return stopping;
+    }
+
     public long getUptime() {
         return System.currentTimeMillis() - startupTime;
     }
 
     @Override
-    public ServiceGroupManager getServiceGroupManager() {
+    public NodeLogger logger() {
+        return logger;
+    }
+
+    @Override
+    public ServiceGroupManager groupManager() {
         return groupManager;
     }
 
     @Override
-    public PropertyHolder getGlobalProperties() {
+    public ServiceManager serviceManager() {
+        return serviceManager;
+    }
+
+    @Override
+    public PlatformManager platformManager() {
+        return platformManager;
+    }
+
+    @Override
+    public EventBus eventBus() {
+        return eventBus;
+    }
+
+    @Override
+    public CloudPlayerManager playerManager() {
+        return playerManager;
+    }
+
+    public TemplateManager templateManager() {
+        return templateManager;
+    }
+
+    public NodeConfig config() {
+        return config;
+    }
+
+    public ScreenManager screenManager() {
+        return screenManager;
+    }
+
+    public Console console() {
+        return console;
+    }
+
+    public CacheManager cacheManager() {
+        return cacheManager;
+    }
+
+    public SetupManager setupManager() {
+        return setupManager;
+    }
+
+    public long startupTime() {
+        return startupTime;
+    }
+
+    public DownloadManager getDownloadManager() {
+        return downloadManager;
+    }
+
+    public NetworkServer server() {
+        return server;
+    }
+
+    @Override
+    public PropertyHolder globalProperties() {
         return propertiesHolder;
     }
 
     @Override
-    public ClusterManager getClusterManager() {
+    public ClusterManager clusterManager() {
         return clusterManager;
     }
 }

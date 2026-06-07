@@ -12,14 +12,14 @@ public interface PlatformPlugin {
     void onServiceReady(Service service);
 
     default void initCurrentService() {
-        final CloudAPI api = CloudAPI.getInstance();
+        final CloudAPI api = CloudAPI.instance();
 
-        if (api.getServiceManager() == null) {
+        if (api.serviceManager() == null) {
             runTaskLater(this::initCurrentService, 1);
             return;
         }
 
-        final Service currentService = api.getServiceManager().getCurrentService();
+        final Service currentService = api.serviceManager().getCurrentService();
 
         if (currentService == null || currentService.getServiceGroup() == null) {
             runTaskLater(this::initCurrentService, 1);
@@ -27,7 +27,7 @@ public interface PlatformPlugin {
         }
 
         ConnectorAPI.getInstance()
-                .getClient()
+                .client()
                 .send(new ServiceStartedPacket(currentService.getName()));
 
         onServiceReady(currentService);

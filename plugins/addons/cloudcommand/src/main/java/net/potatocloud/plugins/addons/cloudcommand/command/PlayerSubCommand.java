@@ -16,7 +16,7 @@ public class PlayerSubCommand {
 
     private final Player player;
     private final MessagesConfig messages;
-    private final CloudPlayerManager playerManager = CloudAPI.getInstance().getPlayerManager();
+    private final CloudPlayerManager playerManager = CloudAPI.instance().playerManager();
 
     public void sendHelp() {
         player.sendMessage(messages.get("player.help.list"));
@@ -49,7 +49,7 @@ public class PlayerSubCommand {
             return;
         }
 
-        final Service service = CloudAPI.getInstance().getServiceManager().getService(serviceName);
+        final Service service = CloudAPI.instance().serviceManager().getService(serviceName);
         if (service == null) {
             player.sendMessage(messages.get("no-service"));
             return;
@@ -83,7 +83,7 @@ public class PlayerSubCommand {
                         filter(input -> input.startsWith(args[2])).toList();
             }
             if (args.length == 4) {
-                return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
+                return CloudAPI.instance().serviceManager().getAllServices().stream()
                         .filter(service -> !service.getServiceGroup().getPlatform().isProxy())
                         .map(Service::getName)
                         .filter(name -> name.startsWith(args[3]))

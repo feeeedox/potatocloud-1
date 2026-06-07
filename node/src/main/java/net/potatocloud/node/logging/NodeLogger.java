@@ -85,9 +85,9 @@ public class NodeLogger implements Logger {
 
         cache.add(colored);
 
-        if (Node.getInstance().getScreenManager().getCurrentScreen() != null) {
+        if (Node.getInstance().screenManager().getCurrentScreen() != null) {
             final boolean nodeScreen = Node.getInstance()
-                    .getScreenManager()
+                    .screenManager()
                     .getCurrentScreen()
                     .name()
                     .equals(Screen.NODE_SCREEN);

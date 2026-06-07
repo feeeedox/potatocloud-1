@@ -24,7 +24,7 @@ public class PlatformCommand extends Command {
         defaultExecutor(ctx -> sendHelp());
 
         sub("create", "Create a new platform").executes(ctx -> {
-            node.getSetupManager().startSetup(new PlatformConfigurationSetup(node.getConsole(), node.getScreenManager(), node.getPlatformManager(), node.getLogger()));
+            node.setupManager().startSetup(new PlatformConfigurationSetup(node.console(), node.screenManager(), node.platformManager(), node.logger()));
         });
 
         sub("download", "Download a platform version")
@@ -101,7 +101,7 @@ public class PlatformCommand extends Command {
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
 
-                    node.getSetupManager().startSetup(new AddVersionToPlatformSetup(node.getConsole(), node.getScreenManager(), platform, logger));
+                    node.setupManager().startSetup(new AddVersionToPlatformSetup(node.console(), node.screenManager(), platform, logger));
                 });
 
         versionSub.sub("remove")

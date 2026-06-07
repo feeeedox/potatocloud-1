@@ -15,7 +15,7 @@ public class CloudPlayerArgument extends ArgumentType<CloudPlayer> {
     @Override
     public ParseResult<CloudPlayer> parse(String input) {
         // Input is the username of the player in this case
-        final CloudPlayer player = Node.getInstance().getPlayerManager().getCloudPlayer(input);
+        final CloudPlayer player = Node.getInstance().playerManager().getCloudPlayer(input);
         if (player == null) {
             return ParseResult.error("Player &a" + input + " &7was &cnot &7found");
         }
@@ -26,7 +26,7 @@ public class CloudPlayerArgument extends ArgumentType<CloudPlayer> {
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
-                .getPlayerManager()
+                .playerManager()
                 .getOnlinePlayers()
                 .stream()
                 .map(CloudPlayer::getUsername)

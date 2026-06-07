@@ -27,11 +27,11 @@ public class GroupCommand extends Command {
 
         sub("create", "Create a new group")
                 .executes(ctx -> {
-                    node.getSetupManager().startSetup(new GroupConfigurationSetup(
-                            node.getConsole(),
-                            node.getScreenManager(),
+                    node.setupManager().startSetup(new GroupConfigurationSetup(
+                            node.console(),
+                            node.screenManager(),
                             groupManager,
-                            node.getPlatformManager())
+                            node.platformManager())
                     );
                 });
 
@@ -65,7 +65,7 @@ public class GroupCommand extends Command {
                     final ServiceGroup group = ctx.get("group");
 
                     logger.info("&7Info for group &a" + group.getName() + "&8:");
-                    if (node.getConfig().cluster().enabled() && group.nodeName() != null) {
+                    if (node.config().cluster().enabled() && group.nodeName() != null) {
                         logger.info("&8» &7Node: &a" + group.nodeName());
                     }
                     logger.info("&8» &7Platform: &a" + group.getPlatform().getName());
@@ -73,7 +73,7 @@ public class GroupCommand extends Command {
                     logger.info("&8» &7Templates: &a" + String.join(", ", group.getServiceTemplates()));
                     logger.info("&8» &7Min Online Count: &a" + group.getMinOnlineCount());
                     logger.info("&8» &7Max Online Count: &a" + group.getMaxOnlineCount());
-                    logger.info("&8» &7Online Players: &a" + node.getPlayerManager().getOnlinePlayersByGroup(group).size());
+                    logger.info("&8» &7Online Players: &a" + node.playerManager().getOnlinePlayersByGroup(group).size());
                     logger.info("&8» &7Max Players: &a" + group.getMaxPlayers());
                     logger.info("&8» &7Max Memory: &a" + group.getMaxMemory() + "MB");
                     logger.info("&8» &7Fallback: " + (group.isFallback() ? "&aYes" : "&cNo"));
@@ -217,7 +217,7 @@ public class GroupCommand extends Command {
                         switch (key) {
                             case "addtemplate" -> {
                                 group.addServiceTemplate(value);
-                                Node.getInstance().getTemplateManager().createTemplate(value);
+                                Node.getInstance().templateManager().createTemplate(value);
                                 group.update();
                                 logger.info("Template &a" + value + " &7was added to group &a" + groupName);
                                 return;

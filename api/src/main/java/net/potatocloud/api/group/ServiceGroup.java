@@ -38,7 +38,7 @@ public interface ServiceGroup extends PropertyHolder {
         if (nodeName == null) {
             return Optional.empty();
         }
-        return CloudAPI.getInstance().getClusterManager().get(nodeName);
+        return CloudAPI.instance().clusterManager().get(nodeName);
     }
 
     /**
@@ -54,7 +54,7 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the platform of the group
      */
     default Platform getPlatform() {
-        return CloudAPI.getInstance().getPlatformManager().getPlatform(getPlatformName());
+        return CloudAPI.instance().platformManager().getPlatform(getPlatformName());
     }
 
     /**
@@ -114,7 +114,7 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the online players of the group
      */
     default Set<CloudPlayer> getOnlinePlayers() {
-        return CloudAPI.getInstance().getPlayerManager().getOnlinePlayersByGroup(this);
+        return CloudAPI.instance().playerManager().getOnlinePlayersByGroup(this);
     }
 
     /**
@@ -244,7 +244,7 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the list of all services of the group
      */
     default List<Service> getAllServices() {
-        return CloudAPI.getInstance().getServiceManager().getAllServices(getName());
+        return CloudAPI.instance().serviceManager().getAllServices(getName());
     }
 
     /**
@@ -253,7 +253,7 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the list of all online services of the group
      */
     default List<Service> getOnlineServices() {
-        return CloudAPI.getInstance().getServiceManager().getOnlineServices(getName());
+        return CloudAPI.instance().serviceManager().getOnlineServices(getName());
     }
 
     /**
@@ -269,6 +269,6 @@ public interface ServiceGroup extends PropertyHolder {
      * Updates the group.
      */
     default void update() {
-        CloudAPI.getInstance().getServiceGroupManager().updateServiceGroup(this);
+        CloudAPI.instance().groupManager().updateServiceGroup(this);
     }
 }

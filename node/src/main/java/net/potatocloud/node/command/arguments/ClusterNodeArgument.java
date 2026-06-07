@@ -14,9 +14,9 @@ public class ClusterNodeArgument extends ArgumentType<ClusterNode> {
 
     @Override
     public ParseResult<ClusterNode> parse(String input) {
-        final ClusterNode local = Node.getInstance().getClusterManager().localNode();
+        final ClusterNode local = Node.getInstance().clusterManager().localNode();
 
-        return Node.getInstance().getClusterManager().nodes().stream()
+        return Node.getInstance().clusterManager().nodes().stream()
                 .filter(node -> !node.name().equals(local.name()))
                 .filter(node -> node.name().equalsIgnoreCase(input))
                 .findFirst()
@@ -26,9 +26,9 @@ public class ClusterNodeArgument extends ArgumentType<ClusterNode> {
 
     @Override
     public List<String> suggest(String input) {
-        final ClusterNode local = Node.getInstance().getClusterManager().localNode();
+        final ClusterNode local = Node.getInstance().clusterManager().localNode();
 
-        return Node.getInstance().getClusterManager().nodes().stream()
+        return Node.getInstance().clusterManager().nodes().stream()
                 .map(ClusterNode::name)
                 .filter(name -> !name.equals(local.name()))
                 .filter(name -> name.startsWith(input))

@@ -36,7 +36,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
             return;
         }
 
-        final boolean clustered = Node.getInstance().getConfig().cluster().enabled();
+        final boolean clustered = Node.getInstance().config().cluster().enabled();
         logger.info("Service &a" + packet.serviceName() + (clustered ? "&7 started on node &a" + service.nodeName() : "&7 started"));
 
         logger.debug("Service &a" + packet.serviceName() + "&7 took &a" + TimeFormatter.formatAsDuration(System.currentTimeMillis() - service.getStartTimestamp()) + "&7 to start");
@@ -56,7 +56,7 @@ public class ServiceStartedListener implements PacketListener<ServiceStartedPack
             if (service instanceof AbstractService abstractService) {
                 abstractService.setProcessChecker(new ServiceProcessChecker(abstractService));
             }
-            new ServiceMemoryUpdateTask(service, Node.getInstance().getServer(), clusterManager);
+            new ServiceMemoryUpdateTask(service, Node.getInstance().server(), clusterManager);
         }
     }
 }

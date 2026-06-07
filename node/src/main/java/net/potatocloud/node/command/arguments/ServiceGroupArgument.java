@@ -15,7 +15,7 @@ public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
     @Override
     public ParseResult<ServiceGroup> parse(String input) {
         final ServiceGroup group = Node.getInstance()
-                .getServiceGroupManager()
+                .groupManager()
                 .getServiceGroup(input);
 
         if (group == null) {
@@ -28,7 +28,7 @@ public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
-                .getServiceGroupManager()
+                .groupManager()
                 .getAllServiceGroups()
                 .stream()
                 .map(ServiceGroup::getName)

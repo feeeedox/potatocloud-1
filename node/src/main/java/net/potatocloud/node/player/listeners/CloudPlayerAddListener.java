@@ -32,9 +32,9 @@ public class CloudPlayerAddListener implements PacketListener<CloudPlayerAddPack
             clusterManager.broadcast(packet);
         }
 
-        final NodeConfig config = node.getConfig();
+        final NodeConfig config = node.config();
         if (config.console().logPlayerConnections()) {
-            node.getLogger().info("Player &a" + packet.player().getUsername() + " &7connected to the network &8[&7UUID&8: &a"
+            node.logger().info("Player &a" + packet.player().getUsername() + " &7connected to the network &8[&7UUID&8: &a"
                     + packet.player().getUniqueId() + "&8, &7Proxy&8: &a" + packet.player().getConnectedProxyName() + "&8]");
         }
     }

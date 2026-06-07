@@ -7,12 +7,12 @@ public class TemplateModule extends AbstractModule {
 
     @Override
     public void onEnable() {
-        CloudAPI.getInstance().getLogger().info("[TemplateModule] Loaded module...");
+        CloudAPI.instance().logger().info("[TemplateModule] Loaded module...");
     }
 
     @Override
     public void onDisable() {
-        CloudAPI.getInstance().getLogger().info("[TemplateModule] Unloaded module...");
+        CloudAPI.instance().logger().info("[TemplateModule] Unloaded module...");
     }
 
 }

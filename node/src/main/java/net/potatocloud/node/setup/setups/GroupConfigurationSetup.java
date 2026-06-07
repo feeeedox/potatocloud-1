@@ -110,13 +110,13 @@ public class GroupConfigurationSetup extends Setup {
         final Platform platform = platformManager.getPlatform(platformName);
 
         if (platform.isProxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
-            Node.getInstance().getLogger().warn("You have more than one proxy group! This may cause issues");
+            Node.getInstance().logger().warn("You have more than one proxy group! This may cause issues");
         }
 
         final String name = answers.get("name");
         groupManager.createServiceGroup(
                 name,
-                Node.getInstance().getConfig().cluster().name(), // todo ugly
+                Node.getInstance().config().cluster().name(), // todo ugly
                 answers.get("platform"),
                 answers.get("platform_version"),
                 Integer.parseInt(answers.get("min_online_count")),

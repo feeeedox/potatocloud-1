@@ -66,7 +66,7 @@ public final class ServiceFactory {
                 yield new LocalService(
                         serviceId, port, group,
                         config, logger, server, eventBus, serviceManager, templateManager,
-                        screenManager, Node.getInstance().getConsole(), preparer, runtime, clusterManager // TODO Remove console
+                        screenManager, Node.getInstance().console(), preparer, runtime, clusterManager // TODO Remove console
                 );
             }
         };

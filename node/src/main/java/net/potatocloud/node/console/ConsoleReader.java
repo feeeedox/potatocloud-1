@@ -25,13 +25,13 @@ public class ConsoleReader extends Thread {
                 final Node node = Node.getInstance();
 
                 // Wait until the node is ready
-                if (!node.isReady()) {
+                if (!node.ready()) {
                     continue;
                 }
 
                 final String input = console.getLineReader().readLine(console.getPrompt());
 
-                final ScreenManager screenManager = node.getScreenManager();
+                final ScreenManager screenManager = node.screenManager();
                 final Screen currentScreen = screenManager.getCurrentScreen();
                 final boolean isNodeScreen = currentScreen.name().equals(Screen.NODE_SCREEN);
 
@@ -43,7 +43,7 @@ public class ConsoleReader extends Thread {
 
                 if (isNodeScreen) {
                     // add executed commands into log file
-                    node.getLogger().logCommand(input);
+                    node.logger().logCommand(input);
 
                     commandManager.executeCommand(input);
                     continue;
@@ -51,7 +51,7 @@ public class ConsoleReader extends Thread {
 
                 // the user is in a setup currently
                 if (currentScreen.name().contains("setup")) {
-                    final Setup currentSetup = node.getSetupManager().getCurrentSetup();
+                    final Setup currentSetup = node.setupManager().getCurrentSetup();
                     if (currentSetup != null) {
                         currentSetup.handleInput(input);
                     }
@@ -59,11 +59,11 @@ public class ConsoleReader extends Thread {
                 }
 
                 if (input.strip().equalsIgnoreCase("leave") || input.strip().equalsIgnoreCase("exit")) {
-                    Node.getInstance().getScreenManager().switchTo(Screen.NODE_SCREEN);
+                    Node.getInstance().screenManager().switchTo(Screen.NODE_SCREEN);
                     continue;
                 }
 
-                final Service service = node.getServiceManager().getService(currentScreen.name());
+                final Service service = node.serviceManager().getService(currentScreen.name());
                 if (service == null) {
                     continue;
                 }

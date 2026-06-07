@@ -28,7 +28,7 @@ public class HubCommand implements SimpleCommand {
             return;
         }
 
-        final Service playerService = CloudAPI.getInstance().getPlayerManager().getCloudPlayer(player.getUniqueId()).getConnectedService();
+        final Service playerService = CloudAPI.instance().playerManager().getCloudPlayer(player.getUniqueId()).getConnectedService();
         if (playerService.getServiceGroup().isFallback()) {
             player.sendMessage(messagesConfig.get("alreadyOnFallback"));
             return;
@@ -47,7 +47,7 @@ public class HubCommand implements SimpleCommand {
     }
 
     private Optional<RegisteredServer> getBestFallbackServer() {
-        return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
+        return CloudAPI.instance().serviceManager().getAllServices().stream()
                 .filter(service -> service.getServiceGroup().isFallback())
                 .filter(service -> service.getStatus() == ServiceStatus.RUNNING)
                 .sorted(Comparator.comparingInt(Service::getOnlinePlayerCount))

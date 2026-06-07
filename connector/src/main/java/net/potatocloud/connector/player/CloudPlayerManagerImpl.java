@@ -93,7 +93,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     @Override
     public void connectPlayerWithService(String playerName, String serviceName) {
-        CloudAPI.getInstance().getEventBus().publish(new ConnectPlayerWithServiceEvent(playerName, serviceName), PublishTarget.LOCAL);
+        CloudAPI.instance().eventBus().publish(new ConnectPlayerWithServiceEvent(playerName, serviceName), PublishTarget.LOCAL);
     }
 
     @Override

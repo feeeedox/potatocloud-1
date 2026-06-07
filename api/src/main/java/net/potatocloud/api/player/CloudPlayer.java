@@ -64,7 +64,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the connected proxy of the player
      */
     default Service getConnectedProxy() {
-        return CloudAPI.getInstance().getServiceManager().getService(getConnectedProxyName());
+        return CloudAPI.instance().serviceManager().getService(getConnectedProxyName());
     }
 
     /**
@@ -73,7 +73,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @return the connected service of the player
      */
     default Service getConnectedService() {
-        return CloudAPI.getInstance().getServiceManager().getService(getConnectedServiceName());
+        return CloudAPI.instance().serviceManager().getService(getConnectedServiceName());
     }
 
     /**
@@ -82,7 +82,7 @@ public interface CloudPlayer extends PropertyHolder {
      * @param service the service to connect with
      */
     default void connectWithService(Service service) {
-        CloudAPI.getInstance().getPlayerManager().connectPlayerWithService(this, service);
+        CloudAPI.instance().playerManager().connectPlayerWithService(this, service);
     }
 
     /**
@@ -91,13 +91,13 @@ public interface CloudPlayer extends PropertyHolder {
      * @param serviceName the service name to connect with
      */
     default void connectWithService(String serviceName) {
-        connectWithService(CloudAPI.getInstance().getServiceManager().getService(serviceName));
+        connectWithService(CloudAPI.instance().serviceManager().getService(serviceName));
     }
 
     /**
      * Updates the player.
      */
     default void update() {
-        CloudAPI.getInstance().getPlayerManager().updatePlayer(this);
+        CloudAPI.instance().playerManager().updatePlayer(this);
     }
 }

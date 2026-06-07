@@ -37,7 +37,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public ServiceGroup getServiceGroup() {
-        return CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(groupName);
+        return CloudAPI.instance().groupManager().getServiceGroup(groupName);
     }
 
     @Override

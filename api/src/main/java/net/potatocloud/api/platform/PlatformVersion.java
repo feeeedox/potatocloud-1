@@ -64,6 +64,6 @@ public interface PlatformVersion {
      * @return the platform of the platform version
      */
     default Platform getPlatform() {
-        return CloudAPI.getInstance().getPlatformManager().getPlatform(getPlatformName());
+        return CloudAPI.instance().platformManager().getPlatform(getPlatformName());
     }
 }

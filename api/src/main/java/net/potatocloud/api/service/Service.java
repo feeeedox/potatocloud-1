@@ -111,7 +111,7 @@ public interface Service extends PropertyHolder {
      * @return the online players of the service
      */
     default Set<CloudPlayer> getOnlinePlayers() {
-        return CloudAPI.getInstance().getPlayerManager().getOnlinePlayers().stream()
+        return CloudAPI.instance().playerManager().getOnlinePlayers().stream()
                 .filter(player -> getName().equals(player.getConnectedServiceName()))
                 .collect(Collectors.toSet());
     }
@@ -183,7 +183,7 @@ public interface Service extends PropertyHolder {
      * @return a CompletableFuture that completes when the shutdown is done
      */
     default CompletableFuture<Void> shutdown() {
-        return CloudAPI.getInstance().getServiceManager().stopService(this);
+        return CloudAPI.instance().serviceManager().stopService(this);
     }
 
     /**
@@ -193,7 +193,7 @@ public interface Service extends PropertyHolder {
      * @return {@code true} if the command was executed successfully, otherwise {@code false}
      */
     default boolean executeCommand(String command) {
-        return CloudAPI.getInstance().getServiceManager().executeCommand(this, command);
+        return CloudAPI.instance().serviceManager().executeCommand(this, command);
     }
 
     /**
@@ -203,7 +203,7 @@ public interface Service extends PropertyHolder {
      * @param filter   the filter to apply
      */
     default void copy(String template, String filter) {
-        CloudAPI.getInstance().getServiceManager().copy(this, template, filter);
+        CloudAPI.instance().serviceManager().copy(this, template, filter);
     }
 
     /**
@@ -212,13 +212,13 @@ public interface Service extends PropertyHolder {
      * @param template the template to copy to
      */
     default void copy(String template) {
-        CloudAPI.getInstance().getServiceManager().copy(this, template);
+        CloudAPI.instance().serviceManager().copy(this, template);
     }
 
     /**
      * Updates the service.
      */
     default void update() {
-        CloudAPI.getInstance().getServiceManager().updateService(this);
+        CloudAPI.instance().serviceManager().updateService(this);
     }
 }

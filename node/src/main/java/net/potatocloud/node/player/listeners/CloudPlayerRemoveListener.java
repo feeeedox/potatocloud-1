@@ -28,14 +28,14 @@ public class CloudPlayerRemoveListener implements PacketListener<CloudPlayerRemo
 
         final Node node = Node.getInstance();
 
-        node.getServer().broadcast().connectors().exclude(ctx.connection()).send(packet);
+        node.server().broadcast().connectors().exclude(ctx.connection()).send(packet);
 
         if (ctx.connection().type() == ConnectionType.CONNECTOR) {
             clusterManager.broadcast(packet);
         }
 
-        if (node.getConfig().console().logPlayerConnections() && !node.isStopping()) {
-            node.getLogger().info("Player &a" + player.getUsername()
+        if (node.config().console().logPlayerConnections() && !node.stopping()) {
+            node.logger().info("Player &a" + player.getUsername()
                     + " &7disconnected &7from the network &8[&7UUID&8: &a" + player.getUniqueId() + "&8]");
         }
     }

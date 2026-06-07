@@ -15,7 +15,7 @@ public class LabyModPlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(LabyModPlayerJoinEvent event) {
-        final Service service = CloudAPI.getInstance().getServiceManager().getCurrentService();
+        final Service service = CloudAPI.instance().serviceManager().getCurrentService();
         if (service == null) {
             return;
         }

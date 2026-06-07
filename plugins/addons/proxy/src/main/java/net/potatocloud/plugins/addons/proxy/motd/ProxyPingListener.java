@@ -23,8 +23,8 @@ public class ProxyPingListener {
     }
 
     private ServerPing serverPing(ServerPing ping) {
-        final int onlinePlayers = CloudAPI.getInstance().getPlayerManager().getOnlinePlayers().size();
-        final int maxPlayers = CloudAPI.getInstance().getServiceManager().getCurrentService().getMaxPlayers();
+        final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
+        final int maxPlayers = CloudAPI.instance().serviceManager().getCurrentService().getMaxPlayers();
 
         final Motd motd = plugin.isMaintenance() ? maintenanceMotd() : defaultMotd();
 

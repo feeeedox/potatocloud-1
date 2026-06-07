@@ -1,9 +1,10 @@
 package net.potatocloud.connector;
 
-import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterManager;
+import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
@@ -24,7 +25,6 @@ import net.potatocloud.network.packet.PacketRegistry;
 /**
  * The Connector connects a node to this instance and provides API methods for running services.
  */
-@Getter
 public class ConnectorAPI extends CloudAPI {
 
     private static final String NODE_HOST = "127.0.0.1";
@@ -61,23 +61,52 @@ public class ConnectorAPI extends CloudAPI {
         client.connect(NODE_HOST, NODE_PORT);
     }
 
+    @Override
+    public Logger logger() {
+        return logger;
+    }
+
     public static ConnectorAPI getInstance() {
-        return (ConnectorAPI) CloudAPI.getInstance();
+        return (ConnectorAPI) CloudAPI.instance();
     }
 
     @Override
-    public ServiceGroupManager getServiceGroupManager() {
+    public ServiceGroupManager groupManager() {
         return groupManager;
     }
 
     @Override
-    public PropertyHolder getGlobalProperties() {
+    public ServiceManager serviceManager() {
+        return serviceManager;
+    }
+
+    @Override
+    public PlatformManager platformManager() {
+        return platformManager;
+    }
+
+    @Override
+    public EventBus eventBus() {
+        return null;
+    }
+
+    @Override
+    public CloudPlayerManager playerManager() {
+        return playerManager;
+    }
+
+    @Override
+    public PropertyHolder globalProperties() {
         return propertiesHolder;
     }
 
     @Override
-    public ClusterManager getClusterManager() {
+    public ClusterManager clusterManager() {
         return clusterManager;
+    }
+
+    public NetworkClient client() {
+        return client;
     }
 
     public void shutdown() {

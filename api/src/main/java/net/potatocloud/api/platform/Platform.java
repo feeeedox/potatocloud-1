@@ -94,7 +94,7 @@ public interface Platform {
      * Updates the platform.
      */
     default void update() {
-        CloudAPI.getInstance().getPlatformManager().updatePlatform(this);
+        CloudAPI.instance().platformManager().updatePlatform(this);
     }
 
     /**

@@ -36,12 +36,12 @@ public class TablistHandler {
     }
 
     private void update(Player player) {
-        final CloudPlayer cloudPlayer = CloudAPI.getInstance().getPlayerManager().getCloudPlayer(player.getUsername());
+        final CloudPlayer cloudPlayer = CloudAPI.instance().playerManager().getCloudPlayer(player.getUsername());
         if (cloudPlayer == null) {
             return;
         }
 
-        final Service service = CloudAPI.getInstance().getServiceManager().getService(cloudPlayer.getConnectedServiceName());
+        final Service service = CloudAPI.instance().serviceManager().getService(cloudPlayer.getConnectedServiceName());
         if (service == null || service.getServiceGroup() == null) {
             return;
         }
@@ -49,8 +49,8 @@ public class TablistHandler {
         final String group = service.getServiceGroup().getName();
         final String proxy = cloudPlayer.getConnectedProxyName();
 
-        final int onlinePlayers = CloudAPI.getInstance().getPlayerManager().getOnlinePlayers().size();
-        final int maxPlayers = CloudAPI.getInstance().getServiceManager().getCurrentService().getMaxPlayers();
+        final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
+        final int maxPlayers = CloudAPI.instance().serviceManager().getCurrentService().getMaxPlayers();
 
         final Tablist tablist = new Tablist(
                 config.get("tablist.header").asString(),

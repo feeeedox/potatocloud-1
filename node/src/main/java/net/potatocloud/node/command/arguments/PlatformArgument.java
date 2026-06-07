@@ -14,7 +14,7 @@ public class PlatformArgument extends ArgumentType<Platform> {
 
     @Override
     public ParseResult<Platform> parse(String input) {
-        final Platform platform = Node.getInstance().getPlatformManager().getPlatform(input);
+        final Platform platform = Node.getInstance().platformManager().getPlatform(input);
         if (platform == null) {
             return ParseResult.error("Platform &a" + input + " &7does &cnot &7exist");
         }
@@ -25,7 +25,7 @@ public class PlatformArgument extends ArgumentType<Platform> {
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
-                .getPlatformManager()
+                .platformManager()
                 .getPlatforms()
                 .stream()
                 .map(Platform::getName)

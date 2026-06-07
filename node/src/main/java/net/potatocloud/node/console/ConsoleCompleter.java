@@ -20,7 +20,7 @@ public class ConsoleCompleter implements Completer {
 
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-        final ScreenManager screenManager = Node.getInstance().getScreenManager();
+        final ScreenManager screenManager = Node.getInstance().screenManager();
         final Screen currentScreen = screenManager.getCurrentScreen();
 
         // Add leave and exit options for all screens except node and setup screens
@@ -31,7 +31,7 @@ public class ConsoleCompleter implements Completer {
         }
 
         // Show setup options when user is inside a setup
-        final Setup currentSetup = Node.getInstance().getSetupManager().getCurrentSetup();
+        final Setup currentSetup = Node.getInstance().setupManager().getCurrentSetup();
         if (currentSetup != null) {
             if (currentSetup.isInSummary()) {
                 // Options for summary page

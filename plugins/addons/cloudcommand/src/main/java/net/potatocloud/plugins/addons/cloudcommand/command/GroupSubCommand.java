@@ -22,7 +22,7 @@ public class GroupSubCommand {
     private final MessagesConfig messages;
 
     public void listGroups() {
-        final List<ServiceGroup> groups = CloudAPI.getInstance().getServiceGroupManager().getAllServiceGroups();
+        final List<ServiceGroup> groups = CloudAPI.instance().groupManager().getAllServiceGroups();
         player.sendMessage(messages.get("group.list.header"));
         for (ServiceGroup group : groups) {
             player.sendMessage(messages.get("group.list.entry")
@@ -37,7 +37,7 @@ public class GroupSubCommand {
         }
 
         final String name = args[2];
-        var groupManager = CloudAPI.getInstance().getServiceGroupManager();
+        var groupManager = CloudAPI.instance().groupManager();
 
         if (!groupManager.existsServiceGroup(name)) {
             player.sendMessage(messages.get("group.not-found")
@@ -58,7 +58,7 @@ public class GroupSubCommand {
                 .replaceText(text -> text.match("%maxOnline%").replacement(String.valueOf(group.getMaxOnlineCount()))));
         player.sendMessage(messages.get("group.info.online-players")
                 .replaceText(text -> text.match("%onlinePlayers%")
-                        .replacement(String.valueOf(CloudAPI.getInstance().getPlayerManager().getOnlinePlayersByGroup(group).size()))));
+                        .replacement(String.valueOf(CloudAPI.instance().playerManager().getOnlinePlayersByGroup(group).size()))));
         player.sendMessage(messages.get("group.info.max-players")
                 .replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(group.getMaxPlayers()))));
         player.sendMessage(messages.get("group.info.fallback")
@@ -74,7 +74,7 @@ public class GroupSubCommand {
         }
 
         final String name = args[2];
-        final ServiceGroupManager groupManager = CloudAPI.getInstance().getServiceGroupManager();
+        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
 
         if (!groupManager.existsServiceGroup(name)) {
             player.sendMessage(messages.get("group.not-found")
@@ -98,7 +98,7 @@ public class GroupSubCommand {
 
         final String sub = args[2].toLowerCase();
         final String name = args[3];
-        final ServiceGroupManager groupManager = CloudAPI.getInstance().getServiceGroupManager();
+        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
 
         if (!groupManager.existsServiceGroup(name)) {
             player.sendMessage(messages.get("group.not-found")
@@ -188,7 +188,7 @@ public class GroupSubCommand {
         final String key = args[3].toLowerCase();
         final String value = args[4];
 
-        final ServiceGroupManager groupManager = CloudAPI.getInstance().getServiceGroupManager();
+        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
 
         if (!groupManager.existsServiceGroup(name)) {
             player.sendMessage(messages.get("group.not-found")
@@ -255,7 +255,7 @@ public class GroupSubCommand {
         }
 
         final String sub = args[1].toLowerCase();
-        final ServiceGroupManager groupManager = CloudAPI.getInstance().getServiceGroupManager();
+        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
 
         if ((sub.equals("info") || sub.equals("edit") || sub.equals("shutdown"))) {
             if (args.length == 3) {
