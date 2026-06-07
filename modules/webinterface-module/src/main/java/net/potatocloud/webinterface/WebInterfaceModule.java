@@ -22,6 +22,7 @@ import net.potatocloud.webinterface.service.broadcast.ServiceDetailsBroadcastSer
 import net.potatocloud.webinterface.service.broadcast.group.GroupDetailsBroadcastService;
 import net.potatocloud.webinterface.service.broadcast.group.GroupsBroadcastService;
 import net.potatocloud.webinterface.service.broadcast.stats.StatsServicesBroadcastService;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.nio.file.Path;
 
@@ -69,7 +70,6 @@ public class WebInterfaceModule extends AbstractModule {
         groupDetailsBroadcastService.start();
 
         screenLogBroadcastService = new ScreenLogBroadcastService(node);
-        screenLogBroadcastService.start();
 
         playerBroadcastService = new PlayerBroadcastService(cloudAPI, playerService, wsUpdateIntervalSeconds);
         playerBroadcastService.registerCloudListeners();
@@ -126,6 +126,8 @@ public class WebInterfaceModule extends AbstractModule {
         );
 
         app = Javalin.create(cfg -> {
+            cfg.jetty.threadPool = new QueuedThreadPool(500, 8, 60000);
+
             cfg.jsonMapper(new JavalinJackson());
 
             cfg.routes.before("/api/*", authService::authorizeHttp);
