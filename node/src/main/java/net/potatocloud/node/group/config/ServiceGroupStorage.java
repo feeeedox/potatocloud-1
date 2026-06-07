@@ -4,7 +4,6 @@ import net.potatocloud.api.group.ServiceGroup;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 

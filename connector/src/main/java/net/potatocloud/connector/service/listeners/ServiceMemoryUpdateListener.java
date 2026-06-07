@@ -1,7 +1,6 @@
 package net.potatocloud.connector.service.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.impl.ServiceImpl;
 import net.potatocloud.network.packet.PacketContext;

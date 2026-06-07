@@ -3,7 +3,6 @@ package net.potatocloud.plugins.addons.labymod.listener;
 import lombok.RequiredArgsConstructor;
 import net.labymod.serverapi.server.bukkit.event.LabyModPlayerJoinEvent;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.common.config.Config;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
