@@ -78,10 +78,12 @@ public abstract class CloudAPI {
      */
     public abstract PropertyHolder getGlobalProperties();
 
-    // TODO abstract
-    public ClusterManager getClusterManager() {
-        return null;
-    }
+    /**
+     * Gets the cluster manager.
+     *
+     * @return the cluster manager
+     */
+    public abstract ClusterManager getClusterManager();
 
     /**
      * @deprecated Use {@link ServiceManager#getCurrentService()} instead

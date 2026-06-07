@@ -2,11 +2,13 @@ package net.potatocloud.connector;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.player.CloudPlayerManager;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.api.service.ServiceManager;
+import net.potatocloud.connector.cluster.ClusterManagerImpl;
 import net.potatocloud.connector.group.ServiceGroupManagerImpl;
 import net.potatocloud.connector.logging.ConnectorLogger;
 import net.potatocloud.connector.platform.PlatformManagerImpl;
@@ -31,6 +33,7 @@ public class ConnectorAPI extends CloudAPI {
     private final PacketManager packetManager;
     private final NetworkClient client;
     private ConnectorLogger logger;
+    private ClusterManager clusterManager;
     private ClientEventBus eventBus;
     private ConnectorPropertiesHolder propertiesHolder;
     private ServiceGroupManager groupManager;
@@ -46,6 +49,7 @@ public class ConnectorAPI extends CloudAPI {
 
         client.addConnectionListener(() -> {
             logger = new ConnectorLogger(client);
+            clusterManager = new ClusterManagerImpl(client);
             eventBus = new ClientEventBus(client);
             propertiesHolder = new ConnectorPropertiesHolder(client);
             platformManager = new PlatformManagerImpl(client);
@@ -69,6 +73,11 @@ public class ConnectorAPI extends CloudAPI {
     @Override
     public PropertyHolder getGlobalProperties() {
         return propertiesHolder;
+    }
+
+    @Override
+    public ClusterManager getClusterManager() {
+        return clusterManager;
     }
 
     public void shutdown() {
