@@ -13,6 +13,10 @@ public class ServiceRestController extends BaseRestController {
     public void register() {
         ApiBuilder.get("/api/services", ctx -> ctx.json(serverService.getServices()));
         ApiBuilder.get("/api/services/{name}", ctx -> ctx.json(serverService.getService(ctx.pathParam("name"))));
+        ApiBuilder.post("/api/services/{name}/stop", ctx -> {
+            serverService.stopService(ctx.pathParam("name"));
+            ctx.status(204);
+        });
     }
 
 }
