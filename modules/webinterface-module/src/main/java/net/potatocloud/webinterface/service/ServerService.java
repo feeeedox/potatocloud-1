@@ -2,7 +2,6 @@ package net.potatocloud.webinterface.service;
 
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.webinterface.WebInterfaceModule;
 import net.potatocloud.webinterface.dto.service.ServerOverviewDto;
 
 import java.util.List;
@@ -19,10 +18,8 @@ public class ServerService {
     }
 
     public void stopService(String serviceId) {
+        // TODO: refresh websocket sessions of the service (details and console)
         cloudAPI.getServiceManager().stopService(serviceId);
-
-        WebInterfaceModule.getInstance().
-
     }
 
     public ServerOverviewDto getService(String name) {
