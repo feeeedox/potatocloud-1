@@ -195,6 +195,10 @@ public class WebInterfaceModule extends AbstractModule {
             playerBroadcastService.shutdown();
         }
 
+        if (serviceDetailsBroadcastService != null) {
+            serviceDetailsBroadcastService.shutdown();
+        }
+
         if (sessionManager != null) {
             sessionManager.closeAll("WebInterface shutdown");
         }
