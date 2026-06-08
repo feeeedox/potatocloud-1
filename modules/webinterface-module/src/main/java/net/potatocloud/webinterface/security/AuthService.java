@@ -5,7 +5,6 @@ import io.javalin.http.HttpStatus;
 import io.javalin.websocket.WsContext;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.common.config.Config;
-import net.potatocloud.node.Node;
 import net.potatocloud.webinterface.dto.event.ErrorDto;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.JwtConsumer;
@@ -59,7 +58,6 @@ public class AuthService {
                     .build();
 
             JwtClaims claims = consumer.processToClaims(token);
-            Node.getInstance().getLogger().info(claims.toJson());
             return true;
         } catch (Exception ex) {
             return false;
