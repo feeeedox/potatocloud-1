@@ -8,10 +8,10 @@ public class PlatformVersionImpl implements PlatformVersion {
 
     private final String platformName;
     private final String name;
-    private boolean local;
+    private final boolean local;
     private String downloadUrl;
     private String fileHash;
-    private boolean legacy;
+    private final boolean legacy;
 
     public PlatformVersionImpl(String platformName, String name, boolean local, String downloadUrl, boolean legacy) {
         this.platformName = platformName;
@@ -32,7 +32,7 @@ public class PlatformVersionImpl implements PlatformVersion {
 
     @Override
     public String name() {
-        return platformName;
+        return name;
     }
 
     @Override
