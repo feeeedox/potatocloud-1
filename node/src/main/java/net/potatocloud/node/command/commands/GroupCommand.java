@@ -74,7 +74,7 @@ public class GroupCommand extends Command {
                     logger.info("&8» &7Templates: &a" + String.join(", ", group.getServiceTemplates()));
                     logger.info("&8» &7Min Online Count: &a" + group.getMinOnlineCount());
                     logger.info("&8» &7Max Online Count: &a" + group.getMaxOnlineCount());
-                    logger.info("&8» &7Online Players: &a" + node.playerManager().getOnlinePlayersByGroup(group).size());
+                    logger.info("&8» &7Online Players: &a" + group.getOnlinePlayers().size());
                     logger.info("&8» &7Max Players: &a" + group.getMaxPlayers());
                     logger.info("&8» &7Max Memory: &a" + group.getMaxMemory() + "MB");
                     logger.info("&8» &7Fallback: " + (group.isFallback() ? "&aYes" : "&cNo"));

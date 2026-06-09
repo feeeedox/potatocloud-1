@@ -30,13 +30,13 @@ public class PlayerCommand extends Command {
                         return;
                     }
 
-                    playerManager.connectPlayerWithService(player, service);
+                    playerManager.connectTo(player, service);
                     logger.info("Successfully connected player &a" + player.username() + " &7to service &a" + service.name());
                 });
 
         sub("list", "List online players")
                 .executes(ctx -> {
-                    final Set<CloudPlayer> players = playerManager.getOnlinePlayers();
+                    final Set<CloudPlayer> players = playerManager.players();
                     if (players.isEmpty()) {
                         logger.info("There are &cno &7online players");
                         return;

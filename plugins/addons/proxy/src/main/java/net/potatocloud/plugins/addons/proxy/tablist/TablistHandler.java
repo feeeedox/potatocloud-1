@@ -38,20 +38,25 @@ public class TablistHandler {
     }
 
     private void update(Player player) {
-        final CloudPlayer cloudPlayer = CloudAPI.instance().playerManager().getCloudPlayer(player.getUsername());
+        final CloudPlayer cloudPlayer = CloudAPI.instance().playerManager().find(player.getUsername()).orElse(null);
         if (cloudPlayer == null) {
             return;
         }
 
-        final Optional<Service> service = cloudPlayer.service();
-        if (service.isEmpty() || service.get().group() == null) {
+        final Optional<Service> optionalService = cloudPlayer.service();
+
+        if (optionalService.isEmpty() || optionalService.get().group() == null) {
             return;
         }
 
-        final String group = service.get().group().getName();
+        final Service service = optionalService.get();
+        final String group = service.group().getName();
         final String proxy = cloudPlayer.proxy().name();
 
-        final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
+        final int onlinePlayers = CloudAPI.instance()
+                .playerManager()
+                .players()
+                .size();
 
         final int maxPlayers = CloudAPI.instance()
                 .serviceManager()
@@ -64,11 +69,23 @@ public class TablistHandler {
                 config.get("tablist.footer").asString()
         );
 
-        final Component header = replacePlaceholders(tablist.header(), service.get().name(), group,
-                proxy, onlinePlayers, maxPlayers);
+        final Component header = replacePlaceholders(
+                tablist.header(),
+                service.name(),
+                group,
+                proxy,
+                onlinePlayers,
+                maxPlayers
+        );
 
-        final Component footer = replacePlaceholders(tablist.footer(), service.get().name(), group,
-                proxy, onlinePlayers, maxPlayers);
+        final Component footer = replacePlaceholders(
+                tablist.footer(),
+                service.name(),
+                group,
+                proxy,
+                onlinePlayers,
+                maxPlayers
+        );
 
         player.sendPlayerListHeaderAndFooter(header, footer);
     }

@@ -26,7 +26,7 @@ public class ProxyPingListener {
     }
 
     private ServerPing serverPing(ServerPing ping) {
-        final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
+        final int onlinePlayers = CloudAPI.instance().playerManager().players().size();
 
         final Optional<Service> service = CloudAPI.instance().serviceManager().current();
         if (service.isEmpty()) {

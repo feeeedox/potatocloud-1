@@ -121,7 +121,7 @@ public interface Service extends PropertyHolder {
      * @return the online players of the service
      */
     default Set<CloudPlayer> players() {
-        return CloudAPI.instance().playerManager().getOnlinePlayers().stream()
+        return CloudAPI.instance().playerManager().players().stream()
                 .filter(player -> player.service().stream().anyMatch(service -> name().equals(service.name())))
                 .collect(Collectors.toSet());
     }

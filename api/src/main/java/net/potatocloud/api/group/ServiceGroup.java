@@ -11,6 +11,7 @@ import net.potatocloud.api.service.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface ServiceGroup extends PropertyHolder {
 
@@ -114,7 +115,9 @@ public interface ServiceGroup extends PropertyHolder {
      * @return the online players of the group
      */
     default Set<CloudPlayer> getOnlinePlayers() {
-        return CloudAPI.instance().playerManager().getOnlinePlayersByGroup(this);
+        return CloudAPI.instance().playerManager().players().stream()
+                .filter(player -> player.service().isEmpty() && player.service().get().group().getName().equals(getName()))
+                .collect(Collectors.toSet());
     }
 
     /**

@@ -21,7 +21,7 @@ public class ClusterNodeArgument extends ArgumentType<ClusterNode> {
                 .filter(node -> node.name().equalsIgnoreCase(input))
                 .findFirst()
                 .map(ParseResult::success)
-                .orElse(ParseResult.error("Remote cluster node &a" + input + " &7does &cnot &7exist"));
+                .orElseGet(() -> ParseResult.error("Remote cluster node &a" + input + " &7does &cnot &7exist"));
     }
 
     @Override

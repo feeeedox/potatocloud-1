@@ -140,7 +140,7 @@ public class ClusterManagerImpl implements ClusterManager {
                     server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
                 });
 
-        playerManager.getOnlinePlayers().stream()
+        playerManager.players().stream()
                 .filter(player ->
                         player.service()
                                 .flatMap(Service::node)

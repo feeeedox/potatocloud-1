@@ -19,7 +19,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.events.player.CloudPlayerDisconnectEvent;
 import net.potatocloud.api.event.events.player.CloudPlayerJoinEvent;
-import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceState;
@@ -36,19 +35,16 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public class VelocityPlugin implements PlatformPlugin {
 
     private final ConnectorAPI api;
     private final ProxyServer server;
-    private final Logger logger;
     private Service currentService;
 
     @Inject
-    public VelocityPlugin(ProxyServer server, Logger logger) {
+    public VelocityPlugin(ProxyServer server) {
         this.server = server;
-        this.logger = logger;
         api = new ConnectorAPI();
     }
 
@@ -61,26 +57,20 @@ public class VelocityPlugin implements PlatformPlugin {
     public void onServiceReady(Service service) {
         currentService = service;
 
-        // Register already online services
-        for (Service ser : api.serviceManager().services()) {
-            registerServer(ser);
-        }
+        // register services that are already running
+        api.serviceManager().services().forEach(this::registerServer);
 
-        api.client().on(ServiceStartedPacket.class, ctx -> {
-            api.serviceManager().find(ctx.packet().serviceName()).ifPresent(this::registerServer);
-        });
+        api.client().on(ServiceStartedPacket.class, ctx ->
+                api.serviceManager().find(ctx.packet().serviceName()).ifPresent(this::registerServer));
 
-        api.eventBus().subscribe(ConnectPlayerWithServiceEvent.class, connectEvent -> {
-            connectPlayer(connectEvent.playerUsername(), connectEvent.serviceName());
-        });
+        api.eventBus().subscribe(ConnectPlayerWithServiceEvent.class, connectEvent ->
+                connectPlayer(connectEvent.playerUsername(), connectEvent.serviceName()));
 
-        api.client().on(CloudPlayerConnectPacket.class, ctx -> {
-            connectPlayer(ctx.packet().playerUsername(), ctx.packet().serviceName());
-        });
+        api.client().on(CloudPlayerConnectPacket.class, ctx ->
+                connectPlayer(ctx.packet().playerUsername(), ctx.packet().serviceName()));
 
-        api.client().on(ServiceRemovePacket.class, ctx -> {
-            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort())));
-        });
+        api.client().on(ServiceRemovePacket.class, ctx ->
+                server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort()))));
     }
 
     private void connectPlayer(String username, String serviceName) {
@@ -170,20 +160,23 @@ public class VelocityPlugin implements PlatformPlugin {
 
     @Subscribe
     public void onServerConnect(ServerConnectedEvent event) {
-        final CloudPlayerImpl player = (CloudPlayerImpl) api.playerManager().getCloudPlayer(event.getPlayer().getUniqueId());
-        player.serviceName(event.getServer().getServerInfo().getName());
-        api.playerManager().updatePlayer(player);
+        api.playerManager().find(event.getPlayer().getUniqueId()).ifPresent(player -> {
+            if (player instanceof CloudPlayerImpl playerImpl) {
+                playerImpl.serviceName(event.getServer().getServerInfo().getName());
+                api.playerManager().update(player);
+                api.playerManager().update(player);
+            }
+        });
     }
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         final CloudPlayerManagerImpl playerManager = (CloudPlayerManagerImpl) api.playerManager();
-        final CloudPlayer player = playerManager.getCloudPlayer(event.getPlayer().getUniqueId());
 
-        if (player != null) {
+        playerManager.find(event.getPlayer().getUniqueId()).ifPresent(player -> {
             playerManager.unregisterPlayer(player);
             api.eventBus().publish(new CloudPlayerDisconnectEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
-        }
+        });
     }
 
     @Subscribe

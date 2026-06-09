@@ -57,8 +57,7 @@ public class GroupSubCommand {
         player.sendMessage(messages.get("group.info.max-online")
                 .replaceText(text -> text.match("%maxOnline%").replacement(String.valueOf(group.getMaxOnlineCount()))));
         player.sendMessage(messages.get("group.info.online-players")
-                .replaceText(text -> text.match("%onlinePlayers%")
-                        .replacement(String.valueOf(CloudAPI.instance().playerManager().getOnlinePlayersByGroup(group).size()))));
+                .replaceText(text -> text.match("%onlinePlayers%").replacement(String.valueOf(group.getAllServices().size()))));
         player.sendMessage(messages.get("group.info.max-players")
                 .replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(group.getMaxPlayers()))));
         player.sendMessage(messages.get("group.info.fallback")

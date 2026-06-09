@@ -15,7 +15,7 @@ public class RequestCloudPlayersListener implements PacketListener<RequestCloudP
 
     @Override
     public void handle(PacketContext<RequestCloudPlayersPacket> ctx) {
-        for (CloudPlayer player : playerManager.getOnlinePlayers()) {
+        for (CloudPlayer player : playerManager.players()) {
             ctx.connection().send(new CloudPlayerAddPacket(player));
         }
     }

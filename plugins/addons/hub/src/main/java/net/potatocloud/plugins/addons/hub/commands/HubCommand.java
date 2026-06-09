@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.plugins.shared.MessagesConfig;
@@ -28,26 +29,24 @@ public class HubCommand implements SimpleCommand {
             return;
         }
 
-        final Optional<Service> service = CloudAPI.instance().playerManager().getCloudPlayer(player.getUniqueId()).service();
-        if (service.isEmpty()) {
-            return;
-        }
+        CloudAPI.instance().playerManager()
+                .find(player.getUniqueId())
+                .flatMap(CloudPlayer::service)
+                .ifPresentOrElse(service -> {
+                    if (service.group().isFallback()) {
+                        player.sendMessage(messagesConfig.get("alreadyOnFallback"));
+                        return;
+                    }
 
-        if (service.get().group().isFallback()) {
-            player.sendMessage(messagesConfig.get("alreadyOnFallback"));
-            return;
-        }
+                    getBestFallbackServer().ifPresentOrElse(server -> {
+                        player.createConnectionRequest(server).fireAndForget();
 
-        final Optional<RegisteredServer> fallback = getBestFallbackServer();
-        if (fallback.isEmpty()) {
-            player.sendMessage(messagesConfig.get("noFallbackFound"));
-            return;
-        }
+                        player.sendMessage(messagesConfig.get("connect").replaceText(text -> text.match("%service%").replacement(server.getServerInfo().getName())));
 
-        final RegisteredServer registeredServer = fallback.get();
-        player.createConnectionRequest(registeredServer).fireAndForget();
-        player.sendMessage(messagesConfig.get("connect")
-                .replaceText(text -> text.match("%service%").replacement(registeredServer.getServerInfo().getName())));
+                    }, () -> player.sendMessage(messagesConfig.get("noFallbackFound")));
+
+                }, () -> {
+                });
     }
 
     private Optional<RegisteredServer> getBestFallbackServer() {

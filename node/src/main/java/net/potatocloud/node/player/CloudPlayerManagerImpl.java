@@ -9,6 +9,7 @@ import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.player.listeners.*;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,34 +39,30 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     }
 
     @Override
-    public CloudPlayer getCloudPlayer(String username) {
+    public Optional<CloudPlayer> find(String username) {
         return onlinePlayers.stream()
                 .filter(player -> player.username().equals(username))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
-    public CloudPlayer getCloudPlayer(UUID uniqueId) {
+    public Optional<CloudPlayer> find(UUID uniqueId) {
         return onlinePlayers.stream()
                 .filter(player -> player.uniqueId().equals(uniqueId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
-    public Set<CloudPlayer> getOnlinePlayers() {
+    public Set<CloudPlayer> players() {
         return onlinePlayers;
     }
 
     @Override
-    public void connectPlayerWithService(String playerName, String serviceName) {
-        final CloudPlayerConnectPacket packet = new CloudPlayerConnectPacket(playerName, serviceName);
-        final CloudPlayer player = getCloudPlayer(playerName);
-        final Service proxy = player != null ? player.proxy() : null;
+    public void connectTo(CloudPlayer player, Service service) {
+        final CloudPlayerConnectPacket packet = new CloudPlayerConnectPacket(player.username(), service.name());
 
-        if (proxy != null && proxy.node().isPresent()) {
-            final String nodeName = proxy.node().get().name();
+        if (player.proxy().node().isPresent()) {
+            final String nodeName = player.proxy().node().get().name();
 
             if (!clusterManager.isLocal(nodeName)) {
                 clusterManager.sendTo(nodeName, packet);
@@ -77,8 +74,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     }
 
     @Override
-    public void updatePlayer(CloudPlayer player) {
-    }
+    public void update(CloudPlayer player) {}
 
 }
 

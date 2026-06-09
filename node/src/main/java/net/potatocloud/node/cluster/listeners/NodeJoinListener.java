@@ -91,7 +91,7 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         connection.send(new ClusterSyncPacket(
                 groupManager.getAllServiceGroups(),
                 serviceManager.services(),
-                playerManager.getOnlinePlayers()
+                playerManager.players()
         ));
 
         logger.debug("Cluster sync sent to node &a" + node.name() + " &7in &a" + (System.currentTimeMillis() - syncStart) + "ms");
