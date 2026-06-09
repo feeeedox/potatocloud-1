@@ -21,19 +21,19 @@ public class ServiceImpl implements Service {
     private final String groupName;
     private final Map<String, Property<?>> propertyMap;
 
-    private long startTimestamp;
+    private Instant startedAt;
     private ServiceState status;
     private int maxPlayers;
     private int usedMemory;
 
-    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceState status, int maxPlayers, int usedMemory) {
+    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, Instant startedAt, ServiceState status, int maxPlayers, int usedMemory) {
         this.serviceId = serviceId;
         this.host = host;
         this.port = port;
         this.name = name;
         this.groupName = groupName;
         this.propertyMap = propertyMap;
-        this.startTimestamp = startTimestamp;
+        this.startedAt = startedAt;
         this.status = status;
         this.maxPlayers = maxPlayers;
         this.usedMemory = usedMemory;
@@ -75,16 +75,16 @@ public class ServiceImpl implements Service {
 
     @Override
     public Instant startedAt() {
-        return Instant.ofEpochMilli(startTimestamp);
+        return startedAt;
     }
 
     @Override
     public Duration uptime() {
-        return Duration.ofMillis(System.currentTimeMillis() - startTimestamp);
+        return Duration.between(startedAt, Instant.now());
     }
 
-    protected void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
+    protected void startedAt(Instant startedAt) {
+        this.startedAt = startedAt;
     }
 
     @Override

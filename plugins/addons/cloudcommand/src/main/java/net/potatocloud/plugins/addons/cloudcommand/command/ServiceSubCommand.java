@@ -8,6 +8,7 @@ import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
+import net.potatocloud.api.utils.TimeFormatter;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
@@ -104,8 +105,8 @@ public class ServiceSubCommand {
             player.sendMessage(messages.get("service.info.status").replaceText(text -> text.match("%status%").replacement(service.state().name())));
             player.sendMessage(messages.get("service.info.online-players").replaceText(text -> text.match("%players%").replacement(String.valueOf(service.playerCount()))));
             player.sendMessage(messages.get("service.info.max-players").replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(service.maxPlayers()))));
-            player.sendMessage(messages.get("service.info.online-time").replaceText(text -> text.match("%onlineTime%").replacement(service.uptime().toString())));
-            player.sendMessage(messages.get("service.info.start-time").replaceText(text -> text.match("%startTime%").replacement(service.startedAt().toString())));
+            player.sendMessage(messages.get("service.info.online-time").replaceText(text -> text.match("%onlineTime%").replacement(TimeFormatter.formatAsDuration(service.uptime().toMillis()))));
+            player.sendMessage(messages.get("service.info.start-time").replaceText(text -> text.match("%startTime%").replacement(TimeFormatter.formatAsDateAndTime(service.startedAt().toEpochMilli()))));
             player.sendMessage(messages.get("service.info.used-memory").replaceText(text -> text.match("%usedMemory%").replacement(String.valueOf(service.usedMemory()))));
         }, () -> player.sendMessage(messages.get("no-service")));
     }

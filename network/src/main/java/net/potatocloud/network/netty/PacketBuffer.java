@@ -313,7 +313,7 @@ public class PacketBuffer {
                 readString(),
                 readString(),
                 readPropertyMap(),
-                readLong(),
+                Instant.ofEpochMilli(readLong()),
                 ServiceState.valueOf(readString()),
                 readInt(),
                 readInt()

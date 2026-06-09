@@ -13,6 +13,7 @@ import net.potatocloud.node.command.CommandInfo;
 import net.potatocloud.node.command.SubCommand;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
+import net.potatocloud.api.utils.TimeFormatter;
 import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
@@ -128,8 +129,8 @@ public class ServiceCommand extends Command {
                     logger.info("&8» &7Online Players: &a" + service.playerCount());
                     logger.info("&8» &7Max Players: &a" + service.maxPlayers());
                     logger.info("&8» &7Memory usage: &a" + service.usedMemory() + "MB");
-                    logger.info("&8» &7Online Time: &a" + service.uptime().toString());
-                    logger.info("&8» &7Started At: &a" + service.startedAt().toString());
+                    logger.info("&8» &7Online Time: &a" + TimeFormatter.formatAsDuration(service.uptime().toMillis()));
+                    logger.info("&8» &7Started At: &a" + TimeFormatter.formatAsDateAndTime(service.startedAt().toEpochMilli()));
                 });
 
         sub("list", "List all services")
