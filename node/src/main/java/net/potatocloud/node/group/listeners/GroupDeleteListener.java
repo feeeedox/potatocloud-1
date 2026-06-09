@@ -24,9 +24,7 @@ public class GroupDeleteListener implements PacketListener<GroupDeletePacket> {
             groupManager.unregisterServiceGroup(packet.groupName());
             server.broadcast().connectors().send(packet);
         } else {
-            if (!groupManager.deleteServiceGroupLocal(packet.groupName())) {
-                return;
-            }
+            groupManager.deleteLocal(packet.groupName());
             server.broadcast().connectors().exclude(ctx.connection()).send(packet);
             clusterManager.broadcast(packet);
         }

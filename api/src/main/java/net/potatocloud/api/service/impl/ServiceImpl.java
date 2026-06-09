@@ -41,7 +41,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public ServiceGroup group() {
-        return CloudAPI.instance().groupManager().getServiceGroup(groupName);
+        return CloudAPI.instance().groupManager().find(groupName).orElse(null);
     }
 
     @Override

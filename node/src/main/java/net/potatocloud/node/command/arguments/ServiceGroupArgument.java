@@ -14,22 +14,18 @@ public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
 
     @Override
     public ParseResult<ServiceGroup> parse(String input) {
-        final ServiceGroup group = Node.getInstance()
+        return Node.getInstance()
                 .groupManager()
-                .getServiceGroup(input);
-
-        if (group == null) {
-            return ParseResult.error("Group &a" + input + " &7does &cnot &7exist");
-        }
-
-        return ParseResult.success(group);
+                .find(input)
+                .map(ParseResult::success)
+                .orElseGet(() -> ParseResult.error("Group &a" + input + " &7does &cnot &7exist"));
     }
 
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
                 .groupManager()
-                .getAllServiceGroups()
+                .groups()
                 .stream()
                 .map(ServiceGroup::name)
                 .filter(name -> name.startsWith(input))

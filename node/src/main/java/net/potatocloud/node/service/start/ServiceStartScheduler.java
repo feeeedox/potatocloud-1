@@ -84,8 +84,8 @@ public class ServiceStartScheduler {
     }
 
     private void run() {
-        groupManager.getAllServiceGroups().stream()
-                .filter(group -> groupManager.existsServiceGroup(group.name()))
+        groupManager.groups().stream()
+                .filter(group -> groupManager.exists(group.name()))
                 .filter(this::isLocalNode)
                 .sorted(Comparator.<ServiceGroup>comparingInt(ServiceGroup::startPriority).reversed())
                 .forEach(group -> {

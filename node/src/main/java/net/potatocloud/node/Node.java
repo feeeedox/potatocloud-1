@@ -179,10 +179,10 @@ public class Node extends CloudAPI {
             clusterManager.start((ServiceGroupManagerImpl) groupManager, serviceManager, (CloudPlayerManagerImpl) playerManager);
         }
 
-        final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
+        final List<ServiceGroup> groups = groupManager.groups();
 
         if (!groups.isEmpty()) {
-            final int count = groupManager.getAllServiceGroups().size();
+            final int count = groupManager.groups().size();
             final String groupText = count == 1 ? "group" : "groups";
 
             logger.info("Loaded &a" + count + "&7 " + groupText + "&8:");

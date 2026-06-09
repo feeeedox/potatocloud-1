@@ -1,11 +1,7 @@
 package net.potatocloud.api.group;
 
-import net.potatocloud.api.property.Property;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public interface ServiceGroupManager {
 
@@ -13,103 +9,55 @@ public interface ServiceGroupManager {
      * Gets a service group by its name.
      *
      * @param name the name of the service group
-     * @return the service group
+     * @return the service group, or empty if not found
      */
-    ServiceGroup getServiceGroup(String name);
+    Optional<ServiceGroup> find(String name);
 
     /**
      * Gets the list of all service groups.
      *
      * @return the list of all service groups
      */
-    List<ServiceGroup> getAllServiceGroups();
+    List<ServiceGroup> groups();
 
     /**
-     * Creates a new service group with the given configuration.
+     * Creates a builder for a new service group.
+     *
+     * @param name the name of the group
+     * @return the builder
      */
-    default void createServiceGroup(
-            String name,
-            String nodeName,
-            String platformName,
-            String platformVersionName,
-            int minOnlineCount,
-            int maxOnlineCount,
-            int maxPlayers,
-            int maxMemory,
-            boolean fallback,
-            boolean isStatic,
-            int startPriority,
-            int startPercentage
-    ) {
-        createServiceGroup(
-                name,
-                nodeName,
-                platformName,
-                platformVersionName,
-                minOnlineCount,
-                maxOnlineCount,
-                maxPlayers,
-                maxMemory,
-                fallback,
-                isStatic,
-                startPriority,
-                startPercentage,
-                "java",
-                new ArrayList<>(),
-                new HashMap<>()
-        );
+    default ServiceGroupBuilder builder(String name) {
+        return new ServiceGroupBuilder(name);
     }
 
     /**
-     * Creates a new service group with the given configuration.
-     */
-    void createServiceGroup(
-            String name,
-            String nodeName,
-            String platformName,
-            String platformVersionName,
-            int minOnlineCount,
-            int maxOnlineCount,
-            int maxPlayers,
-            int maxMemory,
-            boolean fallback,
-            boolean isStatic,
-            int startPriority,
-            int startPercentage,
-            String javaCommand,
-            List<String> customJvmFlags,
-            Map<String, Property<?>> propertyMap
-    );
-
-    /**
-     * Deletes the given service group.
+     * Creates a new service group from the given object.
      *
-     * @param name the name of the service group
+     * @param group the service group to create
      */
-    void deleteServiceGroup(String name);
+    void create(ServiceGroup group);
 
     /**
      * Deletes the given service group.
      *
      * @param group the service group to delete
      */
-    default void deleteServiceGroup(ServiceGroup group) {
-        deleteServiceGroup(group.name());
-    }
+    void delete(ServiceGroup group);
 
     /**
      * Updates an existing service group.
      *
      * @param group the service group to update
      */
-    void updateServiceGroup(ServiceGroup group);
+    void update(ServiceGroup group);
 
     /**
-     * Checks if a service group exists by name.
+     * Checks if a service group with the given name exists.
      *
      * @param name the name of the group
      * @return {@code true} if the group exists, otherwise {@code false}
      */
-    boolean existsServiceGroup(String name);
-
+    default boolean exists(String name) {
+        return find(name).isPresent();
+    }
 }

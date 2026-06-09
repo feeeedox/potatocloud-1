@@ -15,7 +15,7 @@ public class RequestGroupsListener implements PacketListener<RequestGroupsPacket
 
     @Override
     public void handle(PacketContext<RequestGroupsPacket> ctx) {
-        for (ServiceGroup group : groupManager.getAllServiceGroups()) {
+        for (ServiceGroup group : groupManager.groups()) {
             ctx.connection().send(new GroupAddPacket(group));
         }
     }

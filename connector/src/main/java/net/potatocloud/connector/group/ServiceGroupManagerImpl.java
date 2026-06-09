@@ -2,8 +2,6 @@ package net.potatocloud.connector.group;
 
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
-import net.potatocloud.api.property.Property;
 import net.potatocloud.connector.group.listeners.GroupAddListener;
 import net.potatocloud.connector.group.listeners.GroupDeleteListener;
 import net.potatocloud.connector.group.listeners.GroupUpdateListener;
@@ -31,71 +29,46 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public void addServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.name())) {
+        if (group == null || exists(group.name())) {
             return;
         }
         groups.add(group);
     }
 
     @Override
-    public ServiceGroup getServiceGroup(String name) {
+    public Optional<ServiceGroup> find(String name) {
         return groups.stream()
                 .filter(group -> group.name().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
-    public List<ServiceGroup> getAllServiceGroups() {
+    public List<ServiceGroup> groups() {
         return Collections.unmodifiableList(groups);
     }
 
     @Override
-    public void createServiceGroup(String name, String nodeName, String platformName, String platformVersionName, int minOnlineCount, int maxOnlineCount, int maxPlayers, int maxMemory, boolean fallback, boolean isStatic, int startPriority, int startPercentage, String javaCommand, List<String> customJvmFlags, Map<String, Property<?>> propertyMap) {
-        if (existsServiceGroup(name)) {
+    public void create(ServiceGroup group) {
+        if (exists(group.name())) {
             return;
         }
 
-        final ServiceGroupImpl group = new ServiceGroupImpl(
-                name,
-                nodeName,
-                platformName,
-                platformVersionName,
-                javaCommand,
-                Set.copyOf(customJvmFlags), // todo temporary
-                maxPlayers,
-                maxMemory,
-                minOnlineCount,
-                maxOnlineCount,
-                isStatic,
-                fallback,
-                startPriority,
-                startPercentage,
-                propertyMap
-        );
-
         client.send(new GroupAddPacket(group));
-
         addServiceGroup(group);
     }
 
     @Override
-    public void deleteServiceGroup(String name) {
-        client.send(new GroupDeletePacket(name));
-
-        deleteServiceGroupLocal(name);
+    public void delete(ServiceGroup group) {
+        client.send(new GroupDeletePacket(group.name()));
+        deleteLocal(group.name());
     }
 
-    public void deleteServiceGroupLocal(String name) {
-        final ServiceGroup group = getServiceGroup(name);
-        if (group == null) {
-            return;
-        }
-        groups.remove(group);
+    public void deleteLocal(String name) {
+        find(name).ifPresent(groups::remove);
     }
 
     @Override
-    public void updateServiceGroup(ServiceGroup group) {
+    public void update(ServiceGroup group) {
         client.send(new GroupUpdatePacket(
                 group.name(),
                 group.customJvmFlags(),
@@ -109,13 +82,5 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 group.templates(),
                 group.getPropertyMap()
         ));
-    }
-
-    @Override
-    public boolean existsServiceGroup(String groupName) {
-        if (groupName == null) {
-            return false;
-        }
-        return groups.stream().anyMatch(group -> group != null && group.name().equalsIgnoreCase(groupName));
     }
 }

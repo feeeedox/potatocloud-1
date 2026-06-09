@@ -15,6 +15,7 @@ import net.potatocloud.node.service.helper.ServiceIds;
 import net.potatocloud.node.service.helper.ServicePorts;
 
 import java.util.List;
+import java.util.Optional;
 
 public final class ServiceLauncher {
 
@@ -42,16 +43,16 @@ public final class ServiceLauncher {
     }
 
     public Service start(String groupName, String requestId) {
-        final ServiceGroup group = groupManager.getServiceGroup(groupName);
-        if (group == null) {
+        final Optional<ServiceGroup> group = groupManager.find(groupName);
+        if (group.isEmpty()) {
             return null;
         }
 
         final List<Service> services = serviceManager.services();
 
-        final int serviceId = ServiceIds.nextId(group, services);
-        final int port = ServicePorts.nextPort(group, config, services);
-        final AbstractService service = factory.create(ServiceType.LOCAL, serviceId, port, group);
+        final int serviceId = ServiceIds.nextId(group.get(), services);
+        final int port = ServicePorts.nextPort(group.get(), config, services);
+        final AbstractService service = factory.create(ServiceType.LOCAL, serviceId, port, group.get());
 
         serviceManager.addService(service);
 

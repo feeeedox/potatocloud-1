@@ -21,22 +21,22 @@ public class StartServiceListener implements PacketListener<StartServicePacket> 
 
     @Override
     public void handle(PacketContext<StartServicePacket> ctx) {
-        final ServiceGroup group = groupManager.getServiceGroup(ctx.packet().groupName());
-        if (group == null) {
+        final Optional<ServiceGroup> group = groupManager.find(ctx.packet().groupName());
+        if (group.isEmpty()) {
             return;
         }
 
-        final Optional<ClusterNode> node = group.node();
+        final Optional<ClusterNode> node = group.get().node();
         if (node.isPresent() && !clusterManager.isLocal(node.get().name())) {
             clusterManager.sendTo(node.get().name(), ctx.packet());
             return;
         }
 
-        if (!serviceManager.hasEnoughMemory(group)) {
-            serviceManager.logMemoryWarning(group);
+        if (!serviceManager.hasEnoughMemory(group.get())) {
+            serviceManager.logMemoryWarning(group.get());
             return;
         }
 
-        serviceManager.startServiceInternal(group.name(), ctx.packet().requestId());
+        serviceManager.startServiceInternal(group.get().name(), ctx.packet().requestId());
     }
 }

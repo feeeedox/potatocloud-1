@@ -143,7 +143,7 @@ public class ClusterManagerImpl implements ClusterManager {
                     server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
                 });
 
-        groupManager.getAllServiceGroups().stream()
+        groupManager.groups().stream()
                 .filter(group ->
                         group.node()
                                 .map(ClusterNode::name)

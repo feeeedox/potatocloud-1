@@ -31,7 +31,7 @@ public class GroupConfigurationSetup extends Setup {
     @Override
     public void initQuestions() {
         text("name", "What is the name of this group?")
-                .customValidator(input -> groupManager.existsServiceGroup(input)
+                .customValidator(input -> groupManager.exists(input)
                         ? AnswerResult.error("A group with the same name already exists")
                         : AnswerResult.success())
                 .add();
@@ -114,26 +114,28 @@ public class GroupConfigurationSetup extends Setup {
         }
 
         final String name = answers.get("name");
-        groupManager.createServiceGroup(
-                name,
-                Node.getInstance().config().cluster().name(), // todo ugly
-                answers.get("platform"),
-                answers.get("platform_version"),
-                Integer.parseInt(answers.get("min_online_count")),
-                Integer.parseInt(answers.get("max_online_count")),
-                Integer.parseInt(answers.get("max_players")),
-                Integer.parseInt(answers.get("max_memory")),
-                Boolean.parseBoolean(answers.getOrDefault("fallback", "false")),
-                Boolean.parseBoolean(answers.get("static_servers")),
-                Integer.parseInt(answers.get("start_priority")),
-                Integer.parseInt(answers.get("start_percentage"))
-        );
+        final ServiceGroup group = groupManager.builder(name)
+                .node(Node.getInstance().config().cluster().name()) // todo ugly
+                .platform(answers.get("platform"))
+                .platformVersion(answers.get("platform_version"))
+                .minServices(Integer.parseInt(answers.get("min_online_count")))
+                .maxServices(Integer.parseInt(answers.get("max_online_count")))
+                .maxPlayers(Integer.parseInt(answers.get("max_players")))
+                .maxMemory(Integer.parseInt(answers.get("max_memory")))
+                .fallback(Boolean.parseBoolean(answers.getOrDefault("fallback", "false")))
+                .staticServices(Boolean.parseBoolean(answers.get("static_servers")))
+                .startPriority(Integer.parseInt(answers.get("start_priority")))
+                .startPercentage(Integer.parseInt(answers.get("start_percentage")))
+                .build();
+
+        groupManager.create(group);
 
         final String modernForwarding = answers.get("velocity_modern_forwarding");
         if (modernForwarding != null) {
-            final ServiceGroup group = groupManager.getServiceGroup(name);
-            group.setProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
-            groupManager.updateServiceGroup(group);
+            groupManager.find(name).ifPresent(created -> {
+                created.setProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
+                groupManager.update(created);
+            });
         }
     }
 

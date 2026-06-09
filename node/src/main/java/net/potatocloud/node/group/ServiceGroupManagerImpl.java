@@ -4,9 +4,7 @@ import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.network.NetworkServer;
@@ -53,69 +51,33 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public ServiceGroup getServiceGroup(String name) {
+    public Optional<ServiceGroup> find(String name) {
         return groups.stream()
                 .filter(group -> group.name().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
-    public List<ServiceGroup> getAllServiceGroups() {
+    public List<ServiceGroup> groups() {
         return Collections.unmodifiableList(groups);
     }
 
     @Override
-    public void createServiceGroup(
-            String name,
-            String nodeName,
-            String platformName,
-            String platformVersionName,
-            int minOnlineCount,
-            int maxOnlineCount,
-            int maxPlayers,
-            int maxMemory,
-            boolean fallback,
-            boolean isStatic,
-            int startPriority,
-            int startPercentage,
-            String javaCommand,
-            List<String> customJvmFlags,
-            Map<String, Property<?>> propertyMap
-    ) {
-
-        if (existsServiceGroup(name)) {
+    public void create(ServiceGroup group) {
+        if (exists(group.name())) {
             return;
         }
-
-        final ServiceGroup group = new ServiceGroupImpl(
-                name,
-                nodeName,
-                platformName,
-                platformVersionName,
-                javaCommand,
-                Set.copyOf(customJvmFlags), // todo temporary
-                maxPlayers,
-                maxMemory,
-                minOnlineCount,
-                maxOnlineCount,
-                isStatic,
-                fallback,
-                startPriority,
-                startPercentage,
-                propertyMap
-        );
 
         addServiceGroup(group);
 
         server.broadcast().connectors().send(new GroupAddPacket(group));
         clusterManager.broadcast(new GroupAddPacket(group));
 
-        logger.info("Group &a" + name + " &7was successfully created");
+        logger.info("Group &a" + group.name() + " &7was successfully created");
     }
 
     public void addServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.name())) {
+        if (group == null || exists(group.name())) {
             return;
         }
 
@@ -128,7 +90,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public void registerServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.name())) {
+        if (group == null || exists(group.name())) {
             return;
         }
         groups.add(group);
@@ -139,27 +101,27 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public void deleteServiceGroup(String name) {
-        if (!deleteServiceGroupLocal(name)) {
+    public void delete(ServiceGroup group) {
+        if (!deleteLocal(group.name())) {
             return;
         }
 
-        server.broadcast().connectors().send(new GroupDeletePacket(name));
-        clusterManager.broadcast(new GroupDeletePacket(name));
+        server.broadcast().connectors().send(new GroupDeletePacket(group.name()));
+        clusterManager.broadcast(new GroupDeletePacket(group.name()));
     }
 
-    public boolean deleteServiceGroupLocal(String name) {
-        final ServiceGroup group = getServiceGroup(name);
+    public boolean deleteLocal(String name) {
+        final Optional<ServiceGroup> group = find(name);
 
-        if (group == null || !groups.contains(group)) {
+        if (group.isEmpty() || !groups.contains(group.get())) {
             return false;
         }
 
-        for (Service service : group.services()) {
+        for (Service service : group.get().services()) {
             CloudAPI.instance().serviceManager().stop(service); // todo
         }
 
-        groups.remove(group);
+        groups.remove(group.get());
 
         final Path filePath = groupsPath.resolve(name + ".yml");
         try {
@@ -171,7 +133,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public void updateServiceGroup(ServiceGroup group) {
+    public void update(ServiceGroup group) {
         ServiceGroupStorage.save(group, groupsPath);
 
         final GroupUpdatePacket updatePacket = new GroupUpdatePacket(
@@ -189,14 +151,6 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         );
         server.broadcast().connectors().send(updatePacket);
         clusterManager.broadcast(updatePacket);
-    }
-
-    @Override
-    public boolean existsServiceGroup(String name) {
-        if (name == null) {
-            return false;
-        }
-        return groups.stream().anyMatch(group -> group != null && group.name().equalsIgnoreCase(name));
     }
 
     private void loadGroups() {

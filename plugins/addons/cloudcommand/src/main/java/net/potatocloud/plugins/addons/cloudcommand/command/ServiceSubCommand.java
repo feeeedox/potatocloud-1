@@ -50,7 +50,7 @@ public class ServiceSubCommand {
         }
 
         final String groupName = args[2];
-        if (!CloudAPI.instance().groupManager().existsServiceGroup(groupName)) {
+        if (!CloudAPI.instance().groupManager().exists(groupName)) {
             player.sendMessage(messages.get("no-group").replaceText(text -> text.match("%name%").replacement(groupName)));
             return;
         }
@@ -69,7 +69,7 @@ public class ServiceSubCommand {
         }
 
         for (int i = 0; i < amount; i++) {
-            serviceManager.start(CloudAPI.instance().groupManager().getServiceGroup(groupName));
+            CloudAPI.instance().groupManager().find(groupName).ifPresent(serviceManager::start);
         }
 
         int finalAmount = amount;
@@ -284,7 +284,7 @@ public class ServiceSubCommand {
         }
 
         if (sub.equalsIgnoreCase("start") && args.length == 3) {
-            return CloudAPI.instance().groupManager().getAllServiceGroups().stream().map(ServiceGroup::name).toList();
+            return CloudAPI.instance().groupManager().groups().stream().map(ServiceGroup::name).toList();
         }
 
 

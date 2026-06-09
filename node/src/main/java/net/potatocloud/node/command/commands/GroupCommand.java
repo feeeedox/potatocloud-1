@@ -40,13 +40,13 @@ public class GroupCommand extends Command {
                 .executes(ctx -> {
                     final ServiceGroup group = ctx.get("group");
 
-                    groupManager.deleteServiceGroup(group);
+                    groupManager.delete(group);
                     logger.info("&7Group &a" + group.name() + " &7was deleted");
                 });
 
         sub("list", "List all groups")
                 .executes(_ -> {
-                    final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
+                    final List<ServiceGroup> groups = groupManager.groups();
 
                     if (groups.isEmpty()) {
                         logger.info("There are &cno &7groups");
@@ -124,7 +124,7 @@ public class GroupCommand extends Command {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
 
                         group.setProperty(property);
-                        groupManager.updateServiceGroup(group);
+                        groupManager.update(group);
                         logger.info("Property &a" + key + " &7was set to &a" + value + " &7in group &a" + group.name());
                     } catch (Exception e) {
                         propertySub.sendHelp();
@@ -157,7 +157,7 @@ public class GroupCommand extends Command {
                     }
 
                     group.getPropertyMap().remove(property.getName());
-                    groupManager.updateServiceGroup(group);
+                    groupManager.update(group);
                     logger.info("Property &a" + key + " &7was removed in group &a" + group.name());
                 });
 
@@ -218,13 +218,13 @@ public class GroupCommand extends Command {
                             case "addtemplate" -> {
                                 group.addTemplate(value);
                                 Node.getInstance().templateManager().createTemplate(value);
-                                groupManager.updateServiceGroup(group);
+                                groupManager.update(group);
                                 logger.info("Template &a" + value + " &7was added to group &a" + groupName);
                                 return;
                             }
                             case "removetemplate" -> {
                                 if (group.templates().removeIf(s -> s.equalsIgnoreCase(value))) {
-                                    groupManager.updateServiceGroup(group);
+                                    groupManager.update(group);
                                     logger.info("Template &a" + value + " &7was removed from group &a" + groupName);
                                 } else {
                                     logger.info("Template &a" + value + " &7was not found in group &a" + groupName);
@@ -233,7 +233,7 @@ public class GroupCommand extends Command {
                             }
                             case "addjvmflag" -> {
                                 group.addCustomJvmFlag(value);
-                                groupManager.updateServiceGroup(group);
+                                groupManager.update(group);
                                 logger.info("Added JVM flag &a" + value + " &7to group &a" + groupName);
                                 return;
                             }
@@ -252,7 +252,7 @@ public class GroupCommand extends Command {
                         return;
                     }
 
-                    groupManager.updateServiceGroup(group);
+                    groupManager.update(group);
                     logger.info("Updated &a" + key + " &7for group &a" + groupName + "&7 to &a" + value);
                 });
     }

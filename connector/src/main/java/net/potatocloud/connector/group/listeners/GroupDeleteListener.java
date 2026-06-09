@@ -13,6 +13,6 @@ public class GroupDeleteListener implements PacketListener<GroupDeletePacket> {
 
     @Override
     public void handle(PacketContext<GroupDeletePacket> ctx) {
-        groupManager.deleteServiceGroupLocal(ctx.packet().groupName());
+        groupManager.deleteLocal(ctx.packet().groupName());
     }
 }

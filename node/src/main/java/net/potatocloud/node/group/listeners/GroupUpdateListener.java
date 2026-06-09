@@ -24,39 +24,33 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
     @Override
     public void handle(PacketContext<GroupUpdatePacket> ctx) {
         final GroupUpdatePacket packet = ctx.packet();
-        final ServiceGroup group = groupManager.getServiceGroup(packet.groupName());
-        if (group == null) {
-            return;
-        }
 
-        group.minServices(packet.minOnlineCount());
-        group.maxServices(packet.maxOnlineCount());
-        group.maxPlayers(packet.maxPlayers());
-        group.maxMemory(packet.maxMemory());
-        group.fallback(packet.fallback());
-        group.startPriority(packet.startPriority());
-        group.startPercentage(packet.startPercentage());
+        groupManager.find(packet.groupName()).ifPresent(group -> {
+            group.minServices(packet.minOnlineCount());
+            group.maxServices(packet.maxOnlineCount());
+            group.maxPlayers(packet.maxPlayers());
+            group.maxMemory(packet.maxMemory());
+            group.fallback(packet.fallback());
+            group.startPriority(packet.startPriority());
+            group.startPercentage(packet.startPercentage());
 
-        group.templates().clear();
-        packet.templates().forEach(group::addTemplate);
+            group.templates().clear();
+            packet.templates().forEach(group::addTemplate);
 
-        group.customJvmFlags().clear();
-        for (String flag : packet.customJvmFlags()) {
-            group.addCustomJvmFlag(flag);
-        }
+            group.customJvmFlags().clear();
+            packet.customJvmFlags().forEach(group::addCustomJvmFlag);
 
-        group.getPropertyMap().clear();
-        for (Property<?> property : packet.propertyMap().values()) {
-            PropertyUtil.setPropertyUnchecked(group, property);
-        }
+            group.getPropertyMap().clear();
+            packet.propertyMap().values().forEach(property -> PropertyUtil.setPropertyUnchecked(group, property));
 
-        if (ctx.connection().type() == ConnectionType.CONNECTOR) {
-            if (groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
+            if (ctx.connection().type() == ConnectionType.CONNECTOR && groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
                 ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
             }
+        });
+
+        if (ctx.connection().type() == ConnectionType.CONNECTOR) {
             clusterManager.broadcast(packet);
         }
-
         server.broadcast().connectors().exclude(ctx.connection()).send(packet);
     }
 }
