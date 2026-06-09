@@ -4,6 +4,7 @@ import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.logging.Logger;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkConnection;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.netty.client.NettyNetworkClient;
@@ -128,17 +129,28 @@ public class ClusterManagerImpl implements ClusterManager {
                 });
 
         serviceManager.services().stream()
-                .filter(service -> nodeName.equals(service.node().get().name())) // todo
+                .filter(service ->
+                        service.node()
+                                .map(ClusterNode::name)
+                                .filter(nodeName::equals)
+                                .isPresent()
+                )
                 .forEach(service -> {
                     serviceManager.removeService(service);
                     server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
                 });
 
         playerManager.getOnlinePlayers().stream()
-                .filter(player -> nodeName.equals(player.nodeName()))
+                .filter(player ->
+                        player.service()
+                                .flatMap(Service::node)
+                                .map(ClusterNode::name)
+                                .filter(nodeName::equals)
+                                .isPresent()
+                )
                 .forEach(player -> {
                     playerManager.unregisterPlayer(player);
-                    server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.getUniqueId()));
+                    server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.uniqueId()));
                 });
 
         nodes.remove(nodeName);

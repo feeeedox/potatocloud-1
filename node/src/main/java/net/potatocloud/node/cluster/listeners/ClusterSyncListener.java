@@ -44,7 +44,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         }
 
         for (CloudPlayer player : packet.players()) {
-            if (playerManager.getCloudPlayer(player.getUniqueId()) != null) {
+            if (playerManager.getCloudPlayer(player.uniqueId()) != null) {
                 continue;
             }
             playerManager.registerPlayer(player);

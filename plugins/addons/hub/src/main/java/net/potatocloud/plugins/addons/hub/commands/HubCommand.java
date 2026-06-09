@@ -28,8 +28,12 @@ public class HubCommand implements SimpleCommand {
             return;
         }
 
-        final Service playerService = CloudAPI.instance().playerManager().getCloudPlayer(player.getUniqueId()).getConnectedService();
-        if (playerService.group().isFallback()) {
+        final Optional<Service> service = CloudAPI.instance().playerManager().getCloudPlayer(player.getUniqueId()).service();
+        if (service.isEmpty()) {
+            return;
+        }
+
+        if (service.get().group().isFallback()) {
             player.sendMessage(messagesConfig.get("alreadyOnFallback"));
             return;
         }

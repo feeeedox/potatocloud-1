@@ -171,8 +171,8 @@ public class VelocityPlugin implements PlatformPlugin {
     @Subscribe
     public void onServerConnect(ServerConnectedEvent event) {
         final CloudPlayerImpl player = (CloudPlayerImpl) api.playerManager().getCloudPlayer(event.getPlayer().getUniqueId());
-        player.setConnectedServiceName(event.getServer().getServerInfo().getName());
-        player.update();
+        player.serviceName(event.getServer().getServerInfo().getName());
+        api.playerManager().updatePlayer(player);
     }
 
     @Subscribe

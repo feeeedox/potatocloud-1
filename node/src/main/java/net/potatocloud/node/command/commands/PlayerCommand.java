@@ -23,13 +23,15 @@ public class PlayerCommand extends Command {
                     final CloudPlayer player = ctx.get("player");
                     final Service service = ctx.get("service");
 
-                    if (player.getConnectedServiceName().equalsIgnoreCase(service.name())) {
-                        logger.info("Player &a" + player.getUsername() + " &7is already connected to &a" + service.name());
+                    final boolean alreadyConnected = player.service().map(s -> s.name().equals(service.name())).orElse(false);
+
+                    if (alreadyConnected) {
+                        logger.info("Player &a" + player.username() + " &7is already connected to &a" + service.name());
                         return;
                     }
 
-                    player.connectWithService(service);
-                    logger.info("Successfully connected player &a" + player.getUsername() + " &7to service &a" + service.name());
+                    playerManager.connectPlayerWithService(player, service);
+                    logger.info("Successfully connected player &a" + player.username() + " &7to service &a" + service.name());
                 });
 
         sub("list", "List online players")
@@ -40,7 +42,7 @@ public class PlayerCommand extends Command {
                         return;
                     }
                     for (CloudPlayer player : players) {
-                        logger.info("&8» &a" + player.getUsername() + " &7- Proxy: &a" + player.getConnectedProxyName() + " &7- Service: &a" + player.getConnectedServiceName());
+                        logger.info("&8» &a" + player.username() + " &7- Proxy: &a" + player.proxy().name() + " &7- Service: &a" + player.service().map(Service::name).orElse("none"));
                     }
                 });
     }

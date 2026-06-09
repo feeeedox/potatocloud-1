@@ -40,7 +40,7 @@ public interface CloudPlayerManager {
      */
     default Set<CloudPlayer> getOnlinePlayersByGroup(ServiceGroup group) {
         return getOnlinePlayers().stream()
-                .filter(player -> player.getConnectedService() != null && player.getConnectedService().group().getName().equals(group.getName()))
+                .filter(player -> player.service().isEmpty() && player.service().get().group().getName().equals(group.getName()))
                 .collect(Collectors.toSet());
     }
 
@@ -59,7 +59,7 @@ public interface CloudPlayerManager {
      * @param serviceName the name of the service
      */
     default void connectPlayerWithService(CloudPlayer player, String serviceName) {
-        connectPlayerWithService(player.getUsername(), serviceName);
+        connectPlayerWithService(player.username(), serviceName);
     }
 
     /**

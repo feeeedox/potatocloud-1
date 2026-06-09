@@ -29,7 +29,7 @@ public class CloudPlayerArgument extends ArgumentType<CloudPlayer> {
                 .playerManager()
                 .getOnlinePlayers()
                 .stream()
-                .map(CloudPlayer::getUsername)
+                .map(CloudPlayer::username)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

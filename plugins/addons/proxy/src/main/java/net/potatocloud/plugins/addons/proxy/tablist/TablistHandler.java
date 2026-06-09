@@ -43,17 +43,21 @@ public class TablistHandler {
             return;
         }
 
-        final Optional<Service> service = CloudAPI.instance().serviceManager().find(cloudPlayer.getConnectedServiceName());
+        final Optional<Service> service = cloudPlayer.service();
         if (service.isEmpty() || service.get().group() == null) {
             return;
         }
 
         final String group = service.get().group().getName();
-        final String proxy = cloudPlayer.getConnectedProxyName();
+        final String proxy = cloudPlayer.proxy().name();
 
         final int onlinePlayers = CloudAPI.instance().playerManager().getOnlinePlayers().size();
 
-        final int maxPlayers = CloudAPI.instance().serviceManager().current().get().maxPlayers(); //todo
+        final int maxPlayers = CloudAPI.instance()
+                .serviceManager()
+                .current()
+                .map(Service::maxPlayers)
+                .orElse(0);
 
         final Tablist tablist = new Tablist(
                 config.get("tablist.header").asString(),

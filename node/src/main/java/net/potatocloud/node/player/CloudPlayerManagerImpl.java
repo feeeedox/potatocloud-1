@@ -40,7 +40,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     @Override
     public CloudPlayer getCloudPlayer(String username) {
         return onlinePlayers.stream()
-                .filter(player -> player.getUsername().equals(username))
+                .filter(player -> player.username().equals(username))
                 .findFirst()
                 .orElse(null);
     }
@@ -48,7 +48,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     @Override
     public CloudPlayer getCloudPlayer(UUID uniqueId) {
         return onlinePlayers.stream()
-                .filter(player -> player.getUniqueId().equals(uniqueId))
+                .filter(player -> player.uniqueId().equals(uniqueId))
                 .findFirst()
                 .orElse(null);
     }
@@ -62,7 +62,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     public void connectPlayerWithService(String playerName, String serviceName) {
         final CloudPlayerConnectPacket packet = new CloudPlayerConnectPacket(playerName, serviceName);
         final CloudPlayer player = getCloudPlayer(playerName);
-        final Service proxy = player != null ? player.getConnectedProxy() : null;
+        final Service proxy = player != null ? player.proxy() : null;
 
         if (proxy != null && proxy.node().isPresent()) {
             final String nodeName = proxy.node().get().name();

@@ -28,8 +28,8 @@ public class CloudPlayerUpdateListener implements PacketListener<CloudPlayerUpda
             return;
         }
 
-        player.setConnectedProxyName(packet.connectedProxyName());
-        player.setConnectedServiceName(packet.connectedServiceName());
+        player.proxyName(packet.connectedProxyName());
+        player.serviceName(packet.connectedServiceName());
 
         player.getPropertyMap().clear();
         for (Property<?> property : packet.propertyMap().values()) {

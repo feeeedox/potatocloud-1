@@ -28,9 +28,9 @@ public class PlayerSubCommand {
         player.sendMessage(messages.get("player.list.header"));
         for (CloudPlayer cloudPlayer : players) {
             player.sendMessage(messages.get("player.list.entry")
-                    .replaceText(text -> text.match("%name%").replacement(cloudPlayer.getUsername()))
-                    .replaceText(text -> text.match("%service%").replacement(cloudPlayer.getConnectedServiceName()))
-                    .replaceText(text -> text.match("%proxy%").replacement(cloudPlayer.getConnectedProxyName())));
+                    .replaceText(text -> text.match("%name%").replacement(cloudPlayer.username()))
+                    .replaceText(text -> text.match("%service%").replacement(cloudPlayer.service().map(Service::name).orElse("none")))
+                    .replaceText(text -> text.match("%proxy%").replacement(cloudPlayer.proxy().name())));
         }
     }
 
@@ -50,16 +50,18 @@ public class PlayerSubCommand {
         }
 
         CloudAPI.instance().serviceManager().find(serviceName).ifPresent(service -> {
-            if (cloudPlayer.getConnectedServiceName().equals(service.name())) {
+            final boolean alreadyConnected = cloudPlayer.service().map(s -> s.name().equals(service.name())).orElse(false);
+
+            if (alreadyConnected) {
                 player.sendMessage(messages.get("player.connect.already-connected")
-                        .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
+                        .replaceText(text -> text.match("%player%").replacement(cloudPlayer.username()))
                         .replaceText(text -> text.match("%service%").replacement(service.name())));
                 return;
             }
 
-            cloudPlayer.connectWithService(service);
+            CloudAPI.instance().playerManager().connectPlayerWithService(cloudPlayer, service);
             player.sendMessage(messages.get("player.connect.success")
-                    .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
+                    .replaceText(text -> text.match("%player%").replacement(cloudPlayer.username()))
                     .replaceText(text -> text.match("%service%").replacement(service.name())));
         });
     }
@@ -75,7 +77,7 @@ public class PlayerSubCommand {
 
         if (sub.equalsIgnoreCase("connect")) {
             if (args.length == 3) {
-                return playerManager.getOnlinePlayers().stream().map(CloudPlayer::getUsername).
+                return playerManager.getOnlinePlayers().stream().map(CloudPlayer::username).
                         filter(input -> input.startsWith(args[2])).toList();
             }
             if (args.length == 4) {

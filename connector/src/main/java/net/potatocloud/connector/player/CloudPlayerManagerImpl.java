@@ -5,6 +5,7 @@ import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.PublishTarget;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.connector.event.ConnectPlayerWithServiceEvent;
 import net.potatocloud.connector.player.listeners.CloudPlayerAddListener;
 import net.potatocloud.connector.player.listeners.CloudPlayerRemoveListener;
@@ -15,10 +16,7 @@ import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
 import net.potatocloud.network.packet.packets.player.CloudPlayerUpdatePacket;
 import net.potatocloud.network.packet.packets.player.RequestCloudPlayersPacket;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class CloudPlayerManagerImpl implements CloudPlayerManager {
@@ -60,7 +58,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
         }
         unregisterPlayerLocal(player);
 
-        client.send(new CloudPlayerRemovePacket(player.getUniqueId()));
+        client.send(new CloudPlayerRemovePacket(player.uniqueId()));
     }
 
     public void unregisterPlayerLocal(CloudPlayer player) {
@@ -73,7 +71,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     @Override
     public CloudPlayer getCloudPlayer(String username) {
         return onlinePlayers.stream()
-                .filter(player -> player.getUsername().equals(username))
+                .filter(player -> player.username().equals(username))
                 .findFirst()
                 .orElse(null);
     }
@@ -81,7 +79,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     @Override
     public CloudPlayer getCloudPlayer(UUID uniqueId) {
         return onlinePlayers.stream()
-                .filter(player -> player.getUniqueId().equals(uniqueId))
+                .filter(player -> player.uniqueId().equals(uniqueId))
                 .findFirst()
                 .orElse(null);
     }
@@ -98,8 +96,11 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     @Override
     public void updatePlayer(CloudPlayer player) {
-        client.send(new CloudPlayerUpdatePacket(player.getUniqueId(), player.getConnectedProxyName(),
-                player.getConnectedServiceName(), player.getPropertyMap()));
+        client.send(new CloudPlayerUpdatePacket(
+                player.uniqueId(),
+                player.proxy().name(),
+                player.service().map(Service::name).orElse(null),
+                player.getPropertyMap()
+        ));
     }
 }
-

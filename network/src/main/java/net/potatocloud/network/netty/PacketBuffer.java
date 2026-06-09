@@ -297,10 +297,10 @@ public class PacketBuffer {
     }
 
     public void writeCloudPlayer(CloudPlayer player) {
-        writeString(player.getUsername());
-        writeUUID(player.getUniqueId());
-        writeString(player.getConnectedProxyName());
-        writeString(player.getConnectedServiceName());
+        writeString(player.username());
+        writeUUID(player.uniqueId());
+        writeString(player.proxy().name());
+        writeString(player.service().map(Service::name).orElse(null));
         writePropertyMap(player.getPropertyMap());
     }
 
