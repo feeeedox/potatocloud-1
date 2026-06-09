@@ -56,7 +56,11 @@ public class ServiceImpl implements Service {
 
     @Override
     public Optional<ClusterNode> node() {
-        return group().node();
+        final ServiceGroup group = group();
+        if (group == null) {
+            return Optional.empty();
+        }
+        return group.node();
     }
 
     @Override

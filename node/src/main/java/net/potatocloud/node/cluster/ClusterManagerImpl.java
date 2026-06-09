@@ -120,12 +120,17 @@ public class ClusterManagerImpl implements ClusterManager {
     public void remove(ClusterNodeImpl node) {
         final String nodeName = node.name();
 
-        groupManager.getAllServiceGroups().stream()
-                .filter(group -> nodeName.equals(group.nodeName()))
-                .toList()
-                .forEach(group -> {
-                    groupManager.unregisterServiceGroup(group.getName());
-                    server.broadcast().connectors().send(new GroupDeletePacket(group.getName()));
+        playerManager.players().stream()
+                .filter(player ->
+                        player.service()
+                                .flatMap(Service::node)
+                                .map(ClusterNode::name)
+                                .filter(nodeName::equals)
+                                .isPresent()
+                )
+                .forEach(player -> {
+                    playerManager.unregisterPlayer(player);
+                    server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.uniqueId()));
                 });
 
         serviceManager.services().stream()
@@ -140,17 +145,11 @@ public class ClusterManagerImpl implements ClusterManager {
                     server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
                 });
 
-        playerManager.players().stream()
-                .filter(player ->
-                        player.service()
-                                .flatMap(Service::node)
-                                .map(ClusterNode::name)
-                                .filter(nodeName::equals)
-                                .isPresent()
-                )
-                .forEach(player -> {
-                    playerManager.unregisterPlayer(player);
-                    server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.uniqueId()));
+        groupManager.getAllServiceGroups().stream()
+                .filter(group -> nodeName.equals(group.nodeName()))
+                .forEach(group -> {
+                    groupManager.unregisterServiceGroup(group.getName());
+                    server.broadcast().connectors().send(new GroupDeletePacket(group.getName()));
                 });
 
         nodes.remove(nodeName);
