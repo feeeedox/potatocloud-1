@@ -35,14 +35,14 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     @Override
-    public Collection<ClusterNode> nodes() {
+    public List<ClusterNode> nodes() {
         final List<ClusterNode> all = new ArrayList<>(nodes.values());
         all.add(localNode);
         return Collections.unmodifiableList(all);
     }
 
     @Override
-    public Optional<ClusterNode> get(String name) {
+    public Optional<ClusterNode> find(String name) {
         if (localNode != null && localNode.name().equals(name)) {
             return Optional.of(localNode);
         }
