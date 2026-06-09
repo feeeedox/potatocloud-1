@@ -25,10 +25,7 @@ import net.potatocloud.node.group.listeners.RequestGroupsListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
@@ -58,7 +55,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     @Override
     public ServiceGroup getServiceGroup(String name) {
         return groups.stream()
-                .filter(group -> group.getName().equalsIgnoreCase(name))
+                .filter(group -> group.name().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
@@ -97,7 +94,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 platformName,
                 platformVersionName,
                 javaCommand,
-                customJvmFlags,
+                Set.copyOf(customJvmFlags), // todo temporary
                 maxPlayers,
                 maxMemory,
                 minOnlineCount,
@@ -118,11 +115,11 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public void addServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.getName())) {
+        if (group == null || existsServiceGroup(group.name())) {
             return;
         }
 
-        for (String templateName : group.getServiceTemplates()) {
+        for (String templateName : group.templates()) {
             Node.getInstance().templateManager().createTemplate(templateName);
         }
 
@@ -131,14 +128,14 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public void registerServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.getName())) {
+        if (group == null || existsServiceGroup(group.name())) {
             return;
         }
         groups.add(group);
     }
 
     public void unregisterServiceGroup(String name) {
-        groups.removeIf(group -> group.getName().equalsIgnoreCase(name));
+        groups.removeIf(group -> group.name().equalsIgnoreCase(name));
     }
 
     @Override
@@ -158,7 +155,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             return false;
         }
 
-        for (Service service : group.getAllServices()) {
+        for (Service service : group.services()) {
             CloudAPI.instance().serviceManager().stop(service); // todo
         }
 
@@ -178,16 +175,16 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         ServiceGroupStorage.save(group, groupsPath);
 
         final GroupUpdatePacket updatePacket = new GroupUpdatePacket(
-                group.getName(),
-                group.getCustomJvmFlags(),
-                group.getMaxPlayers(),
-                group.getMaxMemory(),
-                group.getMinOnlineCount(),
-                group.getMaxOnlineCount(),
-                group.isFallback(),
-                group.getStartPriority(),
-                group.getStartPercentage(),
-                group.getServiceTemplates(),
+                group.name(),
+                group.customJvmFlags(),
+                group.maxPlayers(),
+                group.maxMemory(),
+                group.minServices(),
+                group.maxServices(),
+                group.fallback(),
+                group.startPriority(),
+                group.startPercentage(),
+                group.templates(),
                 group.getPropertyMap()
         );
         server.broadcast().connectors().send(updatePacket);
@@ -199,7 +196,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         if (name == null) {
             return false;
         }
-        return groups.stream().anyMatch(group -> group != null && group.getName().equalsIgnoreCase(name));
+        return groups.stream().anyMatch(group -> group != null && group.name().equalsIgnoreCase(name));
     }
 
     private void loadGroups() {

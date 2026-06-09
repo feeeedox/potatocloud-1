@@ -119,26 +119,26 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
     private List<String> buildArguments(Path directory, String name) {
         final List<String> args = new ArrayList<>();
-        args.add(group.getJavaCommand());
-        args.add("-Xms" + group.getMaxMemory() + "M");
-        args.add("-Xmx" + group.getMaxMemory() + "M");
+        args.add(group.javaCommand());
+        args.add("-Xms" + group.maxMemory() + "M");
+        args.add("-Xmx" + group.maxMemory() + "M");
         args.add("-Dpotatocloud.service.name=" + name);
         args.add("-Dpotatocloud.node.port=" + config.node().port());
 
         args.addAll(ServicePerformanceFlags.DEFAULT_FLAGS);
 
-        if (group.getCustomJvmFlags() != null) {
-            args.addAll(group.getCustomJvmFlags());
+        if (group.customJvmFlags() != null) {
+            args.addAll(group.customJvmFlags());
         }
 
         args.add("-jar");
         args.add(directory.resolve("server.jar").toAbsolutePath().toString());
 
-        if (group.getPlatform().isBukkitBased() && !group.getPlatformVersion().isLegacy()) {
+        if (group.platform().isBukkitBased() && !group.platformVersion().isLegacy()) {
             args.add("-nogui");
         }
 
-        if (group.getPlatform().isLimboBased()) {
+        if (group.platform().isLimboBased()) {
             args.add("--nogui");
         }
 

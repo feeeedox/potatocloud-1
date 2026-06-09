@@ -146,10 +146,15 @@ public class ClusterManagerImpl implements ClusterManager {
                 });
 
         groupManager.getAllServiceGroups().stream()
-                .filter(group -> nodeName.equals(group.nodeName()))
+                .filter(group ->
+                        group.node()
+                                .map(ClusterNode::name)
+                                .filter(nodeName::equals)
+                                .isPresent()
+                )
                 .forEach(group -> {
-                    groupManager.unregisterServiceGroup(group.getName());
-                    server.broadcast().connectors().send(new GroupDeletePacket(group.getName()));
+                    groupManager.unregisterServiceGroup(group.name());
+                    server.broadcast().connectors().send(new GroupDeletePacket(group.name()));
                 });
 
         nodes.remove(nodeName);

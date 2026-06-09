@@ -29,7 +29,7 @@ public class ServiceStartingListener implements PacketListener<ServiceStartingPa
 
             logger.info("Service &a" + service.name() + "&7 is starting on Node &a" + node.get().name()
                     + " &8[&7Port&8: &a" + service.port()
-                    + "&8, &7Group&8: &a" + service.group().getName()
+                    + "&8, &7Group&8: &a" + service.group().name()
             );
         });
     }

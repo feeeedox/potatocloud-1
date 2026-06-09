@@ -65,7 +65,7 @@ public class ServiceManagerImpl implements ServiceManager {
         final String requestId = UUID.randomUUID().toString();
 
         pendingStarts.put(requestId, future);
-        client.send(new StartServicePacket(group.getName(), requestId));
+        client.send(new StartServicePacket(group.name(), requestId));
 
         return future;
     }

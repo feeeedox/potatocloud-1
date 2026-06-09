@@ -50,7 +50,7 @@ public class TablistHandler {
         }
 
         final Service service = optionalService.get();
-        final String group = service.group().getName();
+        final String group = service.group().name();
         final String proxy = cloudPlayer.proxy().name();
 
         final int onlinePlayers = CloudAPI.instance()

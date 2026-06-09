@@ -22,12 +22,12 @@ public final class ServiceGroupStorage {
 
     public static void save(ServiceGroup group, Path directory) {
         try {
-            final Path path = directory.resolve(group.getName() + ".yml");
+            final Path path = directory.resolve(group.name() + ".yml");
             Files.createDirectories(path.getParent());
 
             MAPPER.writeValue(path, ServiceGroupConfig.from(group));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save service group: " + group.getName(), e);
+            throw new RuntimeException("Failed to save service group: " + group.name(), e);
         }
     }
 

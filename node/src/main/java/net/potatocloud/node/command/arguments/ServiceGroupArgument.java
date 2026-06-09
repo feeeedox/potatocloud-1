@@ -31,7 +31,7 @@ public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
                 .groupManager()
                 .getAllServiceGroups()
                 .stream()
-                .map(ServiceGroup::getName)
+                .map(ServiceGroup::name)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

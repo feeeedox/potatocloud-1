@@ -1,5 +1,6 @@
 package net.potatocloud.node.service.start;
 
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.property.PropertyChangedEvent;
 import net.potatocloud.api.group.ServiceGroup;
@@ -64,11 +65,11 @@ public class ServiceStartScheduler {
 
             serviceManager.find(event.holderName()).ifPresent(service -> {
                 final ServiceGroup group = service.group();
-                final int onlineServices = group.getAllServices().stream()
+                final int onlineServices = group.services().stream()
                         .mapToInt(Service::playerCount)
                         .sum();
 
-                if (onlineServices >= group.getMaxOnlineCount()) {
+                if (onlineServices >= group.maxServices()) {
                     return;
                 }
 
@@ -84,9 +85,9 @@ public class ServiceStartScheduler {
 
     private void run() {
         groupManager.getAllServiceGroups().stream()
-                .filter(group -> groupManager.existsServiceGroup(group.getName()))
+                .filter(group -> groupManager.existsServiceGroup(group.name()))
                 .filter(this::isLocalNode)
-                .sorted(Comparator.comparingInt(ServiceGroup::getStartPriority).reversed())
+                .sorted(Comparator.<ServiceGroup>comparingInt(ServiceGroup::startPriority).reversed())
                 .forEach(group -> {
                     if (rules.stream().allMatch(rule -> rule.allows(group)) && conditions.stream().anyMatch(condition -> condition.shouldStart(group))) {
                         serviceManager.start(group);
@@ -98,7 +99,7 @@ public class ServiceStartScheduler {
         if (!config.cluster().enabled()) {
             return true;
         }
-        final String nodeName = group.nodeName();
+        final String nodeName = group.node().map(ClusterNode::name).orElse(null);
         return nodeName == null || nodeName.equals(config.cluster().name());
     }
 

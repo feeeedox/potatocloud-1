@@ -41,7 +41,7 @@ public class ServiceCommand extends Command {
                     }
 
                     return service.group()
-                            .getServiceTemplates()
+                            .templates()
                             .stream()
                             .filter(name -> name.startsWith(input))
                             .toList();
@@ -122,7 +122,7 @@ public class ServiceCommand extends Command {
                     final Service service = ctx.get("service");
 
                     logger.info("&7Info for service &a" + service.name() + "&8:");
-                    logger.info("&8» &7Group: &a" + service.group().getName());
+                    logger.info("&8» &7Group: &a" + service.group().name());
                     logger.info("&8» &7Port: &a" + service.port());
                     logger.info("&8» &7Status: &a" + service.state());
                     logger.info("&8» &7Online Players: &a" + service.playerCount());
@@ -143,7 +143,7 @@ public class ServiceCommand extends Command {
 
                     logger.info("All services&8:");
                     for (Service service : services) {
-                        logger.info("&8» &a" + service.name() + " &7- Group: &a" + service.group().getName() + " &7- Status: &a" + service.state());
+                        logger.info("&8» &a" + service.name() + " &7- Group: &a" + service.group().name() + " &7- Status: &a" + service.state());
                     }
                 });
 
@@ -269,7 +269,7 @@ public class ServiceCommand extends Command {
                     }
 
                     if (started > 0) {
-                        logger.info("Starting " + started + " service" + (started == 1 ? "" : "s") + " in group &a" + group.getName());
+                        logger.info("Starting " + started + " service" + (started == 1 ? "" : "s") + " in group &a" + group.name());
                     }
                 });
 

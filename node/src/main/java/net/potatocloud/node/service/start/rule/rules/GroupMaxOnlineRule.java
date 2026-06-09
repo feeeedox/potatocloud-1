@@ -8,10 +8,10 @@ public class GroupMaxOnlineRule implements ServiceStartRule {
 
     @Override
     public boolean allows(ServiceGroup group) {
-        final long activeServices = group.getAllServices().stream()
+        final long activeServices = group.services().stream()
                 .filter(service -> service.running() || service.state() == ServiceState.STARTING)
                 .count();
 
-        return activeServices < group.getMaxOnlineCount();
+        return activeServices < group.maxServices();
     }
 }

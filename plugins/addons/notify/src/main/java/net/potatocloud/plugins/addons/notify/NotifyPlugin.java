@@ -62,7 +62,7 @@ public class NotifyPlugin {
             Component message = messages.get(key)
                     .replaceText(text -> text.match("%service%").replacement(service.name()))
                     .replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port())))
-                    .replaceText(text -> text.match("%group%").replacement(service.group().getName()));
+                    .replaceText(text -> text.match("%group%").replacement(service.group().name()));
 
             if (clickEvent) {
                 message = message.clickEvent(ClickEvent.runCommand("/server " + serviceName)).hoverEvent(HoverEvent.showText(

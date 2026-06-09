@@ -24,18 +24,6 @@ public interface ServiceManager {
     List<Service> services();
 
     /**
-     * Gets all services in the given group.
-     *
-     * @param group the group
-     * @return a list of all services in the given group
-     */
-    default List<Service> services(ServiceGroup group) {
-        return services().stream()
-                .filter(service -> service.group().getName().equals(group.getName()))
-                .toList();
-    }
-
-    /**
      * Updates an existing service.
      *
      * @param service the service to update

@@ -72,7 +72,7 @@ public abstract class AbstractService extends ServiceImpl {
             ServiceRuntime runtime,
             ClusterManagerImpl clusterManager
     ) {
-        super(serviceId, clusterManager.localNode().host(), port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceState.STOPPED, group.getMaxPlayers(), 0);
+        super(serviceId, clusterManager.localNode().host(), port, group.name() + config.service().splitter() + serviceId, group.name(), new HashMap<>(group.getPropertyMap()), 0L, ServiceState.STOPPED, group.maxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;
@@ -107,7 +107,7 @@ public abstract class AbstractService extends ServiceImpl {
         final String nodeInfo = config.cluster().enabled() ? " on Node &a" + node().get().name() + "&7" : "";
         logger.info("Service &a" + name() + "&7 is starting" + nodeInfo
                 + " &8[&7Port&8: &a" + port()
-                + "&8, &7Group&8: &a" + group.getName() + "&8]"
+                + "&8, &7Group&8: &a" + group.name() + "&8]"
         );
 
         clusterManager.broadcast(new ServiceStartingPacket(name()));
@@ -142,7 +142,7 @@ public abstract class AbstractService extends ServiceImpl {
             clusterManager.broadcast(new ServiceRemovePacket(name(), port()));
             eventBus.publish(new ServiceStoppedEvent(name()));
 
-            if (!group.isStatic() && Files.exists(directory)) {
+            if (!group.staticServices() && Files.exists(directory)) {
                 FileUtils.deleteDirectory(directory);
             }
 
@@ -211,7 +211,7 @@ public abstract class AbstractService extends ServiceImpl {
     }
 
     private Path resolveDirectory() {
-        if (group.isStatic()) {
+        if (group.staticServices()) {
             return Path.of(config.folders().staticServices()).resolve(name());
         }
         return Path.of(config.folders().tempServices()).resolve(name() + "-" + UUID.randomUUID());

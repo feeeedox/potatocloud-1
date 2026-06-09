@@ -96,7 +96,7 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        if (service.group().getPlatform().isProxy()) {
+        if (service.group().platform().isProxy()) {
             return;
         }
 
@@ -201,7 +201,7 @@ public class VelocityPlugin implements PlatformPlugin {
 
     private Service getBestFallback() {
         return CloudAPI.instance().serviceManager().services().stream()
-                .filter(service -> service.group() != null && service.group().isFallback())
+                .filter(service -> service.group() != null && service.group().fallback())
                 .filter(service -> service.state() == ServiceState.RUNNING)
                 .min(Comparator.comparingInt(Service::playerCount))
                 .orElse(null);

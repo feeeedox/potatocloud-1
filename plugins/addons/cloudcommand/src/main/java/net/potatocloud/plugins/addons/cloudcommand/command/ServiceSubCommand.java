@@ -38,7 +38,7 @@ public class ServiceSubCommand {
         for (Service service : services) {
             player.sendMessage(messages.get("service.list.entry")
                     .replaceText(text -> text.match("%name%").replacement(service.name()))
-                    .replaceText(text -> text.match("%group%").replacement(service.group().getName()))
+                    .replaceText(text -> text.match("%group%").replacement(service.group().name()))
                     .replaceText(text -> text.match("%status%").replacement(service.state().name())));
         }
     }
@@ -99,7 +99,7 @@ public class ServiceSubCommand {
 
         serviceManager.find(name).ifPresentOrElse(service -> {
             player.sendMessage(messages.get("service.info.name").replaceText(text -> text.match("%name%").replacement(service.name())));
-            player.sendMessage(messages.get("service.info.group").replaceText(text -> text.match("%group%").replacement(service.group().getName())));
+            player.sendMessage(messages.get("service.info.group").replaceText(text -> text.match("%group%").replacement(service.group().name())));
             player.sendMessage(messages.get("service.info.port").replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port()))));
             player.sendMessage(messages.get("service.info.status").replaceText(text -> text.match("%status%").replacement(service.state().name())));
             player.sendMessage(messages.get("service.info.online-players").replaceText(text -> text.match("%players%").replacement(String.valueOf(service.playerCount()))));
@@ -277,14 +277,14 @@ public class ServiceSubCommand {
         if (sub.equalsIgnoreCase("copy") && args.length == 4) {
             return serviceManager.find(args[2])
                     .map(service -> service.group()
-                            .getServiceTemplates()
+                            .templates()
                             .stream()
                             .toList())
                     .orElse(List.of());
         }
 
         if (sub.equalsIgnoreCase("start") && args.length == 3) {
-            return CloudAPI.instance().groupManager().getAllServiceGroups().stream().map(ServiceGroup::getName).toList();
+            return CloudAPI.instance().groupManager().getAllServiceGroups().stream().map(ServiceGroup::name).toList();
         }
 
 

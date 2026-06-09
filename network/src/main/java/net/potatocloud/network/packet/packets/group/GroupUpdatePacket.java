@@ -6,10 +6,11 @@ import net.potatocloud.network.packet.Packet;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public record GroupUpdatePacket(
         String groupName,
-        List<String> customJvmFlags,
+        Set<String> customJvmFlags,
         int maxPlayers,
         int maxMemory,
         int minOnlineCount,
@@ -17,7 +18,7 @@ public record GroupUpdatePacket(
         boolean fallback,
         int startPriority,
         int startPercentage,
-        List<String> serviceTemplates,
+        Set<String> templates,
         Map<String, Property<?>> propertyMap
 ) implements Packet {
 
@@ -26,7 +27,7 @@ public record GroupUpdatePacket(
         @Override
         public void encode(GroupUpdatePacket packet, PacketBuffer buf) {
             buf.writeString(packet.groupName());
-            buf.writeStringList(packet.customJvmFlags());
+            buf.writeStringSet(packet.customJvmFlags());
             buf.writeInt(packet.maxPlayers());
             buf.writeInt(packet.maxMemory());
             buf.writeInt(packet.minOnlineCount());
@@ -34,7 +35,7 @@ public record GroupUpdatePacket(
             buf.writeBoolean(packet.fallback());
             buf.writeInt(packet.startPriority());
             buf.writeInt(packet.startPercentage());
-            buf.writeStringList(packet.serviceTemplates());
+            buf.writeStringSet(packet.templates());
             buf.writePropertyMap(packet.propertyMap());
         }
 
@@ -42,7 +43,7 @@ public record GroupUpdatePacket(
         public GroupUpdatePacket decode(PacketBuffer buf) {
             return new GroupUpdatePacket(
                     buf.readString(),
-                    buf.readStringList(),
+                    buf.readStringSet(),
                     buf.readInt(),
                     buf.readInt(),
                     buf.readInt(),
@@ -50,7 +51,7 @@ public record GroupUpdatePacket(
                     buf.readBoolean(),
                     buf.readInt(),
                     buf.readInt(),
-                    buf.readStringList(),
+                    buf.readStringSet(),
                     buf.readPropertyMap()
             );
         }

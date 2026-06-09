@@ -13,10 +13,7 @@ import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceGroupManagerImpl implements ServiceGroupManager {
 
@@ -34,7 +31,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public void addServiceGroup(ServiceGroup group) {
-        if (group == null || existsServiceGroup(group.getName())) {
+        if (group == null || existsServiceGroup(group.name())) {
             return;
         }
         groups.add(group);
@@ -43,7 +40,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     @Override
     public ServiceGroup getServiceGroup(String name) {
         return groups.stream()
-                .filter(group -> group.getName().equalsIgnoreCase(name))
+                .filter(group -> group.name().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
@@ -65,7 +62,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 platformName,
                 platformVersionName,
                 javaCommand,
-                customJvmFlags,
+                Set.copyOf(customJvmFlags), // todo temporary
                 maxPlayers,
                 maxMemory,
                 minOnlineCount,
@@ -100,16 +97,16 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     @Override
     public void updateServiceGroup(ServiceGroup group) {
         client.send(new GroupUpdatePacket(
-                group.getName(),
-                group.getCustomJvmFlags(),
-                group.getMaxPlayers(),
-                group.getMaxMemory(),
-                group.getMinOnlineCount(),
-                group.getMaxOnlineCount(),
-                group.isFallback(),
-                group.getStartPriority(),
-                group.getStartPercentage(),
-                group.getServiceTemplates(),
+                group.name(),
+                group.customJvmFlags(),
+                group.maxPlayers(),
+                group.maxMemory(),
+                group.minServices(),
+                group.maxServices(),
+                group.fallback(),
+                group.startPriority(),
+                group.startPercentage(),
+                group.templates(),
                 group.getPropertyMap()
         ));
     }
@@ -119,6 +116,6 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         if (groupName == null) {
             return false;
         }
-        return groups.stream().anyMatch(group -> group != null && group.getName().equalsIgnoreCase(groupName));
+        return groups.stream().anyMatch(group -> group != null && group.name().equalsIgnoreCase(groupName));
     }
 }

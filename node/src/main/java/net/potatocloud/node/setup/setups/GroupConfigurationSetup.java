@@ -133,7 +133,7 @@ public class GroupConfigurationSetup extends Setup {
         if (modernForwarding != null) {
             final ServiceGroup group = groupManager.getServiceGroup(name);
             group.setProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
-            group.update();
+            groupManager.updateServiceGroup(group);
         }
     }
 

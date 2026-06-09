@@ -186,7 +186,7 @@ public class Node extends CloudAPI {
             final String groupText = count == 1 ? "group" : "groups";
 
             logger.info("Loaded &a" + count + "&7 " + groupText + "&8:");
-            groups.forEach(group -> logger.info("&8» &a" + group.getName()));
+            groups.forEach(group -> logger.info("&8» &a" + group.name()));
         }
 
         if (!platformManager.getPlatforms().isEmpty()) {
@@ -261,9 +261,8 @@ public class Node extends CloudAPI {
 
             for (Service service : serviceManager.services()) {
                 final ServiceGroup group = service.group();
-                final String nodeName = group == null ? null : group.nodeName();
 
-                if (nodeName == null || nodeName.equals(localNodeName)) {
+                if (group.node().isPresent() && group.node().get().name().equals(localNodeName)) {
                     if (service.state() != ServiceState.STOPPING || service.state() != ServiceState.STOPPED) {
                         servicesToStop.add(service);
                     }

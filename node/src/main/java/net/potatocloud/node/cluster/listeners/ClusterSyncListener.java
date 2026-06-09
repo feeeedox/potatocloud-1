@@ -28,7 +28,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         final ClusterSyncPacket packet = ctx.packet();
 
         for (ServiceGroup group : packet.groups()) {
-            if (groupManager.existsServiceGroup(group.getName())) {
+            if (groupManager.existsServiceGroup(group.name())) {
                 continue;
             }
             groupManager.registerServiceGroup(group);
@@ -44,7 +44,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         }
 
         for (CloudPlayer player : packet.players()) {
-            if (playerManager.find(player.uniqueId()) != null) {
+            if (playerManager.find(player.uniqueId()).isPresent()) {
                 continue;
             }
             playerManager.registerPlayer(player);

@@ -17,7 +17,7 @@ public class LabyModPlayerJoinListener implements Listener {
         CloudAPI.instance().serviceManager().current().ifPresent(service -> {
            final String notifyMessage = config.get("notify-message").asString()
                    .replace("%service%", service.name())
-                   .replace("%group%", service.group().getName())
+                   .replace("%group%", service.group().name())
                    .replace("%id%", String.valueOf(service.id()));
 
            // Send the game mode

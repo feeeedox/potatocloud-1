@@ -20,7 +20,7 @@ public class GroupAddListener implements PacketListener<GroupAddPacket> {
     public void handle(PacketContext<GroupAddPacket> ctx) {
         final GroupAddPacket packet = ctx.packet();
 
-        if (groupManager.existsServiceGroup(packet.group().getName())) {
+        if (groupManager.existsServiceGroup(packet.group().name())) {
             return;
         }
 

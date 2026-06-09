@@ -1,6 +1,7 @@
 package net.potatocloud.node.command.commands;
 
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.ServiceGroupManager;
 import net.potatocloud.api.logging.Logger;
@@ -24,10 +25,10 @@ public class GroupCommand extends Command {
     public GroupCommand(Logger logger, ServiceGroupManager groupManager) {
         final Node node = Node.getInstance();
 
-        defaultExecutor(ctx -> sendHelp());
+        defaultExecutor(_ -> sendHelp());
 
         sub("create", "Create a new group")
-                .executes(ctx -> {
+                .executes(_ -> {
                     node.setupManager().startSetup(new GroupConfigurationSetup(
                             node.console(),
                             node.screenManager(),
@@ -42,11 +43,11 @@ public class GroupCommand extends Command {
                     final ServiceGroup group = ctx.get("group");
 
                     groupManager.deleteServiceGroup(group);
-                    logger.info("&7Group &a" + group.getName() + " &7was deleted");
+                    logger.info("&7Group &a" + group.name() + " &7was deleted");
                 });
 
         sub("list", "List all groups")
-                .executes(ctx -> {
+                .executes(_ -> {
                     final List<ServiceGroup> groups = groupManager.getAllServiceGroups();
 
                     if (groups.isEmpty()) {
@@ -56,7 +57,7 @@ public class GroupCommand extends Command {
 
                     logger.info("Loaded groups&8:");
                     for (ServiceGroup group : groups) {
-                        logger.info("&8» &a" + group.getName());
+                        logger.info("&8» &a" + group.name());
                     }
                 });
 
@@ -65,20 +66,20 @@ public class GroupCommand extends Command {
                 .executes(ctx -> {
                     final ServiceGroup group = ctx.get("group");
 
-                    logger.info("&7Info for group &a" + group.getName() + "&8:");
-                    if (node.config().cluster().enabled() && group.nodeName() != null) {
-                        logger.info("&8» &7Node: &a" + group.nodeName());
+                    logger.info("&7Info for group &a" + group.name() + "&8:");
+                    if (node.config().cluster().enabled() && group.node().isPresent()) {
+                        logger.info("&8» &7Node: &a" + group.node().map(ClusterNode::name).orElse("Unknown"));
                     }
-                    logger.info("&8» &7Platform: &a" + group.getPlatform().getName());
-                    logger.info("&8» &7Version: &a" + group.getPlatformVersion().getName());
-                    logger.info("&8» &7Templates: &a" + String.join(", ", group.getServiceTemplates()));
-                    logger.info("&8» &7Min Online Count: &a" + group.getMinOnlineCount());
-                    logger.info("&8» &7Max Online Count: &a" + group.getMaxOnlineCount());
-                    logger.info("&8» &7Online Players: &a" + group.getOnlinePlayers().size());
-                    logger.info("&8» &7Max Players: &a" + group.getMaxPlayers());
-                    logger.info("&8» &7Max Memory: &a" + group.getMaxMemory() + "MB");
-                    logger.info("&8» &7Fallback: " + (group.isFallback() ? "&aYes" : "&cNo"));
-                    logger.info("&8» &7Static: " + (group.isStatic() ? "&aYes" : "&cNo"));
+                    logger.info("&8» &7Platform: &a" + group.platform().getName());
+                    logger.info("&8» &7Version: &a" + group.platformVersion().getName());
+                    logger.info("&8» &7Templates: &a" + String.join(", ", group.templates()));
+                    logger.info("&8» &7Min Online Count: &a" + group.minServices());
+                    logger.info("&8» &7Max Online Count: &a" + group.maxServices());
+                    logger.info("&8» &7Online Players: &a" + group.players().size());
+                    logger.info("&8» &7Max Players: &a" + group.maxPlayers());
+                    logger.info("&8» &7Max Memory: &a" + group.maxMemory() + "MB");
+                    logger.info("&8» &7Fallback: " + (group.fallback() ? "&aYes" : "&cNo"));
+                    logger.info("&8» &7Static: " + (group.staticServices() ? "&aYes" : "&cNo"));
                 });
 
         sub("stop", "Stop all services in a group")
@@ -86,7 +87,7 @@ public class GroupCommand extends Command {
                 .executes(ctx -> {
                     final ServiceGroup group = ctx.get("group");
 
-                    for (Service service : group.getAllServices()) {
+                    for (Service service : group.services()) {
                         CloudAPI.instance().serviceManager().stop(service); // todo
                     }
                 });
@@ -125,8 +126,8 @@ public class GroupCommand extends Command {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
 
                         group.setProperty(property);
-                        group.update();
-                        logger.info("Property &a" + key + " &7was set to &a" + value + " &7in group &a" + group.getName());
+                        groupManager.updateServiceGroup(group);
+                        logger.info("Property &a" + key + " &7was set to &a" + value + " &7in group &a" + group.name());
                     } catch (Exception e) {
                         propertySub.sendHelp();
                     }
@@ -153,13 +154,13 @@ public class GroupCommand extends Command {
 
                     final Property<?> property = group.getProperty(key);
                     if (property == null) {
-                        logger.info("Property &a" + key + "&7 was &cnot found &7in group &a" + group.getName());
+                        logger.info("Property &a" + key + "&7 was &cnot found &7in group &a" + group.name());
                         return;
                     }
 
                     group.getPropertyMap().remove(property.getName());
-                    group.update();
-                    logger.info("Property &a" + key + " &7was removed in group &a" + group.getName());
+                    groupManager.updateServiceGroup(group);
+                    logger.info("Property &a" + key + " &7was removed in group &a" + group.name());
                 });
 
         propertySub.sub("list")
@@ -169,11 +170,11 @@ public class GroupCommand extends Command {
                     final List<Property<?>> properties = group.getProperties();
 
                     if (properties.isEmpty()) {
-                        logger.info("No properties found for group &a" + group.getName());
+                        logger.info("No properties found for group &a" + group.name());
                         return;
                     }
 
-                    logger.info("Properties of group &a" + group.getName() + "&8:");
+                    logger.info("Properties of group &a" + group.name() + "&8:");
                     for (Property<?> property : properties) {
                         logger.info("&8» &a" + property.getName() + " &7- " + property.getValue());
                     }
@@ -212,20 +213,20 @@ public class GroupCommand extends Command {
 
                     key = key.toLowerCase();
 
-                    final String groupName = group.getName();
+                    final String groupName = group.name();
 
                     try {
                         switch (key) {
                             case "addtemplate" -> {
-                                group.addServiceTemplate(value);
+                                group.addTemplate(value);
                                 Node.getInstance().templateManager().createTemplate(value);
-                                group.update();
+                                groupManager.updateServiceGroup(group);
                                 logger.info("Template &a" + value + " &7was added to group &a" + groupName);
                                 return;
                             }
                             case "removetemplate" -> {
-                                if (group.getServiceTemplates().removeIf(s -> s.equalsIgnoreCase(value))) {
-                                    group.update();
+                                if (group.templates().removeIf(s -> s.equalsIgnoreCase(value))) {
+                                    groupManager.updateServiceGroup(group);
                                     logger.info("Template &a" + value + " &7was removed from group &a" + groupName);
                                 } else {
                                     logger.info("Template &a" + value + " &7was not found in group &a" + groupName);
@@ -234,17 +235,17 @@ public class GroupCommand extends Command {
                             }
                             case "addjvmflag" -> {
                                 group.addCustomJvmFlag(value);
-                                group.update();
+                                groupManager.updateServiceGroup(group);
                                 logger.info("Added JVM flag &a" + value + " &7to group &a" + groupName);
                                 return;
                             }
-                            case "minonlinecount" -> group.setMinOnlineCount(Integer.parseInt(value));
-                            case "maxonlinecount" -> group.setMaxOnlineCount(Integer.parseInt(value));
-                            case "maxplayers" -> group.setMaxPlayers(Integer.parseInt(value));
-                            case "maxmemory" -> group.setMaxMemory(Integer.parseInt(value));
-                            case "fallback" -> group.setFallback(Boolean.parseBoolean(value));
-                            case "startpercentage" -> group.setStartPercentage(Integer.parseInt(value));
-                            case "startpriority" -> group.setStartPriority(Integer.parseInt(value));
+                            case "minonlinecount" -> group.minServices(Integer.parseInt(value));
+                            case "maxonlinecount" -> group.maxServices(Integer.parseInt(value));
+                            case "maxplayers" -> group.maxPlayers(Integer.parseInt(value));
+                            case "maxmemory" -> group.maxMemory(Integer.parseInt(value));
+                            case "fallback" -> group.fallback(Boolean.parseBoolean(value));
+                            case "startpercentage" -> group.startPercentage(Integer.parseInt(value));
+                            case "startpriority" -> group.startPriority(Integer.parseInt(value));
 
                             default -> sendHelp();
                         }
@@ -253,7 +254,7 @@ public class GroupCommand extends Command {
                         return;
                     }
 
-                    group.update();
+                    groupManager.updateServiceGroup(group);
                     logger.info("Updated &a" + key + " &7for group &a" + groupName + "&7 to &a" + value);
                 });
     }

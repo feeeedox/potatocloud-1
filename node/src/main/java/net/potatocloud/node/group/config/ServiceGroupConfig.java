@@ -2,6 +2,7 @@ package net.potatocloud.node.group.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.group.ServiceGroup;
 import net.potatocloud.api.group.impl.ServiceGroupImpl;
 import net.potatocloud.api.property.Property;
@@ -15,7 +16,7 @@ public record ServiceGroupConfig(
         String platform,
         @JsonProperty("platform-version") String platformVersion,
         @JsonProperty("java-command") String javaCommand,
-        @JsonProperty("jvm-flags") List<String> jvmFlags,
+        @JsonProperty("jvm-flags") Set<String> jvmFlags,
         @JsonProperty("max-players") int maxPlayers,
         @JsonProperty("max-memory") int maxMemory,
         @JsonProperty("min-online-count") int minOnlineCount,
@@ -24,30 +25,28 @@ public record ServiceGroupConfig(
         boolean fallback,
         @JsonProperty("start-priority") int startPriority,
         @JsonProperty("start-percentage") int startPercentage,
-        List<String> templates,
+        Set<String> templates,
         List<PropertyConfig> properties
 ) {
 
     public static ServiceGroupConfig from(ServiceGroup group) {
         return new ServiceGroupConfig(
-                group.getName(),
-                group.nodeName(),
-                group.getPlatformName(),
-                group.getPlatformVersionName(),
-                group.getJavaCommand(),
-                group.getCustomJvmFlags(),
-                group.getMaxPlayers(),
-                group.getMaxMemory(),
-                group.getMinOnlineCount(),
-                group.getMaxOnlineCount(),
-                group.isStatic(),
-                group.isFallback(),
-                group.getStartPriority(),
-                group.getStartPercentage(),
-                group.getServiceTemplates(),
-                group.getProperties().stream()
-                        .map(PropertyConfig::from)
-                        .toList()
+                group.name(),
+                group.node().map(ClusterNode::name).orElse(null),
+                group.platform().getName(),
+                group.platformVersion().getName(),
+                group.javaCommand(),
+                group.customJvmFlags(),
+                group.maxPlayers(),
+                group.maxMemory(),
+                group.minServices(),
+                group.maxServices(),
+                group.staticServices(),
+                group.fallback(),
+                group.startPriority(),
+                group.startPercentage(),
+                group.templates(),
+                group.getProperties().stream().map(PropertyConfig::from).toList()
         );
     }
 
@@ -75,7 +74,7 @@ public record ServiceGroupConfig(
                 platform,
                 platformVersion,
                 javaCommand,
-                jvmFlags != null ? jvmFlags : new ArrayList<>(),
+                jvmFlags != null ? jvmFlags : new HashSet<>(),
                 maxPlayers,
                 maxMemory,
                 minOnlineCount,
@@ -84,7 +83,7 @@ public record ServiceGroupConfig(
                 fallback,
                 startPriority,
                 startPercentage,
-                templates != null ? templates : new ArrayList<>(),
+                templates != null ? templates : new HashSet<>(),
                 propertyMap
         );
     }

@@ -22,18 +22,18 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
             return;
         }
 
-        group.setMinOnlineCount(packet.minOnlineCount());
-        group.setMaxOnlineCount(packet.maxOnlineCount());
-        group.setMaxPlayers(packet.maxPlayers());
-        group.setMaxMemory(packet.maxMemory());
-        group.setFallback(packet.fallback());
-        group.setStartPriority(packet.startPriority());
-        group.setStartPercentage(packet.startPercentage());
+        group.minServices(packet.minOnlineCount());
+        group.maxServices(packet.maxOnlineCount());
+        group.maxPlayers(packet.maxPlayers());
+        group.maxMemory(packet.maxMemory());
+        group.fallback(packet.fallback());
+        group.startPriority(packet.startPriority());
+        group.startPercentage(packet.startPercentage());
 
-        group.getServiceTemplates().clear();
-        packet.serviceTemplates().forEach(group::addServiceTemplate);
+        group.templates().clear();
+        packet.templates().forEach(group::addTemplate);
 
-        group.getCustomJvmFlags().clear();
+        group.customJvmFlags().clear();
         packet.customJvmFlags().forEach(group::addCustomJvmFlag);
 
         group.getPropertyMap().clear();

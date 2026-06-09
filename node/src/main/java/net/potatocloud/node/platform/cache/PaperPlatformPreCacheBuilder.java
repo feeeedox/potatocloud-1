@@ -23,7 +23,7 @@ public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
             Files.createDirectories(tempDir);
 
             final ArrayList<String> args = new ArrayList<>();
-            args.add(group.getJavaCommand());
+            args.add(group.javaCommand());
             args.add("-Dpaperclip.patchonly=true");
             args.add("-jar");
             args.add(platformJarPath.toFile().getAbsolutePath());
@@ -51,7 +51,7 @@ public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
 
             FileUtils.deleteDirectory(tempDir);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Failed to build Paper platform cache for group: " + group.getName(), e);
+            throw new RuntimeException("Failed to build Paper platform cache for group: " + group.name(), e);
         }
     }
 

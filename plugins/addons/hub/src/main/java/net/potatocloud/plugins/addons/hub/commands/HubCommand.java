@@ -33,7 +33,7 @@ public class HubCommand implements SimpleCommand {
                 .find(player.getUniqueId())
                 .flatMap(CloudPlayer::service)
                 .ifPresentOrElse(service -> {
-                    if (service.group().isFallback()) {
+                    if (service.group().fallback()) {
                         player.sendMessage(messagesConfig.get("alreadyOnFallback"));
                         return;
                     }
@@ -51,7 +51,7 @@ public class HubCommand implements SimpleCommand {
 
     private Optional<RegisteredServer> getBestFallbackServer() {
         return CloudAPI.instance().serviceManager().services().stream()
-                .filter(service -> service.group().isFallback())
+                .filter(service -> service.group().fallback())
                 .filter(service -> service.state() == ServiceState.RUNNING)
                 .sorted(Comparator.comparingInt(Service::playerCount))
                 .map(service -> server.getServer(service.name()))

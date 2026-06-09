@@ -94,7 +94,7 @@ public interface ServiceGroupManager {
      * @param group the service group to delete
      */
     default void deleteServiceGroup(ServiceGroup group) {
-        deleteServiceGroup(group.getName());
+        deleteServiceGroup(group.name());
     }
 
     /**

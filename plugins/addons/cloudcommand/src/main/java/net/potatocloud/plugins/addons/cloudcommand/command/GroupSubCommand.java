@@ -26,7 +26,7 @@ public class GroupSubCommand {
         player.sendMessage(messages.get("group.list.header"));
         for (ServiceGroup group : groups) {
             player.sendMessage(messages.get("group.list.entry")
-                    .replaceText(text -> text.match("%name%").replacement(group.getName())));
+                    .replaceText(text -> text.match("%name%").replacement(group.name())));
         }
     }
 
@@ -49,21 +49,21 @@ public class GroupSubCommand {
 
         player.sendMessage(messages.get("group.info.name").replaceText(text -> text.match("%name%").replacement(name)));
         player.sendMessage(messages.get("group.info.platform")
-                .replaceText(text -> text.match("%platform%").replacement(group.getPlatform().getName())));
+                .replaceText(text -> text.match("%platform%").replacement(group.platform().getName())));
         player.sendMessage(messages.get("group.info.templates")
-                .replaceText(text -> text.match("%templates%").replacement(String.join(", ", group.getServiceTemplates()))));
+                .replaceText(text -> text.match("%templates%").replacement(String.join(", ", group.templates()))));
         player.sendMessage(messages.get("group.info.min-online")
-                .replaceText(text -> text.match("%minOnline%").replacement(String.valueOf(group.getMinOnlineCount()))));
+                .replaceText(text -> text.match("%minOnline%").replacement(String.valueOf(group.minServices()))));
         player.sendMessage(messages.get("group.info.max-online")
-                .replaceText(text -> text.match("%maxOnline%").replacement(String.valueOf(group.getMaxOnlineCount()))));
+                .replaceText(text -> text.match("%maxOnline%").replacement(String.valueOf(group.maxServices()))));
         player.sendMessage(messages.get("group.info.online-players")
-                .replaceText(text -> text.match("%onlinePlayers%").replacement(String.valueOf(group.getAllServices().size()))));
+                .replaceText(text -> text.match("%onlinePlayers%").replacement(String.valueOf(group.services().size()))));
         player.sendMessage(messages.get("group.info.max-players")
-                .replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(group.getMaxPlayers()))));
+                .replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(group.maxPlayers()))));
         player.sendMessage(messages.get("group.info.fallback")
-                .replaceText(text -> text.match("%fallback%").replacement(MiniMessage.miniMessage().deserialize(group.isFallback() ? "<green>Yes" : "<red>No"))));
+                .replaceText(text -> text.match("%fallback%").replacement(MiniMessage.miniMessage().deserialize(group.fallback() ? "<green>Yes" : "<red>No"))));
         player.sendMessage(messages.get("group.info.static")
-                .replaceText(text -> text.match("%static%").replacement(MiniMessage.miniMessage().deserialize((group.isStatic() ? "<green>Yes" : "<red>No")))));
+                .replaceText(text -> text.match("%static%").replacement(MiniMessage.miniMessage().deserialize((group.staticServices() ? "<green>Yes" : "<red>No")))));
     }
 
     public void shutdownGroup(String[] args) {
@@ -83,7 +83,7 @@ public class GroupSubCommand {
 
         final ServiceGroup group = groupManager.getServiceGroup(name);
 
-        group.getAllServices().stream().filter(Service::running).forEach(service -> CloudAPI.instance().serviceManager().stop(service));
+        group.services().stream().filter(Service::running).forEach(service -> CloudAPI.instance().serviceManager().stop(service));
 
         player.sendMessage(messages.get("group.shutdown.success")
                 .replaceText(text -> text.match("%name%").replacement(name)));
@@ -143,7 +143,7 @@ public class GroupSubCommand {
                 }
 
                 group.getPropertyMap().remove(property.getName());
-                group.update();
+                groupManager.updateServiceGroup(group);
 
                 player.sendMessage(messages.get("group.property.remove.success")
                         .replaceText(text -> text.match("%name%").replacement(name))
@@ -162,7 +162,7 @@ public class GroupSubCommand {
                 try {
                     final Property<?> property = PropertyUtil.stringToProperty(key, value);
                     group.setProperty(property);
-                    group.update();
+                    groupManager.updateServiceGroup(group);
 
                     player.sendMessage(messages.get("group.property.set.success")
                             .replaceText(text -> text.match("%key%").replacement(key))
@@ -200,15 +200,15 @@ public class GroupSubCommand {
         try {
             switch (key) {
                 case "addtemplate" -> {
-                    group.addServiceTemplate(value);
-                    group.update();
+                    group.addTemplate(value);
+                    groupManager.updateServiceGroup(group);
                     player.sendMessage(messages.get("group.edit.template.add")
                             .replaceText(text -> text.match("%template%").replacement(value)));
                     return;
                 }
                 case "removetemplate" -> {
-                    if (group.getServiceTemplates().removeIf(s -> s.equalsIgnoreCase(value))) {
-                        group.update();
+                    if (group.templates().removeIf(s -> s.equalsIgnoreCase(value))) {
+                        groupManager.updateServiceGroup(group);
                         player.sendMessage(messages.get("group.edit.template.remove")
                                 .replaceText(text -> text.match("%template%").replacement(value)));
                     } else {
@@ -219,24 +219,24 @@ public class GroupSubCommand {
                 }
                 case "addjvmflag" -> {
                     group.addCustomJvmFlag(value);
-                    group.update();
+                    groupManager.updateServiceGroup(group);
                     player.sendMessage(messages.get("group.edit.jvmflag.add")
                             .replaceText(text -> text.match("%%flag%%").replacement(value)));
                     return;
                 }
-                case "minonlinecount" -> group.setMinOnlineCount(Integer.parseInt(value));
-                case "maxonlinecount" -> group.setMaxOnlineCount(Integer.parseInt(value));
-                case "maxplayers" -> group.setMaxPlayers(Integer.parseInt(value));
-                case "maxmemory" -> group.setMaxMemory(Integer.parseInt(value));
-                case "fallback" -> group.setFallback(Boolean.parseBoolean(value));
-                case "startpercentage" -> group.setStartPercentage(Integer.parseInt(value));
-                case "startpriority" -> group.setStartPriority(Integer.parseInt(value));
+                case "minonlinecount" -> group.minServices(Integer.parseInt(value));
+                case "maxonlinecount" -> group.maxServices(Integer.parseInt(value));
+                case "maxplayers" -> group.maxPlayers(Integer.parseInt(value));
+                case "maxmemory" -> group.maxMemory(Integer.parseInt(value));
+                case "fallback" -> group.fallback(Boolean.parseBoolean(value));
+                case "startpercentage" -> group.startPercentage(Integer.parseInt(value));
+                case "startpriority" -> group.startPriority(Integer.parseInt(value));
                 default -> {
                     player.sendMessage(messages.get("group.edit.usage"));
                     return;
                 }
             }
-            group.update();
+            groupManager.updateServiceGroup(group);
             player.sendMessage(messages.get("group.edit.success")
                     .replaceText(text -> text.match("%key%").replacement(key))
                     .replaceText(text -> text.match("%value%").replacement(value))
@@ -259,7 +259,7 @@ public class GroupSubCommand {
         if ((sub.equals("info") || sub.equals("edit") || sub.equals("shutdown"))) {
             if (args.length == 3) {
                 return groupManager.getAllServiceGroups().stream()
-                        .map(ServiceGroup::getName)
+                        .map(ServiceGroup::name)
                         .filter(name -> name.startsWith(args[2]))
                         .toList();
             }
@@ -281,7 +281,7 @@ public class GroupSubCommand {
 
             if (args.length == 4) {
                 return groupManager.getAllServiceGroups().stream()
-                        .map(ServiceGroup::getName)
+                        .map(ServiceGroup::name)
                         .filter(name -> name.startsWith(args[3]))
                         .toList();
             }

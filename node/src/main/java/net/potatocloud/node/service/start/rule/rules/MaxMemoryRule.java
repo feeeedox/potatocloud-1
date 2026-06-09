@@ -19,12 +19,12 @@ public class MaxMemoryRule implements ServiceStartRule {
     public boolean allows(ServiceGroup group) {
         final boolean enough = serviceManager.hasEnoughMemory(group);
 
-        if (!enough && memoryWarnedGroups.add(group.getName())) {
+        if (!enough && memoryWarnedGroups.add(group.name())) {
             serviceManager.logMemoryWarning(group);
         }
 
         if (enough) {
-            memoryWarnedGroups.remove(group.getName());
+            memoryWarnedGroups.remove(group.name());
         }
 
         return enough;

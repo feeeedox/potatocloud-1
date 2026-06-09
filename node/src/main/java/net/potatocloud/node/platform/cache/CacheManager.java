@@ -27,8 +27,8 @@ public class CacheManager {
     private final Set<String> runningCacheKeys = ConcurrentHashMap.newKeySet();
 
     public Path preCachePlatform(ServiceGroup group) {
-        final Platform platform = group.getPlatform();
-        final PlatformVersion version = group.getPlatformVersion();
+        final Platform platform = group.platform();
+        final PlatformVersion version = group.platformVersion();
         final String builderName = platform.getPreCacheBuilder();
 
         if (builderName == null) {
@@ -84,7 +84,7 @@ public class CacheManager {
     }
 
     public void copyCacheToService(ServiceGroup group, Path cacheFolder, Path serviceDir) {
-        final String builderName = group.getPlatform().getPreCacheBuilder();
+        final String builderName = group.platform().getPreCacheBuilder();
         if (builderName != null) {
             // Copy pre-built cache into a service directory
             final PlatformPreCacheBuilder builder = getPreCacheBuilder(builderName);

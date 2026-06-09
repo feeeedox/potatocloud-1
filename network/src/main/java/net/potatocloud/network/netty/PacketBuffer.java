@@ -86,6 +86,29 @@ public class PacketBuffer {
         return list;
     }
 
+    public void writeStringSet(Set<String> set) {
+        if (set == null) {
+            writeInt(-1);
+            return;
+        }
+        writeInt(set.size());
+        for (String item : set) {
+            writeString(item);
+        }
+    }
+
+    public Set<String> readStringSet() {
+        final int size = readInt();
+        if (size == -1) {
+            return new HashSet<>();
+        }
+        final Set<String> set = new HashSet<>(size);
+        for (int i = 0; i < size; i++) {
+            set.add(readString());
+        }
+        return set;
+    }
+
     public void writeObject(Object object) {
         switch (object) {
             case String string -> {
@@ -229,21 +252,21 @@ public class PacketBuffer {
     }
 
     public void writeServiceGroup(ServiceGroup group) {
-        writeString(group.getName());
-        writeString(group.nodeName());
-        writeString(group.getPlatformName());
-        writeString(group.getPlatformVersionName());
-        writeString(group.getJavaCommand());
-        writeStringList(group.getCustomJvmFlags());
-        writeInt(group.getMaxPlayers());
-        writeInt(group.getMaxMemory());
-        writeInt(group.getMinOnlineCount());
-        writeInt(group.getMaxOnlineCount());
-        writeBoolean(group.isStatic());
-        writeBoolean(group.isFallback());
-        writeInt(group.getStartPriority());
-        writeInt(group.getStartPercentage());
-        writeStringList(group.getServiceTemplates());
+        writeString(group.name());
+        writeString(group.node().map(ClusterNode::name).orElse(null));
+        writeString(group.platform().getName());
+        writeString(group.platformVersion().getName());
+        writeString(group.javaCommand());
+        writeStringSet(group.customJvmFlags());
+        writeInt(group.maxPlayers());
+        writeInt(group.maxMemory());
+        writeInt(group.minServices());
+        writeInt(group.maxServices());
+        writeBoolean(group.staticServices());
+        writeBoolean(group.fallback());
+        writeInt(group.startPriority());
+        writeInt(group.startPercentage());
+        writeStringSet(group.templates());
         writePropertyMap(group.getPropertyMap());
     }
 
@@ -254,7 +277,7 @@ public class PacketBuffer {
                 readString(),
                 readString(),
                 readString(),
-                readStringList(),
+                readStringSet(),
                 readInt(),
                 readInt(),
                 readInt(),
@@ -263,7 +286,7 @@ public class PacketBuffer {
                 readBoolean(),
                 readInt(),
                 readInt(),
-                readStringList(),
+                readStringSet(),
                 readPropertyMap()
         );
     }
@@ -273,7 +296,7 @@ public class PacketBuffer {
         writeString(service.host());
         writeInt(service.port());
         writeString(service.name());
-        writeString(service.group().getName());
+        writeString(service.group().name());
         writePropertyMap(service.getPropertyMap());
         writeLong(service.startedAt().toEpochMilli());
         writeString(service.state().name());

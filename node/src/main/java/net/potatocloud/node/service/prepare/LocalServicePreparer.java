@@ -50,7 +50,7 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to create service directory: " + directory, e);
         }
 
-        for (String template : group.getServiceTemplates()) {
+        for (String template : group.templates()) {
             templateManager.copyTemplate(template, directory);
         }
 
@@ -72,13 +72,13 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to install plugin for service " + serviceName, e);
         }
 
-        final Platform platform = group.getPlatform();
-        downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.getPlatformVersionName()));
+        final Platform platform = group.platform();
+        downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.platformVersion().getName()));
 
         final Path cacheDirectory = cacheManager.preCachePlatform(group);
         cacheManager.copyCacheToService(group, cacheDirectory, directory);
 
-        final PlatformVersion version = group.getPlatformVersion();
+        final PlatformVersion version = group.platformVersion();
         try {
             Files.copy(
                     PlatformUtils.getPlatformJarPath(platform, version),
@@ -89,21 +89,21 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to copy server jar for service " + serviceName, e);
         }
 
-        for (String stepName : group.getPlatform().getPrepareSteps()) {
+        for (String stepName : group.platform().getPrepareSteps()) {
             final PrepareStep step = PlatformPrepareSteps.getStep(stepName);
             if (step != null) {
                 step.data().put("group", group);
                 step.data().put("port", port);
 
-                step.execute(serviceName, group.getPlatform(), directory);
+                step.execute(serviceName, group.platform(), directory);
             }
         }
 
     }
 
     private String resolvePluginName() {
-        final Platform platform = group.getPlatform();
-        final PlatformVersion version = group.getPlatformVersion();
+        final Platform platform = group.platform();
+        final PlatformVersion version = group.platformVersion();
 
         if (platform.isBukkitBased()) {
             return version.isLegacy()

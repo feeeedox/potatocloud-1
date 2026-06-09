@@ -101,12 +101,17 @@ public class ServiceManagerImpl implements ServiceManager {
             return CompletableFuture.completedFuture(null);
         }
 
-        if (!clusterManager.isLocal(group.nodeName())) {
-            clusterManager.sendTo(group.nodeName(), new StartServicePacket(group.getName(), null));
-            return CompletableFuture.completedFuture(null);
-        }
+        return group.node()
+                .map(node -> {
+                    if (!clusterManager.isLocal(node.name())) {
+                        clusterManager.sendTo(node.name(),new StartServicePacket(group.name(), null));
+                        return null;
+                    }
 
-        return CompletableFuture.completedFuture(launcher.start(group.getName(), null));
+                    return launcher.start(group.name(), null);
+                })
+                .map(CompletableFuture::completedFuture)
+                .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 
     @Override
@@ -167,19 +172,19 @@ public class ServiceManagerImpl implements ServiceManager {
         }
 
         final long usedMb = services.stream()
-                .mapToLong(service -> service.group().getMaxMemory())
+                .mapToLong(service -> service.group().maxMemory())
                 .sum();
 
-        return (usedMb + group.getMaxMemory()) <= config.service().maxMemory();
+        return (usedMb + group.maxMemory()) <= config.service().maxMemory();
     }
 
     public void logMemoryWarning(ServiceGroup group) {
         final long usedMb = services.stream()
-                .mapToLong(service -> service.group().getMaxMemory())
+                .mapToLong(service -> service.group().maxMemory())
                 .sum();
 
-        logger.warn("Service(s) for group &a" + group.getName()
-                + " &7could not be started &8[&7Required&8: &a" + group.getMaxMemory() + " MB"
+        logger.warn("Service(s) for group &a" + group.name()
+                + " &7could not be started &8[&7Required&8: &a" + group.maxMemory() + " MB"
                 + "&8, &7Used&8: &a" + usedMb + " MB"
                 + "&8, &7Max&8: &a" + config.service().maxMemory() + " MB&8]");
     }
