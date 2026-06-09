@@ -4,7 +4,6 @@ import net.potatocloud.api.property.Property;
 import net.potatocloud.network.netty.PacketBuffer;
 import net.potatocloud.network.packet.Packet;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

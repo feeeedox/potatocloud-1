@@ -14,7 +14,7 @@ import java.util.Set;
 public class PlayerCommand extends Command {
 
     public PlayerCommand(Logger logger, CloudPlayerManager playerManager) {
-        defaultExecutor(ctx -> sendHelp());
+        defaultExecutor(_ -> sendHelp());
 
         sub("connect", "Connect a player to a service")
                 .argument(ArgumentType.Player("player"))
@@ -35,7 +35,7 @@ public class PlayerCommand extends Command {
                 });
 
         sub("list", "List online players")
-                .executes(ctx -> {
+                .executes(_ -> {
                     final Set<CloudPlayer> players = playerManager.players();
                     if (players.isEmpty()) {
                         logger.info("There are &cno &7online players");

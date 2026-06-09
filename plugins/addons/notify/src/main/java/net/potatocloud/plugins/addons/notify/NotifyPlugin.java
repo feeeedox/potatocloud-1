@@ -24,14 +24,12 @@ public class NotifyPlugin {
 
     private final ProxyServer server;
     private final CloudAPI cloudAPI = CloudAPI.instance();
-    private final Logger logger;
     private final Config config;
     private final MessagesConfig messages;
 
     @Inject
-    public NotifyPlugin(ProxyServer server, Logger logger) {
+    public NotifyPlugin(ProxyServer server) {
         this.server = server;
-        this.logger = logger;
         final String folder = "plugins/potatocloud-notify";
 
         config = new YamlConfig(Path.of(folder).resolve("config.yml"));

@@ -28,14 +28,12 @@ public class GroupCommand extends Command {
         defaultExecutor(_ -> sendHelp());
 
         sub("create", "Create a new group")
-                .executes(_ -> {
-                    node.setupManager().startSetup(new GroupConfigurationSetup(
-                            node.console(),
-                            node.screenManager(),
-                            groupManager,
-                            node.platformManager())
-                    );
-                });
+                .executes(_ -> node.setupManager().startSetup(new GroupConfigurationSetup(
+                        node.console(),
+                        node.screenManager(),
+                        groupManager,
+                        node.platformManager())
+                ));
 
         sub("delete", "Delete a group")
                 .argument(ArgumentType.Group("group"))
@@ -94,7 +92,7 @@ public class GroupCommand extends Command {
 
         final SubCommand propertySub = sub("property", "Manage properties of a group");
 
-        propertySub.executes(ctx -> propertySub.sendHelp());
+        propertySub.executes(_ -> propertySub.sendHelp());
 
         propertySub.sub("set")
                 .argument(ArgumentType.Group("group"))

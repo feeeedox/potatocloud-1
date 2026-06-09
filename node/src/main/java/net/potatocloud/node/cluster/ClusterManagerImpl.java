@@ -59,9 +59,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.playerManager = playerManager;
 
         server.on(NodeJoinPacket.class, new NodeJoinListener(localNode, this, config.token(), logger, groupManager, serviceManager, playerManager));
-        server.on(NodeJoinRejectPacket.class, ctx -> {
-            logger.warn("Could not join the cluster&8: &c" + ctx.packet().reason());
-        });
+        server.on(NodeJoinRejectPacket.class, ctx -> logger.warn("Could not join the cluster&8: &c" + ctx.packet().reason()));
         server.on(NodeLeavePacket.class, new NodeLeaveListener(this, logger));
         server.on(HeartbeatPacket.class, new HeartbeatListener(this));
         server.on(NodeDiscoveryPacket.class, new NodeDiscoveryListener(this));

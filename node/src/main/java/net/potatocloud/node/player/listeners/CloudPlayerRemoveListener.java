@@ -1,7 +1,6 @@
 package net.potatocloud.node.player.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;

@@ -34,7 +34,6 @@ public class ServiceManagerImpl implements ServiceManager {
     private final Logger logger;
     private final NodeConfig config;
     private final ClusterManagerImpl clusterManager;
-    private final ServiceGroupManager groupManager;
 
     public ServiceManagerImpl(
             NodeConfig config,
@@ -52,7 +51,6 @@ public class ServiceManagerImpl implements ServiceManager {
         this.logger = logger;
         this.server = server;
         this.clusterManager = clusterManager;
-        this.groupManager = groupManager;
 
         ServiceDefaultFiles.copyDefaultFiles(Path.of(config.folders().data()));
 

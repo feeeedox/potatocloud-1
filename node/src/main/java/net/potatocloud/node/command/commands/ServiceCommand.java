@@ -24,7 +24,7 @@ import java.util.List;
 public class ServiceCommand extends Command {
 
     public ServiceCommand(Logger logger, ServiceManagerImpl serviceManager, ScreenManager screenManager) {
-        defaultExecutor(ctx -> sendHelp());
+        defaultExecutor(_ -> sendHelp());
 
         sub("copy", "Copy files from a service to a template")
                 .argument(ArgumentType.Service("service"))
@@ -133,7 +133,7 @@ public class ServiceCommand extends Command {
                 });
 
         sub("list", "List all services")
-                .executes(ctx -> {
+                .executes(_ -> {
                     final List<Service> services = serviceManager.services();
 
                     if (services.isEmpty()) {
@@ -149,7 +149,7 @@ public class ServiceCommand extends Command {
 
         final SubCommand propertySub = sub("property", "Manage properties of a service");
 
-        propertySub.executes(ctx -> propertySub.sendHelp());
+        propertySub.executes(_ -> propertySub.sendHelp());
 
         propertySub.sub("set")
                 .argument(ArgumentType.Service("service"))
