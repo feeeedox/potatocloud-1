@@ -127,6 +127,7 @@ public class ClusterManagerImpl implements ClusterManager {
                                 .filter(nodeName::equals)
                                 .isPresent()
                 )
+                .toList()
                 .forEach(player -> {
                     playerManager.unregisterPlayer(player);
                     server.broadcast().connectors().send(new CloudPlayerRemovePacket(player.uniqueId()));
@@ -139,6 +140,7 @@ public class ClusterManagerImpl implements ClusterManager {
                                 .filter(nodeName::equals)
                                 .isPresent()
                 )
+                .toList()
                 .forEach(service -> {
                     serviceManager.removeService(service);
                     server.broadcast().connectors().send(new ServiceRemovePacket(service.name(), service.port()));
@@ -151,6 +153,7 @@ public class ClusterManagerImpl implements ClusterManager {
                                 .filter(nodeName::equals)
                                 .isPresent()
                 )
+                .toList()
                 .forEach(group -> {
                     groupManager.unregisterServiceGroup(group.name());
                     server.broadcast().connectors().send(new GroupDeletePacket(group.name()));
