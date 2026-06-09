@@ -87,7 +87,7 @@ public class GroupSubCommand {
                     player.sendMessage(messages.get("group.property.list.header").replaceText(text -> text.match("%name%").replacement(name)));
 
                     for (Property<?> property : props) {
-                        player.sendMessage(messages.get("group.property.list.entry").replaceText(text -> text.match("%key%").replacement(property.getName())).replaceText(text -> text.match("%value%").replacement(String.valueOf(property.getValue()))));
+                        player.sendMessage(messages.get("group.property.list.entry").replaceText(text -> text.match("%key%").replacement(property.name())).replaceText(text -> text.match("%value%").replacement(String.valueOf(property.value()))));
                     }
                 }
 
@@ -105,7 +105,7 @@ public class GroupSubCommand {
                         return;
                     }
 
-                    group.getPropertyMap().remove(property.getName());
+                    group.getPropertyMap().remove(property.name());
                     groupManager.update(group);
 
                     player.sendMessage(messages.get("group.property.remove.success").replaceText(text -> text.match("%name%").replacement(name)).replaceText(text -> text.match("%key%").replacement(key)));
@@ -231,7 +231,7 @@ public class GroupSubCommand {
 
             if (args.length == 5 && args[2].equalsIgnoreCase("remove")) {
                 return groupManager.find(args[3])
-                        .map(group -> group.getProperties().stream().map(Property::getName)
+                        .map(group -> group.getProperties().stream().map(Property::name)
                                 .filter(propertyName -> propertyName.startsWith(args[4]))
                                 .toList())
                         .orElseGet(List::of);
@@ -241,7 +241,7 @@ public class GroupSubCommand {
                 List<String> completions = new ArrayList<>();
                 completions.add("<custom>");
                 completions.addAll(DefaultProperties.asSet().stream()
-                        .map(Property::getName)
+                        .map(Property::name)
                         .filter(propertyName -> propertyName.startsWith(args[4].toLowerCase())).
                         toList());
                 return completions;

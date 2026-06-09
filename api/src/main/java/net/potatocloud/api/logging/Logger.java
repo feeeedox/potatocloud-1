@@ -1,8 +1,5 @@
 package net.potatocloud.api.logging;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 public interface Logger {
 
     /**
@@ -65,8 +62,6 @@ public interface Logger {
     /**
      * Represents the severity level of a log message.
      */
-    @Getter
-    @RequiredArgsConstructor
     enum Level {
 
         /**
@@ -98,5 +93,13 @@ public interface Logger {
          * Color code associated with this log level.
          */
         private final String colorCode;
+
+        Level(String colorCode) {
+            this.colorCode = colorCode;
+        }
+
+        public String colorCode() {
+            return colorCode;
+        }
     }
 }

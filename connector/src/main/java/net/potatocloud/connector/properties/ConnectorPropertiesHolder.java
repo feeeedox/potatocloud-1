@@ -24,20 +24,20 @@ public class ConnectorPropertiesHolder implements PropertyHolder {
         client.send(new RequestPropertiesPacket());
 
         client.on(PropertyAddPacket.class, ctx -> {
-            propertyMap.put(ctx.packet().property().getName(), ctx.packet().property());
+            propertyMap.put(ctx.packet().property().name(), ctx.packet().property());
         });
 
         client.on(PropertyUpdatePacket.class, ctx -> {
             final Property<?> property = propertyMap.get(ctx.packet().propertyName());
             if (property != null) {
-                property.setValueObject(ctx.packet().propertyValue());
+                property.valueObject(ctx.packet().propertyValue());
             }
         });
     }
 
     @Override
     public <T> void setProperty(Property<T> property, T value, boolean fireEvent) {
-        final Property<T> existing = getProperty(property.getName());
+        final Property<T> existing = getProperty(property.name());
         PropertyHolder.super.setProperty(property, value, fireEvent);
 
         if (existing == null) {
@@ -45,7 +45,7 @@ public class ConnectorPropertiesHolder implements PropertyHolder {
             client.send(new PropertyAddPacket(property));
         } else {
             // Property was just updated, so send the update packet to the node
-            client.send(new PropertyUpdatePacket(property.getName(), value));
+            client.send(new PropertyUpdatePacket(property.name(), value));
         }
     }
 

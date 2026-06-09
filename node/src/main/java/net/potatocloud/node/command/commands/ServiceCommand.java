@@ -164,7 +164,7 @@ public class ServiceCommand extends Command {
                     final List<String> suggestions = new ArrayList<>();
 
                     for (Property<?> property : DefaultProperties.asSet()) {
-                        suggestions.add(property.getName());
+                        suggestions.add(property.name());
                     }
 
                     suggestions.add("<custom>");
@@ -200,7 +200,7 @@ public class ServiceCommand extends Command {
                     final Service service = ctx.get("service");
 
                     return service.getProperties().stream()
-                            .map(Property::getName)
+                            .map(Property::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
@@ -214,7 +214,7 @@ public class ServiceCommand extends Command {
                         return;
                     }
 
-                    service.getPropertyMap().remove(property.getName());
+                    service.getPropertyMap().remove(property.name());
                     serviceManager.update(service);
                     logger.info("Property &a" + key + " &7was removed in service &a" + service.name());
                 });
@@ -232,7 +232,7 @@ public class ServiceCommand extends Command {
 
                     logger.info("Properties of service &a" + service.name() + "&8:");
                     for (Property<?> property : properties) {
-                        logger.info("&8» &a" + property.getName() + " &7- " + property.getValue());
+                        logger.info("&8» &a" + property.name() + " &7- " + property.value());
                     }
                 });
 

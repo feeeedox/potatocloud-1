@@ -50,7 +50,7 @@ public interface PropertyHolder {
      * @return the property
      */
     default <T> Property<T> getProperty(Property<T> property) {
-        return getProperty(property.getName());
+        return getProperty(property.name());
     }
 
     /**
@@ -62,25 +62,25 @@ public interface PropertyHolder {
      * @param <T>       the type of the property value
      */
     default <T> void setProperty(Property<T> property, T value, boolean fireEvent) {
-        final Property<T> existing = getProperty(property.getName());
+        final Property<T> existing = getProperty(property.name());
         Object oldValue = null;
 
         if (existing != null) {
-            oldValue = existing.getValue();
+            oldValue = existing.value();
             if (oldValue.equals(value)) {
                 return;
             }
 
-            existing.setValue(value);
+            existing.value(value);
             property = existing;
         } else {
-            property.setValue(value);
-            getPropertyMap().put(property.getName(), property);
+            property.value(value);
+            getPropertyMap().put(property.name(), property);
         }
 
         if (fireEvent) {
             CloudAPI.instance().eventBus().publish(
-                    new PropertyChangedEvent(getPropertyHolderName(), property.getName(), oldValue, value)
+                    new PropertyChangedEvent(getPropertyHolderName(), property.name(), oldValue, value)
             );
         }
     }
@@ -90,7 +90,7 @@ public interface PropertyHolder {
     }
 
     default <T> void setProperty(Property<T> property) {
-        setProperty(property, property.getValue());
+        setProperty(property, property.value());
     }
 
     /**

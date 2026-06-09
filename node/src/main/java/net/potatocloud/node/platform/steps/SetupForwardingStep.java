@@ -44,7 +44,7 @@ public class SetupForwardingStep extends AbstractPrepareStep {
 
             // check if the forwarding secret should always be replaced
             final Property<Boolean> property = group.getProperty(DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET);
-            final boolean alwaysOverride = property != null ? property.getValue() : DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET.getDefaultValue();
+            final boolean alwaysOverride = property != null ? property.value() : DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET.defaultValue();
 
             // now create the forwarding secret file with the correct secret
             if (!Files.exists(forwardingSecret) || alwaysOverride) {

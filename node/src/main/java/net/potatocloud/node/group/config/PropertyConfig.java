@@ -10,9 +10,9 @@ public record PropertyConfig(
 
     public static PropertyConfig from(Property<?> property) {
         return new PropertyConfig(
-                property.getName(),
-                property.getDefaultValue(),
-                property.getValue()
+                property.name(),
+                property.defaultValue(),
+                property.value()
         );
     }
 

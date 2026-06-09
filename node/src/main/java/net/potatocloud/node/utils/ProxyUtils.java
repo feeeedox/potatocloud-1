@@ -30,6 +30,6 @@ public final class ProxyUtils {
             return false;
         }
 
-        return property.getValue();
+        return property.value();
     }
 }

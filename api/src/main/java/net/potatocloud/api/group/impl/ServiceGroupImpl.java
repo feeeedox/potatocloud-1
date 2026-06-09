@@ -238,10 +238,10 @@ public class ServiceGroupImpl implements ServiceGroup {
     public <T> void setProperty(Property<T> property, T value) {
         ServiceGroup.super.setProperty(property, value);
 
-        final Property<T> prop = getProperty(property.getName());
+        final Property<T> prop = getProperty(property.name());
         if (prop != null) {
             for (Service service : services()) {
-                service.setProperty(prop, prop.getValue(), false);
+                service.setProperty(prop, prop.value(), false);
 
                 CloudAPI.instance().serviceManager().update(service);
             }

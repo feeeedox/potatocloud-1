@@ -1,11 +1,6 @@
 package net.potatocloud.api.module;
-
-import lombok.Getter;
-import lombok.Setter;
 import net.potatocloud.api.version.Version;
 
-@Setter
-@Getter
 public abstract class AbstractModule implements Module {
 
     private String name;
@@ -20,4 +15,19 @@ public abstract class AbstractModule implements Module {
     @Override
     public void onDisable() {}
 
+    public String name() {
+        return name;
+    }
+
+    public void name(String name) {
+        this.name = name;
+    }
+
+    public Version version() {
+        return version;
+    }
+
+    public void version(Version version) {
+        this.version = version;
+    }
 }

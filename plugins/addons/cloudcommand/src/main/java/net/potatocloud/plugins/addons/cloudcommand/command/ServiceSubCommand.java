@@ -170,8 +170,8 @@ public class ServiceSubCommand {
 
                 for (Property<?> property : props) {
                     player.sendMessage(messages.get("service.property.list.entry")
-                            .replaceText(text -> text.match("%key%").replacement(property.getName()))
-                            .replaceText(text -> text.match("%value%").replacement(String.valueOf(property.getValue()))));
+                            .replaceText(text -> text.match("%key%").replacement(property.name()))
+                            .replaceText(text -> text.match("%value%").replacement(String.valueOf(property.value()))));
                 }
             }
 
@@ -190,7 +190,7 @@ public class ServiceSubCommand {
                     return;
                 }
 
-                service.get().getPropertyMap().remove(property.getName());
+                service.get().getPropertyMap().remove(property.name());
                 serviceManager.update(service.get());
 
                 player.sendMessage(messages.get("service.property.remove.success")
@@ -312,7 +312,7 @@ public class ServiceSubCommand {
             if (args.length == 5 && args[2].equalsIgnoreCase("remove")) {
                 return serviceManager.find(args[3])
                         .map(service -> service.getProperties().stream()
-                                .map(Property::getName)
+                                .map(Property::name)
                                 .filter(p -> p.toLowerCase().startsWith(args[4].toLowerCase()))
                                 .toList())
                         .orElse(List.of());
@@ -322,7 +322,7 @@ public class ServiceSubCommand {
                 List<String> completions = new ArrayList<>();
                 completions.add("<custom>");
                 completions.addAll(DefaultProperties.asSet().stream()
-                        .map(Property::getName)
+                        .map(Property::name)
                         .filter(name -> name.toLowerCase().startsWith(args[4].toLowerCase()))
                         .toList());
                 return completions;

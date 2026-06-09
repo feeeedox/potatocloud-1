@@ -106,7 +106,7 @@ public class GroupCommand extends Command {
                     final List<String> suggestions = new ArrayList<>();
 
                     for (Property<?> property : DefaultProperties.asSet()) {
-                        suggestions.add(property.getName());
+                        suggestions.add(property.name());
                     }
 
                     suggestions.add("<custom>");
@@ -142,7 +142,7 @@ public class GroupCommand extends Command {
                     final ServiceGroup group = ctx.get("group");
 
                     return group.getProperties().stream()
-                            .map(Property::getName)
+                            .map(Property::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
@@ -156,7 +156,7 @@ public class GroupCommand extends Command {
                         return;
                     }
 
-                    group.getPropertyMap().remove(property.getName());
+                    group.getPropertyMap().remove(property.name());
                     groupManager.update(group);
                     logger.info("Property &a" + key + " &7was removed in group &a" + group.name());
                 });
@@ -174,7 +174,7 @@ public class GroupCommand extends Command {
 
                     logger.info("Properties of group &a" + group.name() + "&8:");
                     for (Property<?> property : properties) {
-                        logger.info("&8» &a" + property.getName() + " &7- " + property.getValue());
+                        logger.info("&8» &a" + property.name() + " &7- " + property.value());
                     }
                 });
 

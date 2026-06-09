@@ -1,11 +1,5 @@
 package net.potatocloud.api.property;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@AllArgsConstructor
 public class Property<T> {
 
     /**
@@ -21,17 +15,20 @@ public class Property<T> {
     /**
      * The value of the property.
      */
-    @Setter
     private T value;
 
-    /**
-     * Sets the value of the property using an object.
-     *
-     * @param value the value to set
-     */
-    @SuppressWarnings("unchecked")
-    public void setValueObject(Object value) {
-        this.value = (T) value;
+    public Property(String name, T defaultValue, T value) {
+        this.name = name;
+        this.defaultValue = defaultValue;
+        this.value = value;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public T defaultValue() {
+        return defaultValue;
     }
 
     /**
@@ -39,8 +36,22 @@ public class Property<T> {
      *
      * @return the property value
      */
-    public T getValue() {
+    public T value() {
         return value != null ? value : defaultValue;
+    }
+
+    public void value(T value) {
+        this.value = value;
+    }
+
+    /**
+     * Sets the value of the property using an object.
+     *
+     * @param value the value to set
+     */
+    @SuppressWarnings("unchecked")
+    public void valueObject(Object value) {
+        this.value = (T) value;
     }
 
     public static Property<String> ofString(String name, String defaultValue) {

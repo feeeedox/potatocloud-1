@@ -10,8 +10,8 @@ public interface Module {
 
     void onDisable();
 
-    String getName();
+    String name();
 
-    Version getVersion();
+    Version version();
 
 }

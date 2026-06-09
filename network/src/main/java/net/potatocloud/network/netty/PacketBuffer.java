@@ -154,9 +154,9 @@ public class PacketBuffer {
     }
 
     public <T> void writeProperty(Property<T> property) {
-        writeString(property.getName());
-        writeObject(property.getDefaultValue());
-        writeObject(property.getValue());
+        writeString(property.name());
+        writeObject(property.defaultValue());
+        writeObject(property.value());
     }
 
     public Property<?> readProperty() {
@@ -187,7 +187,7 @@ public class PacketBuffer {
         for (int i = 0; i < size; i++) {
             final Property<?> property = readProperty();
 
-            map.put(property.getName(), property);
+            map.put(property.name(), property);
         }
         return map;
     }

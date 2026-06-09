@@ -1,10 +1,7 @@
 package net.potatocloud.api.version;
 
-import lombok.Getter;
-
 import java.util.Objects;
 
-@Getter
 public class Version implements Comparable<Version> {
 
     private final int major;
@@ -60,6 +57,22 @@ public class Version implements Comparable<Version> {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    public int major() {
+        return major;
+    }
+
+    public int minor() {
+        return minor;
+    }
+
+    public int patch() {
+        return patch;
+    }
+
+    public String tag() {
+        return tag;
     }
 
     @Override

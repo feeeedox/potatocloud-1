@@ -105,7 +105,7 @@ public class NodeLogger implements Logger {
     }
 
     private String formatColored(Level level, String time, String message) {
-        return "&8[&7" + time + " " + level.getColorCode() + level.name() + "&8] &7" + message;
+        return "&8[&7" + time + " " + level.colorCode() + level.name() + "&8] &7" + message;
     }
 
     private String stripColors(String input) {

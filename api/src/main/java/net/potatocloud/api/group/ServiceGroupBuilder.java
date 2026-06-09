@@ -96,8 +96,8 @@ public class ServiceGroupBuilder {
     }
 
     public <T> ServiceGroupBuilder property(Property<T> property, T value) {
-        property.setValue(value);
-        this.properties.put(property.getName(), property);
+        property.value(value);
+        this.properties.put(property.name(), property);
         return this;
     }
 

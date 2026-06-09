@@ -1,6 +1,6 @@
 package net.potatocloud.api.platform.impl;
 
-import lombok.Setter;
+
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 
@@ -19,6 +19,8 @@ public class PlatformImpl implements Platform {
     private final String hashType;
     private final List<String> prepareSteps;
 
+    private List<PlatformVersion> versions = new ArrayList<>();
+
     public PlatformImpl(String name, String downloadUrl, boolean custom, boolean isProxy, String base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
         this.name = name;
         this.downloadUrl = downloadUrl;
@@ -30,9 +32,6 @@ public class PlatformImpl implements Platform {
         this.hashType = hashType;
         this.prepareSteps = prepareSteps;
     }
-
-    @Setter
-    private List<PlatformVersion> versions = new ArrayList<>();
 
     @Override
     public String name() {

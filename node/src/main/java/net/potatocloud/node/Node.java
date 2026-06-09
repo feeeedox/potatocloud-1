@@ -203,7 +203,7 @@ public class Node extends CloudAPI {
             final String moduleText = count == 1 ? "module" : "modules";
 
             logger.info("Loaded &a" + count + "&7 " + moduleText + "&8:");
-            modules.forEach(module -> logger.info("&8» &a" + module.getName() + " &7v" + module.getVersion()));
+            modules.forEach(module -> logger.info("&8» &a" + module.name() + " &7v" + module.version()));
         }
 
         moduleManager.enableAll();
