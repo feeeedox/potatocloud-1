@@ -4,7 +4,7 @@ import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.api.service.ServiceState;
@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 
 public abstract class AbstractService extends ServiceImpl {
 
-    protected final ServiceGroup group;
+    protected final Group group;
     protected final Path directory;
     protected final NodeConfig config;
     protected final Logger logger;
@@ -60,7 +60,7 @@ public abstract class AbstractService extends ServiceImpl {
     protected AbstractService(
             int serviceId,
             int port,
-            ServiceGroup group,
+            Group group,
             NodeConfig config,
             Logger logger,
             NetworkServer server,

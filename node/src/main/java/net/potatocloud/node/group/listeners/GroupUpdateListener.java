@@ -1,9 +1,7 @@
 package net.potatocloud.node.group.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
-import net.potatocloud.api.property.Property;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkServer;
@@ -11,13 +9,13 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
-import net.potatocloud.node.group.config.ServiceGroupStorage;
+import net.potatocloud.node.group.GroupManagerImpl;
+import net.potatocloud.node.group.config.GroupStorage;
 
 @RequiredArgsConstructor
 public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
     private final NetworkServer server;
     private final ClusterManagerImpl clusterManager;
 
@@ -43,8 +41,8 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
             group.getPropertyMap().clear();
             packet.propertyMap().values().forEach(property -> PropertyUtil.setPropertyUnchecked(group, property));
 
-            if (ctx.connection().type() == ConnectionType.CONNECTOR && groupManager instanceof ServiceGroupManagerImpl groupManagerImpl) {
-                ServiceGroupStorage.save(group, groupManagerImpl.getGroupsPath());
+            if (ctx.connection().type() == ConnectionType.CONNECTOR && groupManager instanceof GroupManagerImpl groupManagerImpl) {
+                GroupStorage.save(group, groupManagerImpl.getGroupsPath());
             }
         });
 

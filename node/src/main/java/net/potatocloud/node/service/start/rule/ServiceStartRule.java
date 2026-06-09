@@ -1,9 +1,9 @@
 package net.potatocloud.node.service.start.rule;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 
 public interface ServiceStartRule {
 
-    boolean allows(ServiceGroup group);
+    boolean allows(Group group);
 
 }

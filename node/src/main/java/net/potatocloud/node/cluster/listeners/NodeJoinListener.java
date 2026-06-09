@@ -15,7 +15,7 @@ import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
 
 import java.time.Instant;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.group.GroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
@@ -25,11 +25,11 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
     private final ClusterManagerImpl clusterManager;
     private final String clusterToken;
     private final Logger logger;
-    private final ServiceGroupManagerImpl groupManager;
+    private final GroupManagerImpl groupManager;
     private final ServiceManagerImpl serviceManager;
     private final CloudPlayerManagerImpl playerManager;
 
-    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, String clusterToken, Logger logger, ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, String clusterToken, Logger logger, GroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
         this.localNode = localNode;
         this.clusterManager = clusterManager;
         this.clusterToken = clusterToken;

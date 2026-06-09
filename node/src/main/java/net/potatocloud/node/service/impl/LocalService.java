@@ -1,7 +1,7 @@
 package net.potatocloud.node.service.impl;
 
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
@@ -19,7 +19,7 @@ public final class LocalService extends AbstractService {
     public LocalService(
             int serviceId,
             int port,
-            ServiceGroup group,
+            Group group,
             NodeConfig config,
             Logger logger,
             NetworkServer server,

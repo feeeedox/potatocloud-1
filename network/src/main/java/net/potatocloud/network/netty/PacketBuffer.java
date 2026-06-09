@@ -3,8 +3,8 @@ package net.potatocloud.network.netty;
 import io.netty.buffer.ByteBuf;
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.cluster.impl.AbstractClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.impl.GroupImpl;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
@@ -252,7 +252,7 @@ public class PacketBuffer {
         return buf.readDouble();
     }
 
-    public void writeServiceGroup(ServiceGroup group) {
+    public void writeGroup(Group group) {
         writeString(group.name());
         writeString(group.node().map(ClusterNode::name).orElse(null));
         writeString(group.platform().name());
@@ -271,8 +271,8 @@ public class PacketBuffer {
         writePropertyMap(group.getPropertyMap());
     }
 
-    public ServiceGroup readServiceGroup() {
-        return new ServiceGroupImpl(
+    public Group readGroup() {
+        return new GroupImpl(
                 readString(),
                 readString(),
                 readString(),

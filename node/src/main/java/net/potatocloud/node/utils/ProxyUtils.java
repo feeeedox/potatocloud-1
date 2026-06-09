@@ -1,6 +1,6 @@
 package net.potatocloud.node.utils;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.node.Node;
@@ -12,11 +12,11 @@ public final class ProxyUtils {
     private ProxyUtils() {
     }
 
-    public static ServiceGroup getProxyGroup() {
+    public static Group getProxyGroup() {
         return getProxyGroups().stream().findFirst().orElse(null);
     }
 
-    public static List<ServiceGroup> getProxyGroups() {
+    public static List<Group> getProxyGroups() {
         return Node.getInstance().groupManager().groups().stream().filter(group -> group.platform().proxy()).toList();
     }
 

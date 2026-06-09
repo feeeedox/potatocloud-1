@@ -7,12 +7,12 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.group.GroupManagerImpl;
 
 @RequiredArgsConstructor
 public class GroupAddListener implements PacketListener<GroupAddPacket> {
 
-    private final ServiceGroupManagerImpl groupManager;
+    private final GroupManagerImpl groupManager;
     private final NetworkServer server;
     private final ClusterManagerImpl clusterManager;
 
@@ -25,10 +25,10 @@ public class GroupAddListener implements PacketListener<GroupAddPacket> {
         }
 
         if (ctx.connection().type() == ConnectionType.NODE) {
-            groupManager.registerServiceGroup(packet.group());
+            groupManager.registerGroup(packet.group());
             server.broadcast().connectors().send(packet);
         } else {
-            groupManager.addServiceGroup(packet.group());
+            groupManager.addGroup(packet.group());
             server.broadcast().connectors().exclude(ctx.connection()).send(packet);
             clusterManager.broadcast(packet);
         }

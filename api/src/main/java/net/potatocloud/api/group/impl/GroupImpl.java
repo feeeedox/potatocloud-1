@@ -2,7 +2,7 @@ package net.potatocloud.api.group.impl;
 
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.property.Property;
@@ -10,7 +10,7 @@ import net.potatocloud.api.service.Service;
 
 import java.util.*;
 
-public class ServiceGroupImpl implements ServiceGroup {
+public class GroupImpl implements Group {
 
     private final String name;
     private final String nodeName;
@@ -29,7 +29,7 @@ public class ServiceGroupImpl implements ServiceGroup {
     private final Set<String> templates;
     private final Map<String, Property<?>> propertyMap;
 
-    public ServiceGroupImpl(
+    public GroupImpl(
             String name,
             String nodeName,
             String platformName,
@@ -72,7 +72,7 @@ public class ServiceGroupImpl implements ServiceGroup {
         }
     }
 
-    public ServiceGroupImpl(
+    public GroupImpl(
             String name,
             String nodeName,
             String platformName,
@@ -236,7 +236,7 @@ public class ServiceGroupImpl implements ServiceGroup {
 
     @Override
     public <T> void setProperty(Property<T> property, T value) {
-        ServiceGroup.super.setProperty(property, value);
+        Group.super.setProperty(property, value);
 
         final Property<T> prop = getProperty(property.name());
         if (prop != null) {

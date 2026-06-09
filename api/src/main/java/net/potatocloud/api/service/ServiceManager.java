@@ -1,6 +1,6 @@
 package net.potatocloud.api.service;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public interface ServiceManager {
      * @param group the target group
      * @return future containing the started service
      */
-    CompletableFuture<Service> start(ServiceGroup group);
+    CompletableFuture<Service> start(Group group);
 
     /**
      * Stops a service.

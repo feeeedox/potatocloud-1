@@ -1,6 +1,6 @@
 package net.potatocloud.node.platform.cache;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.common.FileUtils;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
 
     @Override
-    public void buildCache(Platform platform, PlatformVersion version, ServiceGroup group, Path cacheFolder) {
+    public void buildCache(Platform platform, PlatformVersion version, Group group, Path cacheFolder) {
         try {
             final Path platformJarPath = PlatformUtils.getPlatformJarPath(platform, version);
 

@@ -1,6 +1,6 @@
 package net.potatocloud.network.packet.packets.cluster;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.network.netty.PacketBuffer;
@@ -11,14 +11,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public record ClusterSyncPacket(List<ServiceGroup> groups, List<Service> services, Set<CloudPlayer> players) implements Packet {
+public record ClusterSyncPacket(List<Group> groups, List<Service> services, Set<CloudPlayer> players) implements Packet {
 
     public static final Codec<ClusterSyncPacket> CODEC = new Codec<>() {
 
         @Override
         public void encode(ClusterSyncPacket packet, PacketBuffer buf) {
             buf.writeInt(packet.groups().size());
-            packet.groups().forEach(buf::writeServiceGroup);
+            packet.groups().forEach(buf::writeGroup);
 
             buf.writeInt(packet.services().size());
             packet.services().forEach(buf::writeService);
@@ -30,9 +30,9 @@ public record ClusterSyncPacket(List<ServiceGroup> groups, List<Service> service
         @Override
         public ClusterSyncPacket decode(PacketBuffer buf) {
             final int groupCount = buf.readInt();
-            final List<ServiceGroup> groups = new ArrayList<>(groupCount);
+            final List<Group> groups = new ArrayList<>(groupCount);
             for (int i = 0; i < groupCount; i++) {
-                groups.add(buf.readServiceGroup());
+                groups.add(buf.readGroup());
             }
 
             final int serviceCount = buf.readInt();

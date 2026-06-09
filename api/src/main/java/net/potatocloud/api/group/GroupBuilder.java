@@ -1,6 +1,6 @@
 package net.potatocloud.api.group;
 
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
+import net.potatocloud.api.group.impl.GroupImpl;
 import net.potatocloud.api.property.Property;
 
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ServiceGroupBuilder {
+public class GroupBuilder {
 
     private final String name;
     private String nodeName = "";
@@ -26,83 +26,83 @@ public class ServiceGroupBuilder {
     private final Set<String> customJvmFlags = new HashSet<>();
     private final Map<String, Property<?>> properties = new HashMap<>();
 
-    public ServiceGroupBuilder(String name) {
+    public GroupBuilder(String name) {
         this.name = name;
     }
 
-    public ServiceGroupBuilder node(String nodeName) {
+    public GroupBuilder node(String nodeName) {
         this.nodeName = nodeName;
         return this;
     }
 
-    public ServiceGroupBuilder platform(String platformName) {
+    public GroupBuilder platform(String platformName) {
         this.platformName = platformName;
         return this;
     }
 
-    public ServiceGroupBuilder platformVersion(String platformVersionName) {
+    public GroupBuilder platformVersion(String platformVersionName) {
         this.platformVersionName = platformVersionName;
         return this;
     }
 
-    public ServiceGroupBuilder minServices(int minServices) {
+    public GroupBuilder minServices(int minServices) {
         this.minServices = minServices;
         return this;
     }
 
-    public ServiceGroupBuilder maxServices(int maxServices) {
+    public GroupBuilder maxServices(int maxServices) {
         this.maxServices = maxServices;
         return this;
     }
 
-    public ServiceGroupBuilder maxPlayers(int maxPlayers) {
+    public GroupBuilder maxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
         return this;
     }
 
-    public ServiceGroupBuilder maxMemory(int maxMemory) {
+    public GroupBuilder maxMemory(int maxMemory) {
         this.maxMemory = maxMemory;
         return this;
     }
 
-    public ServiceGroupBuilder fallback(boolean fallback) {
+    public GroupBuilder fallback(boolean fallback) {
         this.fallback = fallback;
         return this;
     }
 
-    public ServiceGroupBuilder staticServices(boolean staticServices) {
+    public GroupBuilder staticServices(boolean staticServices) {
         this.staticServices = staticServices;
         return this;
     }
 
-    public ServiceGroupBuilder startPriority(int startPriority) {
+    public GroupBuilder startPriority(int startPriority) {
         this.startPriority = startPriority;
         return this;
     }
 
-    public ServiceGroupBuilder startPercentage(int startPercentage) {
+    public GroupBuilder startPercentage(int startPercentage) {
         this.startPercentage = startPercentage;
         return this;
     }
 
-    public ServiceGroupBuilder javaCommand(String javaCommand) {
+    public GroupBuilder javaCommand(String javaCommand) {
         this.javaCommand = javaCommand;
         return this;
     }
 
-    public ServiceGroupBuilder jvmFlag(String flag) {
+    public GroupBuilder jvmFlag(String flag) {
         this.customJvmFlags.add(flag);
         return this;
     }
 
-    public <T> ServiceGroupBuilder property(Property<T> property, T value) {
+    public <T> GroupBuilder property(Property<T> property, T value) {
         property.value(value);
         this.properties.put(property.name(), property);
         return this;
     }
 
-    public ServiceGroup build() {
-        return new ServiceGroupImpl(
+    public Group build() {
+        return new GroupImpl(
                 name,
                 nodeName,
                 platformName,

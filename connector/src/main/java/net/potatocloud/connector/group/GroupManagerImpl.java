@@ -1,7 +1,7 @@
 package net.potatocloud.connector.group;
 
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.connector.group.listeners.GroupAddListener;
 import net.potatocloud.connector.group.listeners.GroupDeleteListener;
 import net.potatocloud.connector.group.listeners.GroupUpdateListener;
@@ -13,12 +13,12 @@ import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 
 import java.util.*;
 
-public class ServiceGroupManagerImpl implements ServiceGroupManager {
+public class GroupManagerImpl implements GroupManager {
 
-    private final List<ServiceGroup> groups = new ArrayList<>();
+    private final List<Group> groups = new ArrayList<>();
     private final NetworkClient client;
 
-    public ServiceGroupManagerImpl(NetworkClient client) {
+    public GroupManagerImpl(NetworkClient client) {
         this.client = client;
 
         client.on(GroupAddPacket.class, new GroupAddListener(this));
@@ -28,7 +28,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         client.send(new RequestGroupsPacket());
     }
 
-    public void addServiceGroup(ServiceGroup group) {
+    public void addGroup(Group group) {
         if (group == null || exists(group.name())) {
             return;
         }
@@ -36,29 +36,29 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public Optional<ServiceGroup> find(String name) {
+    public Optional<Group> find(String name) {
         return groups.stream()
                 .filter(group -> group.name().equalsIgnoreCase(name))
                 .findFirst();
     }
 
     @Override
-    public List<ServiceGroup> groups() {
+    public List<Group> groups() {
         return Collections.unmodifiableList(groups);
     }
 
     @Override
-    public void create(ServiceGroup group) {
+    public void create(Group group) {
         if (exists(group.name())) {
             return;
         }
 
         client.send(new GroupAddPacket(group));
-        addServiceGroup(group);
+        addGroup(group);
     }
 
     @Override
-    public void delete(ServiceGroup group) {
+    public void delete(Group group) {
         client.send(new GroupDeletePacket(group.name()));
         deleteLocal(group.name());
     }
@@ -68,7 +68,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public void update(ServiceGroup group) {
+    public void update(Group group) {
         client.send(new GroupUpdatePacket(
                 group.name(),
                 group.customJvmFlags(),

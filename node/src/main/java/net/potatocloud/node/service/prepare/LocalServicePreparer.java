@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.prepare;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -19,7 +19,7 @@ import java.nio.file.StandardCopyOption;
 
 public final class LocalServicePreparer implements ServicePreparer {
 
-    private final ServiceGroup group;
+    private final Group group;
     private final NodeConfig config;
     private final Logger logger;
     private final TemplateManager templateManager;
@@ -27,7 +27,7 @@ public final class LocalServicePreparer implements ServicePreparer {
     private final CacheManager cacheManager;
 
     public LocalServicePreparer(
-            ServiceGroup group,
+            Group group,
             NodeConfig config,
             Logger logger,
             TemplateManager templateManager,

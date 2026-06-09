@@ -1,8 +1,8 @@
 package net.potatocloud.node.service;
 
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
@@ -40,7 +40,7 @@ public class ServiceManagerImpl implements ServiceManager {
             Logger logger,
             NetworkServer server,
             EventBus eventBus,
-            ServiceGroupManager groupManager,
+            GroupManager groupManager,
             ScreenManager screenManager,
             TemplateManager templateManager,
             DownloadManager downloadManager,
@@ -94,7 +94,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public CompletableFuture<Service> start(ServiceGroup group) {
+    public CompletableFuture<Service> start(Group group) {
         if (group == null) {
             return CompletableFuture.completedFuture(null);
         }
@@ -164,7 +164,7 @@ public class ServiceManagerImpl implements ServiceManager {
         services.remove(service);
     }
 
-    public boolean hasEnoughMemory(ServiceGroup group) {
+    public boolean hasEnoughMemory(Group group) {
         if (!config.service().memoryCheckEnabled()) {
             return true;
         }
@@ -176,7 +176,7 @@ public class ServiceManagerImpl implements ServiceManager {
         return (usedMb + group.maxMemory()) <= config.service().maxMemory();
     }
 
-    public void logMemoryWarning(ServiceGroup group) {
+    public void logMemoryWarning(Group group) {
         final long usedMb = services.stream()
                 .mapToLong(service -> service.group().maxMemory())
                 .sum();

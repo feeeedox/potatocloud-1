@@ -3,8 +3,8 @@ package net.potatocloud.node.service.start;
 import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.property.PropertyChangedEvent;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.node.config.NodeConfig;
@@ -28,7 +28,7 @@ public class ServiceStartScheduler {
 
     private final NodeConfig config;
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
     private final ServiceManagerImpl serviceManager;
 
     private final List<ServiceStartRule> rules;
@@ -36,7 +36,7 @@ public class ServiceStartScheduler {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().factory());
 
-    public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
+    public ServiceStartScheduler(NodeConfig config, GroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
         this.config = config;
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
@@ -64,7 +64,7 @@ public class ServiceStartScheduler {
             }
 
             serviceManager.find(event.holderName()).ifPresent(service -> {
-                final ServiceGroup group = service.group();
+                final Group group = service.group();
                 final int onlineServices = group.services().stream()
                         .mapToInt(Service::playerCount)
                         .sum();
@@ -87,7 +87,7 @@ public class ServiceStartScheduler {
         groupManager.groups().stream()
                 .filter(group -> groupManager.exists(group.name()))
                 .filter(this::isLocalNode)
-                .sorted(Comparator.<ServiceGroup>comparingInt(ServiceGroup::startPriority).reversed())
+                .sorted(Comparator.<Group>comparingInt(Group::startPriority).reversed())
                 .forEach(group -> {
                     if (rules.stream().allMatch(rule -> rule.allows(group)) && conditions.stream().anyMatch(condition -> condition.shouldStart(group))) {
                         serviceManager.start(group);
@@ -95,7 +95,7 @@ public class ServiceStartScheduler {
                 });
     }
 
-    private boolean isLocalNode(ServiceGroup group) {
+    private boolean isLocalNode(Group group) {
         if (!config.cluster().enabled()) {
             return true;
         }

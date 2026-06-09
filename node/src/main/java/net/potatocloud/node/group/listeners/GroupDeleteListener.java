@@ -7,12 +7,12 @@ import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.group.GroupDeletePacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.group.GroupManagerImpl;
 
 @RequiredArgsConstructor
 public class GroupDeleteListener implements PacketListener<GroupDeletePacket> {
 
-    private final ServiceGroupManagerImpl groupManager;
+    private final GroupManagerImpl groupManager;
     private final NetworkServer server;
     private final ClusterManagerImpl clusterManager;
 
@@ -21,7 +21,7 @@ public class GroupDeleteListener implements PacketListener<GroupDeletePacket> {
         final GroupDeletePacket packet = ctx.packet();
 
         if (ctx.connection().type() == ConnectionType.NODE) {
-            groupManager.unregisterServiceGroup(packet.groupName());
+            groupManager.unregisterGroup(packet.groupName());
             server.broadcast().connectors().send(packet);
         } else {
             groupManager.deleteLocal(packet.groupName());

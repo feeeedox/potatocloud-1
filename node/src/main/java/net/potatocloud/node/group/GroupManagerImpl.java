@@ -2,8 +2,8 @@ package net.potatocloud.node.group;
 
 import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.common.FileUtils;
@@ -14,7 +14,7 @@ import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 import net.potatocloud.network.packet.packets.group.RequestGroupsPacket;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
-import net.potatocloud.node.group.config.ServiceGroupStorage;
+import net.potatocloud.node.group.config.GroupStorage;
 import net.potatocloud.node.group.listeners.GroupAddListener;
 import net.potatocloud.node.group.listeners.GroupDeleteListener;
 import net.potatocloud.node.group.listeners.GroupUpdateListener;
@@ -25,9 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class ServiceGroupManagerImpl implements ServiceGroupManager {
+public class GroupManagerImpl implements GroupManager {
 
-    private final List<ServiceGroup> groups = new ArrayList<>();
+    private final List<Group> groups = new ArrayList<>();
 
     @Getter
     private final Path groupsPath;
@@ -36,7 +36,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     private final Logger logger;
     private final ClusterManagerImpl clusterManager;
 
-    public ServiceGroupManagerImpl(Path groupsPath, NetworkServer server, Logger logger, ClusterManagerImpl clusterManager) {
+    public GroupManagerImpl(Path groupsPath, NetworkServer server, Logger logger, ClusterManagerImpl clusterManager) {
         this.groupsPath = groupsPath;
         this.server = server;
         this.logger = logger;
@@ -51,24 +51,24 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public Optional<ServiceGroup> find(String name) {
+    public Optional<Group> find(String name) {
         return groups.stream()
                 .filter(group -> group.name().equalsIgnoreCase(name))
                 .findFirst();
     }
 
     @Override
-    public List<ServiceGroup> groups() {
+    public List<Group> groups() {
         return Collections.unmodifiableList(groups);
     }
 
     @Override
-    public void create(ServiceGroup group) {
+    public void create(Group group) {
         if (exists(group.name())) {
             return;
         }
 
-        addServiceGroup(group);
+        addGroup(group);
 
         server.broadcast().connectors().send(new GroupAddPacket(group));
         clusterManager.broadcast(new GroupAddPacket(group));
@@ -76,7 +76,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
         logger.info("Group &a" + group.name() + " &7was successfully created");
     }
 
-    public void addServiceGroup(ServiceGroup group) {
+    public void addGroup(Group group) {
         if (group == null || exists(group.name())) {
             return;
         }
@@ -85,23 +85,23 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
             Node.getInstance().templateManager().createTemplate(templateName);
         }
 
-        ServiceGroupStorage.save(group, groupsPath);
+        GroupStorage.save(group, groupsPath);
         groups.add(group);
     }
 
-    public void registerServiceGroup(ServiceGroup group) {
+    public void registerGroup(Group group) {
         if (group == null || exists(group.name())) {
             return;
         }
         groups.add(group);
     }
 
-    public void unregisterServiceGroup(String name) {
+    public void unregisterGroup(String name) {
         groups.removeIf(group -> group.name().equalsIgnoreCase(name));
     }
 
     @Override
-    public void delete(ServiceGroup group) {
+    public void delete(Group group) {
         if (!deleteLocal(group.name())) {
             return;
         }
@@ -111,7 +111,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     public boolean deleteLocal(String name) {
-        final Optional<ServiceGroup> group = find(name);
+        final Optional<Group> group = find(name);
 
         if (group.isEmpty() || !groups.contains(group.get())) {
             return false;
@@ -133,8 +133,8 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
     }
 
     @Override
-    public void update(ServiceGroup group) {
-        ServiceGroupStorage.save(group, groupsPath);
+    public void update(Group group) {
+        GroupStorage.save(group, groupsPath);
 
         final GroupUpdatePacket updatePacket = new GroupUpdatePacket(
                 group.name(),
@@ -163,7 +163,7 @@ public class ServiceGroupManagerImpl implements ServiceGroupManager {
                 .filter(path -> path.toString().endsWith(".yml"))
                 .forEach(path -> {
                     try {
-                        groups.add(ServiceGroupStorage.load(path));
+                        groups.add(GroupStorage.load(path));
                     } catch (Exception e) {
                         logger.error("Failed to load group file&8: &a" + path.getFileName());
                     }

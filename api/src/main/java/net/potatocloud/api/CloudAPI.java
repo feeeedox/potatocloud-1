@@ -2,7 +2,7 @@ package net.potatocloud.api;
 
 import net.potatocloud.api.cluster.ClusterManager;
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.player.CloudPlayerManager;
@@ -43,11 +43,11 @@ public abstract class CloudAPI {
     public abstract Logger logger();
 
     /**
-     * Gets the service group manager.
+     * Gets the group manager.
      *
-     * @return the service group manager
+     * @return the group manager
      */
-    public abstract ServiceGroupManager groupManager();
+    public abstract GroupManager groupManager();
 
     /**
      * Gets the service manager.

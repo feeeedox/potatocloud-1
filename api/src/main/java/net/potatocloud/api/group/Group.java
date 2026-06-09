@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface ServiceGroup extends PropertyHolder {
+public interface Group extends PropertyHolder {
 
     /**
      * Gets the name of the group.

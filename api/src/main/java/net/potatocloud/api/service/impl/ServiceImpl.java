@@ -2,7 +2,7 @@ package net.potatocloud.api.service.impl;
 
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceState;
@@ -40,7 +40,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public ServiceGroup group() {
+    public Group group() {
         return CloudAPI.instance().groupManager().find(groupName).orElse(null);
     }
 
@@ -56,7 +56,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public Optional<ClusterNode> node() {
-        final ServiceGroup group = group();
+        final Group group = group();
         if (group == null) {
             return Optional.empty();
         }

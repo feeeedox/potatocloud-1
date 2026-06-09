@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.helper;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.service.Service;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public final class ServiceIds {
     private ServiceIds() {
     }
 
-    public static int nextId(ServiceGroup group, List<Service> services) {
+    public static int nextId(Group group, List<Service> services) {
         final Set<Integer> usedIds = services.stream()
                 .filter(service -> service.group().equals(group))
                 .map(Service::id)

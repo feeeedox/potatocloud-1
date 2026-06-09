@@ -1,19 +1,19 @@
 package net.potatocloud.node.command.arguments;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.node.Node;
 import net.potatocloud.node.command.ArgumentType;
 
 import java.util.List;
 
-public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
+public class GroupArgument extends ArgumentType<Group> {
 
-    public ServiceGroupArgument(String name) {
+    public GroupArgument(String name) {
         super(name);
     }
 
     @Override
-    public ParseResult<ServiceGroup> parse(String input) {
+    public ParseResult<Group> parse(String input) {
         return Node.getInstance()
                 .groupManager()
                 .find(input)
@@ -27,7 +27,7 @@ public class ServiceGroupArgument extends ArgumentType<ServiceGroup> {
                 .groupManager()
                 .groups()
                 .stream()
-                .map(ServiceGroup::name)
+                .map(Group::name)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

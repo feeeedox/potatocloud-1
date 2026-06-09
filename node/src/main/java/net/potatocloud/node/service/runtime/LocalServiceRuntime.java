@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.runtime;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.AbstractService;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class LocalServiceRuntime implements ServiceRuntime {
 
-    private final ServiceGroup group;
+    private final Group group;
     private final NodeConfig config;
     private final Logger logger;
 
@@ -26,7 +26,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
     private BufferedReader processReader;
     private String serviceName;
 
-    public LocalServiceRuntime(ServiceGroup group, NodeConfig config, Logger logger) {
+    public LocalServiceRuntime(Group group, NodeConfig config, Logger logger) {
         this.group = group;
         this.config = config;
         this.logger = logger;

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
@@ -42,8 +42,8 @@ public abstract class ArgumentType<T> {
         return new IntegerArgument(name);
     }
 
-    public static ArgumentType<ServiceGroup> Group(String name) {
-        return new ServiceGroupArgument(name);
+    public static ArgumentType<Group> Group(String name) {
+        return new GroupArgument(name);
     }
 
     public static ArgumentType<Service> Service(String name) {

@@ -1,7 +1,7 @@
 package net.potatocloud.node.platform.cache;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -26,7 +26,7 @@ public class CacheManager {
 
     private final Set<String> runningCacheKeys = ConcurrentHashMap.newKeySet();
 
-    public Path preCachePlatform(ServiceGroup group) {
+    public Path preCachePlatform(Group group) {
         final Platform platform = group.platform();
         final PlatformVersion version = group.platformVersion();
         final String builderName = platform.preCacheBuilder();
@@ -83,7 +83,7 @@ public class CacheManager {
         return cacheDirectory;
     }
 
-    public void copyCacheToService(ServiceGroup group, Path cacheFolder, Path serviceDir) {
+    public void copyCacheToService(Group group, Path cacheFolder, Path serviceDir) {
         final String builderName = group.platform().preCacheBuilder();
         if (builderName != null) {
             // Copy pre-built cache into a service directory

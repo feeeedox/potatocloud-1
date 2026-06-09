@@ -3,7 +3,7 @@ package net.potatocloud.plugins.addons.cloudcommand.command;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
@@ -285,7 +285,7 @@ public class ServiceSubCommand {
         }
 
         if (sub.equalsIgnoreCase("start") && args.length == 3) {
-            return CloudAPI.instance().groupManager().groups().stream().map(ServiceGroup::name).toList();
+            return CloudAPI.instance().groupManager().groups().stream().map(Group::name).toList();
         }
 
 

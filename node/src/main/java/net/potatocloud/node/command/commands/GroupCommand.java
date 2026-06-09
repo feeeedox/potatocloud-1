@@ -2,8 +2,8 @@ package net.potatocloud.node.command.commands;
 
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
@@ -22,7 +22,7 @@ import java.util.List;
 @CommandInfo(name = "group", description = "Manage groups", aliases = {"groups", "g"})
 public class GroupCommand extends Command {
 
-    public GroupCommand(Logger logger, ServiceGroupManager groupManager) {
+    public GroupCommand(Logger logger, GroupManager groupManager) {
         final Node node = Node.getInstance();
 
         defaultExecutor(_ -> sendHelp());
@@ -38,7 +38,7 @@ public class GroupCommand extends Command {
         sub("delete", "Delete a group")
                 .argument(ArgumentType.Group("group"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
 
                     groupManager.delete(group);
                     logger.info("&7Group &a" + group.name() + " &7was deleted");
@@ -46,7 +46,7 @@ public class GroupCommand extends Command {
 
         sub("list", "List all groups")
                 .executes(_ -> {
-                    final List<ServiceGroup> groups = groupManager.groups();
+                    final List<Group> groups = groupManager.groups();
 
                     if (groups.isEmpty()) {
                         logger.info("There are &cno &7groups");
@@ -54,7 +54,7 @@ public class GroupCommand extends Command {
                     }
 
                     logger.info("Loaded groups&8:");
-                    for (ServiceGroup group : groups) {
+                    for (Group group : groups) {
                         logger.info("&8» &a" + group.name());
                     }
                 });
@@ -62,7 +62,7 @@ public class GroupCommand extends Command {
         sub("info", "Show details of a group")
                 .argument(ArgumentType.Group("group"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
 
                     logger.info("&7Info for group &a" + group.name() + "&8:");
                     if (node.config().cluster().enabled() && group.node().isPresent()) {
@@ -83,7 +83,7 @@ public class GroupCommand extends Command {
         sub("stop", "Stop all services in a group")
                 .argument(ArgumentType.Group("group"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
 
                     for (Service service : group.services()) {
                         CloudAPI.instance().serviceManager().stop(service); // todo
@@ -116,7 +116,7 @@ public class GroupCommand extends Command {
                             .toList();
                 })
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     final String key = ctx.get("key");
                     final String value = ctx.get("value");
 
@@ -139,7 +139,7 @@ public class GroupCommand extends Command {
                         return List.of();
                     }
 
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
 
                     return group.getProperties().stream()
                             .map(Property::name)
@@ -147,7 +147,7 @@ public class GroupCommand extends Command {
                             .toList();
                 })
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     final String key = ctx.get("key");
 
                     final Property<?> property = group.getProperty(key);
@@ -164,7 +164,7 @@ public class GroupCommand extends Command {
         propertySub.sub("list")
                 .argument(ArgumentType.Group("group"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     final List<Property<?>> properties = group.getProperties();
 
                     if (properties.isEmpty()) {
@@ -205,7 +205,7 @@ public class GroupCommand extends Command {
                             .toList();
                 })
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     String key = ctx.get("key");
                     final String value = ctx.get("value");
 

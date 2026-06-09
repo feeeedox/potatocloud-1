@@ -4,8 +4,8 @@ import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
@@ -22,9 +22,9 @@ public class GroupSubCommand {
     private final MessagesConfig messages;
 
     public void listGroups() {
-        final List<ServiceGroup> groups = CloudAPI.instance().groupManager().groups();
+        final List<Group> groups = CloudAPI.instance().groupManager().groups();
         player.sendMessage(messages.get("group.list.header"));
-        for (ServiceGroup group : groups) {
+        for (Group group : groups) {
             player.sendMessage(messages.get("group.list.entry").replaceText(text -> text.match("%name%").replacement(group.name())));
         }
     }
@@ -72,7 +72,7 @@ public class GroupSubCommand {
 
         final String sub = args[2].toLowerCase();
         final String name = args[3];
-        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
+        final GroupManager groupManager = CloudAPI.instance().groupManager();
 
         groupManager.find(name).ifPresentOrElse(group -> {
             switch (sub) {
@@ -146,7 +146,7 @@ public class GroupSubCommand {
         final String key = args[3].toLowerCase();
         final String value = args[4];
 
-        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
+        final GroupManager groupManager = CloudAPI.instance().groupManager();
 
         groupManager.find(name).ifPresentOrElse(group -> {
             try {
@@ -198,12 +198,12 @@ public class GroupSubCommand {
         }
 
         final String sub = args[1].toLowerCase();
-        final ServiceGroupManager groupManager = CloudAPI.instance().groupManager();
+        final GroupManager groupManager = CloudAPI.instance().groupManager();
 
         if (sub.equals("info") || sub.equals("edit") || sub.equals("shutdown")) {
             if (args.length == 3) {
                 return groupManager.groups().stream()
-                        .map(ServiceGroup::name)
+                        .map(Group::name)
                         .filter(name -> name.startsWith(args[2]))
                         .toList();
             }
@@ -225,7 +225,7 @@ public class GroupSubCommand {
 
             if (args.length == 4) {
                 return groupManager.groups().stream()
-                        .map(ServiceGroup::name).filter(name -> name.startsWith(args[3]))
+                        .map(Group::name).filter(name -> name.startsWith(args[3]))
                         .toList();
             }
 

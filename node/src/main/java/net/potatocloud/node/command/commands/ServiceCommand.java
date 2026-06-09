@@ -1,6 +1,6 @@
 package net.potatocloud.node.command.commands;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
@@ -256,7 +256,7 @@ public class ServiceCommand extends Command {
                 .argument(ArgumentType.Group("group"))
                 .optionalArgument(ArgumentType.Integer("amount"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     final int amount = ctx.has("amount") ? ctx.get("amount") : 1;
 
                     int started = 0;

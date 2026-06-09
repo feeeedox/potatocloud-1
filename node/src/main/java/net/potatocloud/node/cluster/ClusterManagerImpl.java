@@ -16,7 +16,7 @@ import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
 import net.potatocloud.network.packet.packets.service.ServiceRemovePacket;
 import net.potatocloud.node.cluster.listeners.*;
 import net.potatocloud.node.config.ClusterConfig;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.group.GroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
@@ -40,7 +40,7 @@ public class ClusterManagerImpl implements ClusterManager {
 
     private HeartbeatScheduler heartbeatScheduler;
 
-    private ServiceGroupManagerImpl groupManager;
+    private GroupManagerImpl groupManager;
     private ServiceManagerImpl serviceManager;
     private CloudPlayerManagerImpl playerManager;
 
@@ -54,7 +54,7 @@ public class ClusterManagerImpl implements ClusterManager {
         server.on(RequestClusterNodesPacket.class, new RequestClusterNodesListener(this));
     }
 
-    public void start(ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+    public void start(GroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
         this.playerManager = playerManager;
@@ -155,7 +155,7 @@ public class ClusterManagerImpl implements ClusterManager {
                 )
                 .toList()
                 .forEach(group -> {
-                    groupManager.unregisterServiceGroup(group.name());
+                    groupManager.unregisterGroup(group.name());
                     server.broadcast().connectors().send(new GroupDeletePacket(group.name()));
                 });
 

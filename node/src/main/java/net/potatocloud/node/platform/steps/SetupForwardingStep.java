@@ -1,6 +1,6 @@
 package net.potatocloud.node.platform.steps;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
@@ -40,7 +40,7 @@ public class SetupForwardingStep extends AbstractPrepareStep {
                 FileUtils.replaceInFile(velocityToml, "player-info-forwarding-mode = \"legacy\"", "player-info-forwarding-mode = \"modern\"");
             }
 
-            final ServiceGroup group = (ServiceGroup) data().get("group");
+            final Group group = (Group) data().get("group");
 
             // check if the forwarding secret should always be replaced
             final Property<Boolean> property = group.getProperty(DefaultProperties.ALWAYS_OVERRIDE_FORWARDING_SECRET);

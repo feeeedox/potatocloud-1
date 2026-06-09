@@ -2,7 +2,7 @@ package net.potatocloud.api.service;
 
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.property.PropertyHolder;
 
@@ -113,7 +113,7 @@ public interface Service extends PropertyHolder {
      *
      * @return the group of the service
      */
-    ServiceGroup group();
+    Group group();
 
     /**
      * Gets the online players of the service.

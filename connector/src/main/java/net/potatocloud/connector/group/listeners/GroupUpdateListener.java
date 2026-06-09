@@ -1,7 +1,7 @@
 package net.potatocloud.connector.group.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -10,7 +10,7 @@ import net.potatocloud.network.packet.packets.group.GroupUpdatePacket;
 @RequiredArgsConstructor
 public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
 
     @Override
     public void handle(PacketContext<GroupUpdatePacket> ctx) {

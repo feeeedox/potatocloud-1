@@ -3,14 +3,14 @@ package net.potatocloud.node.group.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.impl.GroupImpl;
 import net.potatocloud.api.property.Property;
 
 import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record ServiceGroupConfig(
+public record GroupConfig(
         String name,
         String node,
         String platform,
@@ -29,8 +29,8 @@ public record ServiceGroupConfig(
         List<PropertyConfig> properties
 ) {
 
-    public static ServiceGroupConfig from(ServiceGroup group) {
-        return new ServiceGroupConfig(
+    public static GroupConfig from(Group group) {
+        return new GroupConfig(
                 group.name(),
                 group.node().map(ClusterNode::name).orElse(null),
                 group.platform().name(),
@@ -51,7 +51,7 @@ public record ServiceGroupConfig(
     }
 
 
-    public ServiceGroup toGroup() {
+    public Group toGroup() {
         final Set<String> names = new HashSet<>();
         final Map<String, Property<?>> propertyMap = new HashMap<>();
 
@@ -68,7 +68,7 @@ public record ServiceGroupConfig(
             }
         }
 
-        return new ServiceGroupImpl(
+        return new GroupImpl(
                 name,
                 node,
                 platform,

@@ -1,7 +1,7 @@
 package net.potatocloud.node.setup.setups;
 
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 public class GroupConfigurationSetup extends Setup {
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
     private final PlatformManager platformManager;
 
-    public GroupConfigurationSetup(Console console, ScreenManager screenManager, ServiceGroupManager groupManager, PlatformManager platformManager) {
+    public GroupConfigurationSetup(Console console, ScreenManager screenManager, GroupManager groupManager, PlatformManager platformManager) {
         super(console, screenManager);
         this.groupManager = groupManager;
         this.platformManager = platformManager;
@@ -114,7 +114,7 @@ public class GroupConfigurationSetup extends Setup {
         }
 
         final String name = answers.get("name");
-        final ServiceGroup group = groupManager.builder(name)
+        final Group group = groupManager.builder(name)
                 .node(Node.getInstance().config().cluster().name()) // todo ugly
                 .platform(answers.get("platform"))
                 .platformVersion(answers.get("platform_version"))

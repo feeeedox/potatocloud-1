@@ -1,7 +1,7 @@
 package net.potatocloud.connector.service;
 
 import lombok.Getter;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.connector.service.listeners.ServiceAddListener;
@@ -60,7 +60,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public CompletableFuture<Service> start(ServiceGroup group) {
+    public CompletableFuture<Service> start(Group group) {
         final CompletableFuture<Service> future = new CompletableFuture<>();
         final String requestId = UUID.randomUUID().toString();
 
