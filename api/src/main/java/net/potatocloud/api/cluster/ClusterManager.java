@@ -1,14 +1,14 @@
 package net.potatocloud.api.cluster;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface ClusterManager {
 
     ClusterNode localNode();
 
-    Collection<ClusterNode> nodes();
+    List<ClusterNode> nodes();
 
-    Optional<ClusterNode> get(String name);
+    Optional<ClusterNode> find(String name);
 
 }

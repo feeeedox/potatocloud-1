@@ -115,7 +115,7 @@ public class ServiceGroupImpl implements ServiceGroup {
 
     @Override
     public Optional<ClusterNode> node() {
-        return CloudAPI.instance().clusterManager().get(nodeName);
+        return CloudAPI.instance().clusterManager().find(nodeName);
     }
 
     @Override

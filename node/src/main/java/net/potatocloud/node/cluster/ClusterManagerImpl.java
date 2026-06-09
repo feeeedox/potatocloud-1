@@ -20,6 +20,7 @@ import net.potatocloud.node.group.ServiceGroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,7 +49,7 @@ public class ClusterManagerImpl implements ClusterManager {
         this.packetManager = packetManager;
         this.server = server;
         this.logger = logger;
-        this.localNode = new ClusterNodeImpl(config.name(), localHost, localPort, System.currentTimeMillis(), null);
+        this.localNode = new ClusterNodeImpl(config.name(), localHost, localPort, Instant.now(), null);
 
         server.on(RequestClusterNodesPacket.class, new RequestClusterNodesListener(this));
     }
@@ -99,7 +100,7 @@ public class ClusterManagerImpl implements ClusterManager {
         client.addConnectionListener(() -> {
             final NetworkConnection connection = client.connection();
             outboundConnections.add(connection);
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString(), config.token()));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt().toEpochMilli(), CloudAPI.VERSION.toString(), config.token()));
         });
 
         try {
@@ -200,7 +201,7 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     @Override
-    public Collection<ClusterNode> nodes() {
+    public List<ClusterNode> nodes() {
         final List<ClusterNode> all = new ArrayList<>(nodes.values());
         all.add(localNode);
         return Collections.unmodifiableList(all);
@@ -211,7 +212,7 @@ public class ClusterManagerImpl implements ClusterManager {
     }
 
     @Override
-    public Optional<ClusterNode> get(String name) {
+    public Optional<ClusterNode> find(String name) {
         if (localNode.name().equals(name)) {
             return Optional.of(localNode);
         }

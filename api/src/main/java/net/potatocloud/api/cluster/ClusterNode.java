@@ -1,5 +1,7 @@
 package net.potatocloud.api.cluster;
 
+import java.time.Instant;
+
 public interface ClusterNode {
 
     String name();
@@ -8,6 +10,6 @@ public interface ClusterNode {
 
     int port();
 
-    long startedAt();
+    Instant startedAt();
 
 }

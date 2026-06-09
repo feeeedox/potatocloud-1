@@ -17,6 +17,7 @@ import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.api.service.impl.ServiceImpl;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 
 public class PacketBuffer {
@@ -195,11 +196,11 @@ public class PacketBuffer {
         writeString(node.name());
         writeString(node.host());
         writeInt(node.port());
-        writeLong(node.startedAt());
+        writeLong(node.startedAt().toEpochMilli());
     }
 
     public ClusterNode readClusterNode() {
-        return new AbstractClusterNode(readString(), readString(), readInt(), readLong());
+        return new AbstractClusterNode(readString(), readString(), readInt(), Instant.ofEpochMilli(readLong()));
     }
 
     public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
