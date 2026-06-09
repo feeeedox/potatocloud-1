@@ -38,7 +38,7 @@ public class GroupConfigurationSetup extends Setup {
 
         text("platform", "Which platform should be used by this group?")
                 .suggestions(() -> platformManager.getPlatforms().stream()
-                        .map(Platform::getName)
+                        .map(Platform::name)
                         .collect(Collectors.toList()))
                 .customValidator(input -> platformManager.exists(input)
                         ? AnswerResult.success()
@@ -49,11 +49,11 @@ public class GroupConfigurationSetup extends Setup {
                 .suggestions(() -> {
                     final Platform platform = platformManager.getPlatform(answers.get("platform"));
                     return platform == null ? List.of()
-                            : platform.getVersions().stream().map(PlatformVersion::getName).collect(Collectors.toList());
+                            : platform.versions().stream().map(PlatformVersion::name).collect(Collectors.toList());
                 })
                 .customValidator(input -> {
                     final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.getVersion(input) != null
+                    return platform != null && platform.version(input) != null
                             ? AnswerResult.success()
                             : AnswerResult.error("This version does not exist for the selected platform");
                 })
@@ -77,7 +77,7 @@ public class GroupConfigurationSetup extends Setup {
         bool("fallback", "Is this group a fallback?")
                 .skipIf(answers -> {
                     final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.isProxy();
+                    return platform != null && platform.proxy();
                 })
                 .add();
 
@@ -95,7 +95,7 @@ public class GroupConfigurationSetup extends Setup {
         bool("velocity_modern_forwarding", "Do you want to use Velocity modern forwarding? Modern forwarding is more secure but will break support for versions below 1.13")
                 .skipIf(answers -> {
                     final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform == null || !platform.isVelocityBased();
+                    return platform == null || !platform.velocityBased();
                 })
                 .add();
     }
@@ -109,7 +109,7 @@ public class GroupConfigurationSetup extends Setup {
 
         final Platform platform = platformManager.getPlatform(platformName);
 
-        if (platform.isProxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
+        if (platform.proxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
             Node.getInstance().logger().warn("You have more than one proxy group! This may cause issues");
         }
 

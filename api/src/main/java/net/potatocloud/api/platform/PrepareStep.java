@@ -10,7 +10,7 @@ public interface PrepareStep {
      *
      * @return the name of the prepare step
      */
-    String getName();
+    String name();
 
     /**
      * Executes the prepare step

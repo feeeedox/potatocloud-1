@@ -32,11 +32,11 @@ public class PlatformManagerImpl implements PlatformManager {
         });
 
         client.on(PlatformUpdatePacket.class, ctx -> {
-            final Platform platform = getPlatform(ctx.packet().platform().getName());
+            final Platform platform = getPlatform(ctx.packet().platform().name());
             if (platform == null) {
                 return;
             }
-            platform.setVersions(ctx.packet().platform().getVersions());
+            platform.versions(ctx.packet().platform().versions());
         });
 
         client.send(new RequestPlatformsPacket());

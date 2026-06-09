@@ -68,7 +68,7 @@ public class ServiceGroupImpl implements ServiceGroup {
 
         final Platform platform = platform();
         if (platform != null) {
-            addTemplate(platform.isProxy() ? "every_proxy" : "every_service");
+            addTemplate(platform.proxy() ? "every_proxy" : "every_service");
         }
     }
 
@@ -125,7 +125,8 @@ public class ServiceGroupImpl implements ServiceGroup {
 
     @Override
     public PlatformVersion platformVersion() {
-        return platform() == null ? null : platform().getVersion(platformVersionName);
+        // todoooooo
+        return platform() == null ? null : platform().version(platformVersionName).get();
     }
 
     @Override

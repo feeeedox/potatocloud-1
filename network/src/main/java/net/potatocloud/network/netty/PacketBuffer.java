@@ -255,8 +255,8 @@ public class PacketBuffer {
     public void writeServiceGroup(ServiceGroup group) {
         writeString(group.name());
         writeString(group.node().map(ClusterNode::name).orElse(null));
-        writeString(group.platform().getName());
-        writeString(group.platformVersion().getName());
+        writeString(group.platform().name());
+        writeString(group.platformVersion().name());
         writeString(group.javaCommand());
         writeStringSet(group.customJvmFlags());
         writeInt(group.maxPlayers());
@@ -339,24 +339,24 @@ public class PacketBuffer {
     }
 
     public void writePlatform(Platform platform) {
-        writeString(platform.getName());
-        writeString(platform.getDownloadUrl());
-        writeBoolean(platform.isCustom());
-        writeBoolean(platform.isProxy());
-        writeString(platform.getBase());
-        writeString(platform.getPreCacheBuilder());
-        writeString(platform.getParser());
-        writeString(platform.getHashType());
-        writeStringList(platform.getPrepareSteps());
+        writeString(platform.name());
+        writeString(platform.downloadUrl());
+        writeBoolean(platform.custom());
+        writeBoolean(platform.proxy());
+        writeString(platform.base());
+        writeString(platform.preCacheBuilder());
+        writeString(platform.parser());
+        writeString(platform.hashType());
+        writeStringList(platform.prepareSteps());
 
-        writeInt(platform.getVersions().size());
-        for (PlatformVersion version : platform.getVersions()) {
-            writeString(version.getPlatformName());
-            writeString(version.getName());
-            writeBoolean(version.isLocal());
-            writeString(version.getDownloadUrl());
-            writeString(version.getFileHash());
-            writeBoolean(version.isLegacy());
+        writeInt(platform.versions().size());
+        for (PlatformVersion version : platform.versions()) {
+            writeString(version.platform().name());
+            writeString(version.name());
+            writeBoolean(version.local());
+            writeString(version.downloadUrl());
+            writeString(version.fileHash());
+            writeBoolean(version.legacy());
         }
     }
 
@@ -385,7 +385,7 @@ public class PacketBuffer {
 
             final PlatformVersion version = new PlatformVersionImpl(
                     platformName, versionName, local, versionDownloadUrl, fileHash, legacy);
-            platform.getVersions().add(version);
+            platform.versions().add(version);
         }
 
         return platform;

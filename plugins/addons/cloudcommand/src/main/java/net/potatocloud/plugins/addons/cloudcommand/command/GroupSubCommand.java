@@ -39,7 +39,7 @@ public class GroupSubCommand {
 
         CloudAPI.instance().groupManager().find(name).ifPresentOrElse(group -> {
             player.sendMessage(messages.get("group.info.name").replaceText(text -> text.match("%name%").replacement(name)));
-            player.sendMessage(messages.get("group.info.platform").replaceText(text -> text.match("%platform%").replacement(group.platform().getName())));
+            player.sendMessage(messages.get("group.info.platform").replaceText(text -> text.match("%platform%").replacement(group.platform().name())));
             player.sendMessage(messages.get("group.info.templates").replaceText(text -> text.match("%templates%").replacement(String.join(", ", group.templates()))));
             player.sendMessage(messages.get("group.info.min-online").replaceText(text -> text.match("%minOnline%").replacement(String.valueOf(group.minServices()))));
             player.sendMessage(messages.get("group.info.max-online").replaceText(text -> text.match("%maxOnline%").replacement(String.valueOf(group.maxServices()))));

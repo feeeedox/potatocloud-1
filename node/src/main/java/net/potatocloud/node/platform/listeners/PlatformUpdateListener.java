@@ -14,10 +14,10 @@ public class PlatformUpdateListener implements PacketListener<PlatformUpdatePack
 
     @Override
     public void handle(PacketContext<PlatformUpdatePacket> ctx) {
-        final Platform platform = platformManager.getPlatform(ctx.packet().platform().getName());
+        final Platform platform = platformManager.getPlatform(ctx.packet().platform().name());
         if (platform == null) {
             return;
         }
-        platform.setVersions(ctx.packet().platform().getVersions());
+        platform.versions(ctx.packet().platform().versions());
     }
 }

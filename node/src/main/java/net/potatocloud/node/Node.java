@@ -191,7 +191,7 @@ public class Node extends CloudAPI {
 
         if (!platformManager.getPlatforms().isEmpty()) {
             logger.info("Loaded &a" + platformManager.getPlatforms().size() + "&7 platforms&8:");
-            platformManager.getPlatforms().forEach(platform -> logger.info("&8» &a" + platform.getName()));
+            platformManager.getPlatforms().forEach(platform -> logger.info("&8» &a" + platform.name()));
         }
 
         moduleLoader.load(Path.of(config.folders().modules()));

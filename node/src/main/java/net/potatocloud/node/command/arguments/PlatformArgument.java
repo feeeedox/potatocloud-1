@@ -28,7 +28,7 @@ public class PlatformArgument extends ArgumentType<Platform> {
                 .platformManager()
                 .getPlatforms()
                 .stream()
-                .map(Platform::getName)
+                .map(Platform::name)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

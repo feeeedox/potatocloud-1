@@ -14,6 +14,7 @@ import net.potatocloud.node.setup.setups.PlatformConfigurationSetup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CommandInfo(name = "platform", description = "Manage platforms", aliases = {"platforms"})
 public class PlatformCommand extends Command {
@@ -37,23 +38,23 @@ public class PlatformCommand extends Command {
 
                     final Platform platform = ctx.get("platform");
 
-                    return platform.getVersions()
+                    return platform.versions()
                             .stream()
-                            .map(PlatformVersion::getName)
+                            .map(PlatformVersion::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
                     final String versionName = ctx.get("version");
-                    final PlatformVersion version = platform.getVersion(versionName);
+                    final Optional<PlatformVersion> version = platform.version(versionName);
 
-                    if (version == null) {
-                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.getName());
+                    if (version.isEmpty()) {
+                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.name());
                         return;
                     }
 
-                    node.downloadManager().downloadPlatformVersion(platform, version);
+                    node.downloadManager().downloadPlatformVersion(platform, version.get());
                 });
 
         sub("info", "Shows information of a platform")
@@ -61,24 +62,24 @@ public class PlatformCommand extends Command {
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
 
-                    logger.info("&7Info for platform &a" + platform.getName() + "&8:");
+                    logger.info("&7Info for platform &a" + platform.name() + "&8:");
 
-                    if (platform.getDownloadUrl() != null) {
-                        logger.info("&8» &7Download URL: &a" + platform.getDownloadUrl());
+                    if (platform.downloadUrl() != null) {
+                        logger.info("&8» &7Download URL: &a" + platform.downloadUrl());
 
                     }
-                    logger.info("&8» &7Custom: " + (platform.isCustom() ? "&aYes" : "&cNo"));
-                    logger.info("&8» &7Proxy: " + (platform.isProxy() ? "&aYes" : "&cNo"));
-                    logger.info("&8» &7Base: &a" + platform.getBase());
+                    logger.info("&8» &7Custom: " + (platform.custom() ? "&aYes" : "&cNo"));
+                    logger.info("&8» &7Proxy: " + (platform.proxy() ? "&aYes" : "&cNo"));
+                    logger.info("&8» &7Base: &a" + platform.base());
 
-                    if (platform.getPreCacheBuilder() != null) {
-                        logger.info("&8» &7Pre-Cache Builder: &a" + platform.getPreCacheBuilder());
+                    if (platform.preCacheBuilder() != null) {
+                        logger.info("&8» &7Pre-Cache Builder: &a" + platform.preCacheBuilder());
                     }
 
-                    logger.info("&8» &7Versions: &a" + platform.getVersions().size());
-                    logger.info("&8» &7Prepare Steps: &a" + platform.getPrepareSteps().size());
-                    logger.info("&8» &7Parser: &a" + platform.getParser());
-                    logger.info("&8» &7Hash Type: &a" + platform.getHashType());
+                    logger.info("&8» &7Versions: &a" + platform.versions().size());
+                    logger.info("&8» &7Prepare Steps: &a" + platform.prepareSteps().size());
+                    logger.info("&8» &7Parser: &a" + platform.parser());
+                    logger.info("&8» &7Hash Type: &a" + platform.hashType());
                 });
 
         sub("list", "List all platforms")
@@ -86,9 +87,9 @@ public class PlatformCommand extends Command {
                     logger.info("&7Available platforms:");
 
                     for (Platform platform : platformManager.getPlatforms()) {
-                        logger.info("&8» &a" + platform.getName() +
-                                " &7- Proxy: &a" + platform.isProxy() +
-                                " &7- Custom: &a" + platform.isCustom());
+                        logger.info("&8» &a" + platform.name() +
+                                " &7- Proxy: &a" + platform.proxy() +
+                                " &7- Custom: &a" + platform.custom());
                     }
                 });
 
@@ -114,28 +115,28 @@ public class PlatformCommand extends Command {
 
                     final Platform platform = ctx.get("platform");
 
-                    return platform.getVersions()
+                    return platform.versions()
                             .stream()
-                            .map(PlatformVersion::getName)
+                            .map(PlatformVersion::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
                     final String versionName = ctx.get("version");
-                    final PlatformVersion version = platform.getVersion(versionName);
+                    final Optional<PlatformVersion> version = platform.version(versionName);
 
-                    if (version == null) {
-                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.getName());
+                    if (version.isEmpty()) {
+                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.name());
                         return;
                     }
 
-                    final List<PlatformVersion> versions = new ArrayList<>(platform.getVersions());
+                    final List<PlatformVersion> versions = new ArrayList<>(platform.versions());
                     versions.remove(version);
-                    platform.setVersions(versions);
-                    platform.update();
+                    platform.versions(versions);
+                    platformManager.updatePlatform(platform);
 
-                    logger.info("Version &a" + version.getName() + " &7was removed from platform &a" + platform.getName());
+                    logger.info("Version &a" + version.get().name() + " &7was removed from platform &a" + platform.name());
                 });
 
         versionSub.sub("list")
@@ -143,15 +144,15 @@ public class PlatformCommand extends Command {
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
 
-                    final List<PlatformVersion> versions = platform.getVersions();
+                    final List<PlatformVersion> versions = platform.versions();
                     if (versions.isEmpty()) {
-                        logger.info("No versions found for platform &a" + platform.getName());
+                        logger.info("No versions found for platform &a" + platform.name());
                         return;
                     }
 
-                    logger.info("All versions for platform &a" + platform.getName() + "&8:");
+                    logger.info("All versions for platform &a" + platform.name() + "&8:");
                     for (PlatformVersion version : versions) {
-                        logger.info("&8» &a" + version.getName() + " &7- Legacy: " + (version.isLegacy() ? "&cYes" : "&aNo"));
+                        logger.info("&8» &a" + version.name() + " &7- Legacy: " + (version.legacy() ? "&cYes" : "&aNo"));
                     }
                 });
 
@@ -165,28 +166,28 @@ public class PlatformCommand extends Command {
 
                     final Platform platform = ctx.get("platform");
 
-                    logger.info(String.valueOf(platform.getVersions().size()));
+                    logger.info(String.valueOf(platform.versions().size()));
 
-                    return platform.getVersions()
+                    return platform.versions()
                             .stream()
-                            .map(PlatformVersion::getName)
+                            .map(PlatformVersion::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
                 .executes(ctx -> {
                     final Platform platform = ctx.get("platform");
                     final String versionName = ctx.get("version");
-                    final PlatformVersion version = platform.getVersion(versionName);
+                    final Optional<PlatformVersion> version = platform.version(versionName);
 
-                    if (version == null) {
-                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.getName());
+                    if (version.isEmpty()) {
+                        logger.info("&cNo version found with the name &a" + versionName + " in platform &a" + platform.name());
                         return;
                     }
 
-                    logger.info("Information for version &a" + version.getFullName() + "&8:");
-                    logger.info("&8» &7Platform: &a" + version.getPlatformName());
-                    logger.info("&8» &7Legacy: " + (version.isLegacy() ? "&cYes" : "&aNo"));
-                    logger.info("&8» &7Download URL: " + (version.getDownloadUrl() != null ? version.getDownloadUrl() : "&aAuto generated"));
+                    logger.info("Information for version &a" + version.get().fullName() + "&8:");
+                    logger.info("&8» &7Platform: &a" + version.get().platform().name());
+                    logger.info("&8» &7Legacy: " + (version.get().legacy() ? "&cYes" : "&aNo"));
+                    logger.info("&8» &7Download URL: " + (version.get().downloadUrl() != null ? version.get().downloadUrl() : "&aAuto generated"));
                 });
     }
 }

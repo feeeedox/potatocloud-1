@@ -17,7 +17,7 @@ public final class ProxyUtils {
     }
 
     public static List<ServiceGroup> getProxyGroups() {
-        return Node.getInstance().groupManager().groups().stream().filter(group -> group.platform().isProxy()).toList();
+        return Node.getInstance().groupManager().groups().stream().filter(group -> group.platform().proxy()).toList();
     }
 
     public static boolean isProxyModernForwarding() {

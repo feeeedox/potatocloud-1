@@ -96,7 +96,7 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        if (service.group().platform().isProxy()) {
+        if (service.group().platform().proxy()) {
             return;
         }
 

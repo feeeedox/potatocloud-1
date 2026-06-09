@@ -33,8 +33,8 @@ public record ServiceGroupConfig(
         return new ServiceGroupConfig(
                 group.name(),
                 group.node().map(ClusterNode::name).orElse(null),
-                group.platform().getName(),
-                group.platformVersion().getName(),
+                group.platform().name(),
+                group.platformVersion().name(),
                 group.javaCommand(),
                 group.customJvmFlags(),
                 group.maxPlayers(),

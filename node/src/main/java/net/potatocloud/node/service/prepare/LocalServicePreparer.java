@@ -73,7 +73,7 @@ public final class LocalServicePreparer implements ServicePreparer {
         }
 
         final Platform platform = group.platform();
-        downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.platformVersion().getName()));
+        downloadManager.downloadPlatformVersion(platform, platform.version(group.platformVersion().name()).get());
 
         final Path cacheDirectory = cacheManager.preCachePlatform(group);
         cacheManager.copyCacheToService(group, cacheDirectory, directory);
@@ -89,7 +89,7 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to copy server jar for service " + serviceName, e);
         }
 
-        for (String stepName : group.platform().getPrepareSteps()) {
+        for (String stepName : group.platform().prepareSteps()) {
             final PrepareStep step = PlatformPrepareSteps.getStep(stepName);
             if (step != null) {
                 step.data().put("group", group);
@@ -105,20 +105,20 @@ public final class LocalServicePreparer implements ServicePreparer {
         final Platform platform = group.platform();
         final PlatformVersion version = group.platformVersion();
 
-        if (platform.isBukkitBased()) {
-            return version.isLegacy()
+        if (platform.bukkitBased()) {
+            return version.legacy()
                     ? "potatocloud-plugin-spigot-legacy.jar"
                     : "potatocloud-plugin-spigot.jar";
         }
 
-        if (platform.isVelocityBased()) {
+        if (platform.velocityBased()) {
             return "potatocloud-plugin-velocity.jar";
         }
-        if (platform.isLimboBased()) {
+        if (platform.limboBased()) {
             return "potatocloud-plugin-limbo.jar";
         }
 
-        logger.error("No plugin found for platform " + platform.getName());
+        logger.error("No plugin found for platform " + platform.name());
         return "";
     }
 }

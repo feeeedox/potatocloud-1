@@ -68,7 +68,7 @@ public class PlatformManagerImpl implements PlatformManager {
     }
 
     public void addPlatform(Platform platform) {
-        if (platform == null || exists(platform.getName())) {
+        if (platform == null || exists(platform.name())) {
             return;
         }
 

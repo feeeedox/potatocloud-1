@@ -1,15 +1,9 @@
 package net.potatocloud.api.platform.impl;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@EqualsAndHashCode(of = {"platformName", "name"})
 public class PlatformVersionImpl implements PlatformVersion {
 
     private final String platformName;
@@ -25,5 +19,52 @@ public class PlatformVersionImpl implements PlatformVersion {
         this.local = local;
         this.downloadUrl = downloadUrl;
         this.legacy = legacy;
+    }
+
+    public PlatformVersionImpl(String platformName, String name, boolean local, String downloadUrl, String fileHash, boolean legacy) {
+        this.platformName = platformName;
+        this.name = name;
+        this.local = local;
+        this.downloadUrl = downloadUrl;
+        this.fileHash = fileHash;
+        this.legacy = legacy;
+    }
+
+    @Override
+    public String name() {
+        return platformName;
+    }
+
+    @Override
+    public boolean local() {
+        return local;
+    }
+
+    @Override
+    public String downloadUrl() {
+        return downloadUrl;
+    }
+
+    public void downloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    @Override
+    public String fileHash() {
+        return fileHash;
+    }
+
+    public void fileHash(String fileHash) {
+        this.fileHash = fileHash;
+    }
+
+    @Override
+    public boolean legacy() {
+        return legacy;
+    }
+
+    @Override
+    public Platform platform() {
+        return CloudAPI.instance().platformManager().getPlatform(platformName);
     }
 }

@@ -18,7 +18,7 @@ public interface PlatformManager {
      * @return the platform
      */
     default Platform getPlatform(String name) {
-        return getPlatforms().stream().filter(platform -> platform.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return getPlatforms().stream().filter(platform -> platform.name().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     /**

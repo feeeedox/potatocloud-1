@@ -15,7 +15,7 @@ public final class ServicePorts {
     }
 
     public static int nextPort(ServiceGroup group, NodeConfig config, List<Service> services) {
-        int port = group.platform().isProxy()
+        int port = group.platform().proxy()
                 ? config.service().proxyStartPort()
                 : config.service().serviceStartPort();
 

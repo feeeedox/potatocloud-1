@@ -68,8 +68,8 @@ public class GroupCommand extends Command {
                     if (node.config().cluster().enabled() && group.node().isPresent()) {
                         logger.info("&8» &7Node: &a" + group.node().map(ClusterNode::name).orElse("Unknown"));
                     }
-                    logger.info("&8» &7Platform: &a" + group.platform().getName());
-                    logger.info("&8» &7Version: &a" + group.platformVersion().getName());
+                    logger.info("&8» &7Platform: &a" + group.platform().name());
+                    logger.info("&8» &7Version: &a" + group.platformVersion().name());
                     logger.info("&8» &7Templates: &a" + String.join(", ", group.templates()));
                     logger.info("&8» &7Min Online Count: &a" + group.minServices());
                     logger.info("&8» &7Max Online Count: &a" + group.maxServices());

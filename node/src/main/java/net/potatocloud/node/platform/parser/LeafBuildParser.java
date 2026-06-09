@@ -11,7 +11,7 @@ public class LeafBuildParser implements BuildParser {
     @Override
     public void parse(PlatformVersion version, String baseUrl) {
         try {
-            String versionName = version.getName();
+            String versionName = version.name();
 
             // Find the latest Minecraft version if the user wants the latest
             if (versionName.equalsIgnoreCase("latest")) {
@@ -55,12 +55,12 @@ public class LeafBuildParser implements BuildParser {
             }
 
             if (version instanceof PlatformVersionImpl versionImpl) {
-                versionImpl.setFileHash(primary.get("sha256").asString());
-                versionImpl.setDownloadUrl(downloadUrl);
+                versionImpl.fileHash(primary.get("sha256").asString());
+                versionImpl.downloadUrl(downloadUrl);
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse Leaf build for: " + version.getName(), e);
+            throw new RuntimeException("Failed to parse Leaf build for: " + version.name(), e);
         }
     }
 

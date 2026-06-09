@@ -20,7 +20,7 @@ public class SetupForwardingStep extends AbstractPrepareStep {
     @Override
     public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
-            if (!platform.isVelocityBased()) {
+            if (!platform.velocityBased()) {
                 return;
             }
 
@@ -56,7 +56,7 @@ public class SetupForwardingStep extends AbstractPrepareStep {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "setup-forwarding";
     }
 }

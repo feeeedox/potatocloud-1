@@ -16,7 +16,7 @@ public class PortStep extends AbstractPrepareStep {
         try {
             final int port = (int) data().get("port");
 
-            if (platform.isBukkitBased()) {
+            if (platform.bukkitBased()) {
                 final Path propertiesPath = serverDirectory.resolve("server.properties");
                 final Properties properties = PropertiesFileUtils.loadProperties(propertiesPath);
 
@@ -27,7 +27,7 @@ public class PortStep extends AbstractPrepareStep {
                 return;
             }
 
-            if (platform.isProxy() && platform.isVelocityBased()) {
+            if (platform.proxy() && platform.velocityBased()) {
                 final Path velocityToml = serverDirectory.resolve("velocity.toml");
                 if (!Files.exists(velocityToml)) {
                     return;
@@ -36,7 +36,7 @@ public class PortStep extends AbstractPrepareStep {
                 FileUtils.replaceInFile(velocityToml, "bind = \"0.0.0.0:25565\"", "bind = \"0.0.0.0:" + port + "\"");
             }
 
-            if (platform.isLimboBased()) {
+            if (platform.limboBased()) {
                 final Path propertiesPath = serverDirectory.resolve("server.properties");
                 final Properties properties = PropertiesFileUtils.loadProperties(propertiesPath);
 
@@ -50,7 +50,7 @@ public class PortStep extends AbstractPrepareStep {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "port";
     }
 }

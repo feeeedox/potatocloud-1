@@ -50,25 +50,25 @@ public class DownloadManager {
 
         final Path platformJarPath = PlatformUtils.getPlatformJarPath(platform, version);
 
-        if (version.isLocal()) {
+        if (version.local()) {
             if (Files.notExists(platformJarPath)) {
-                logger.error("Platform &a" + platform.getName() + " &7version &a" + version.getName() + " &7does not exist!");
+                logger.error("Platform &a" + platform.name() + " &7version &a" + version.name() + " &7does not exist!");
                 return;
             }
             return;
         }
 
         final BuildParser parser = PARSERS.stream()
-                .filter(p -> p.getName().equalsIgnoreCase(platform.getParser()))
+                .filter(p -> p.getName().equalsIgnoreCase(platform.parser()))
                 .findFirst()
                 .orElse(null);
 
-        if ((version.getDownloadUrl() == null || version.getDownloadUrl().isEmpty()) && parser != null) {
-            parser.parse(version, platform.getDownloadUrl());
+        if ((version.downloadUrl() == null || version.downloadUrl().isEmpty()) && parser != null) {
+            parser.parse(version, platform.downloadUrl());
         }
 
-        if (version.getDownloadUrl() == null || version.getDownloadUrl().isEmpty()) {
-            logger.info("&cVersion &a" + version.getName() + " &7has no download url!");
+        if (version.downloadUrl() == null || version.downloadUrl().isEmpty()) {
+            logger.info("&cVersion &a" + version.name() + " &7has no download url!");
             return;
         }
 
@@ -79,29 +79,29 @@ public class DownloadManager {
 
         final boolean autoUpdate = Node.getInstance().config().service().autoUpdatePlatforms();
         if (autoUpdate && needsUpdate(version, platformJarPath)) {
-            logger.info("Platform &a" + platform.getName() + " &7is outdated! Downloading update&8...");
+            logger.info("Platform &a" + platform.name() + " &7is outdated! Downloading update&8...");
             download(platform, version, platformJarPath);
         }
     }
 
     private void download(Platform platform, PlatformVersion version, Path platformJarPath) {
-        logger.info("&7Downloading platform &a" + platform.getName() + "&7 version &a" + version.getName());
+        logger.info("&7Downloading platform &a" + platform.name() + "&7 version &a" + version.name());
 
-        if (version.getDownloadUrl() == null || version.getDownloadUrl().isEmpty()) {
-            logger.error("No download URL found for platform: " + platform.getName());
+        if (version.downloadUrl() == null || version.downloadUrl().isEmpty()) {
+            logger.error("No download URL found for platform: " + platform.name());
             return;
         }
-        FileUtils.downloadFile(version.getDownloadUrl(), platformJarPath);
-        logger.info("&7Finished downloading platform &a" + platform.getName() + "&7 version &a" + version.getName());
+        FileUtils.downloadFile(version.downloadUrl(), platformJarPath);
+        logger.info("&7Finished downloading platform &a" + platform.name() + "&7 version &a" + version.name());
     }
 
     private boolean needsUpdate(PlatformVersion version, Path platformJarPath) {
-        final String versionHash = version.getFileHash();
+        final String versionHash = version.fileHash();
         if (versionHash == null || versionHash.isEmpty()) {
             return false;
         }
 
-        final String currentHash = version.getPlatform().getHashType().equals("md5")
+        final String currentHash = version.platform().hashType().equals("md5")
                 ? HashUtils.md5(platformJarPath)
                 : HashUtils.sha256(platformJarPath);
 

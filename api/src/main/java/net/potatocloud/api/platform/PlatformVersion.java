@@ -1,22 +1,13 @@
 package net.potatocloud.api.platform;
 
-import net.potatocloud.api.CloudAPI;
-
 public interface PlatformVersion {
-
-    /**
-     * Gets the name of the platform.
-     *
-     * @return the name of the platform
-     */
-    String getPlatformName();
 
     /**
      * Gets the name of the platform version.
      *
      * @return the name of the platform version
      */
-    String getName();
+    String name();
 
     /**
      * Checks whether the platform version is local.
@@ -26,36 +17,36 @@ public interface PlatformVersion {
      *
      * @return {@code true} if the platform version uses a local file, otherwise {@code false}
      */
-    boolean isLocal();
+    boolean local();
 
     /**
      * Gets the download URL of the platform version.
      *
      * @return the download URL of the platform version
      */
-    String getDownloadUrl();
+    String downloadUrl();
 
     /**
      * Gets the hash of the platform version.
      *
      * @return the hash of the platform version
      */
-    String getFileHash();
+    String fileHash();
 
     /**
      * Checks whether the platform version is legacy.
      *
      * @return {@code true} if the platform version is legacy, otherwise {@code false}
      */
-    boolean isLegacy();
+    boolean legacy();
 
     /**
      * Gets the full name of the platform version.
      *
      * @return the full name of the platform version
      */
-    default String getFullName() {
-        return getPlatformName() + "-" + getName();
+    default String fullName() {
+        return platform().name() + "-" + name();
     }
 
     /**
@@ -63,7 +54,5 @@ public interface PlatformVersion {
      *
      * @return the platform of the platform version
      */
-    default Platform getPlatform() {
-        return CloudAPI.instance().platformManager().getPlatform(getPlatformName());
-    }
+    Platform platform();
 }

@@ -83,7 +83,7 @@ public class PlayerSubCommand {
             }
             if (args.length == 4) {
                 return CloudAPI.instance().serviceManager().services().stream()
-                        .filter(service -> !service.group().platform().isProxy())
+                        .filter(service -> !service.group().platform().proxy())
                         .map(Service::name)
                         .filter(name -> name.startsWith(args[3]))
                         .toList();

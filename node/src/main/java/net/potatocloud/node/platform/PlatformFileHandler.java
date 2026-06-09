@@ -69,7 +69,7 @@ public class PlatformFileHandler {
             }
 
             for (VersionConfig version : config.versions()) {
-                platform.getVersions().add(new PlatformVersionImpl(
+                platform.versions().add(new PlatformVersionImpl(
                         name,
                         version.name(),
                         version.local(),
@@ -88,7 +88,7 @@ public class PlatformFileHandler {
         final PlatformsConfig root = readFile();
         final PlatformConfig config = PlatformConfig.from(platform);
 
-        root.platforms().put(platform.getName(), config);
+        root.platforms().put(platform.name(), config);
 
         writeFile(root);
     }

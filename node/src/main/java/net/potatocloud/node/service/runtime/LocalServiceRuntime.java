@@ -134,11 +134,11 @@ public final class LocalServiceRuntime implements ServiceRuntime {
         args.add("-jar");
         args.add(directory.resolve("server.jar").toAbsolutePath().toString());
 
-        if (group.platform().isBukkitBased() && !group.platformVersion().isLegacy()) {
+        if (group.platform().bukkitBased() && !group.platformVersion().legacy()) {
             args.add("-nogui");
         }
 
-        if (group.platform().isLimboBased()) {
+        if (group.platform().limboBased()) {
             args.add("--nogui");
         }
 

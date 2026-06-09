@@ -66,7 +66,7 @@ public class PlatformConfigurationSetup extends Setup {
         }
 
         final Platform platform = platformManager.createPlatform(name, null, true, proxy, base, preCache, null, null, prepareSteps);
-        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + platform.getName());
+        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + platform.name());
     }
 
     @Override
