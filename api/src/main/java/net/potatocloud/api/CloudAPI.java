@@ -20,7 +20,7 @@ public abstract class CloudAPI {
     /**
      * The current version.
      */
-    public static final Version VERSION = Version.of(1, 5, 1);
+    public static final Version VERSION = Version.of(2, 0, 0);
 
     public CloudAPI() {
         instance = this;

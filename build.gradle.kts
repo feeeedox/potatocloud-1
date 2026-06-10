@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "net.potatocloud"
-version = "1.5.1"
+version = "2.0.0"
 
 allprojects {
     apply(plugin = "java")

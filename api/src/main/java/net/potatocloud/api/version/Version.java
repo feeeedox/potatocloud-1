@@ -6,6 +6,10 @@ public record Version(int major, int minor, int patch, String tag) implements Co
         return new Version(major, minor, patch, null);
     }
 
+    public static Version of(int major, int minor, int patch, String tag) {
+        return new Version(major, minor, patch, tag);
+    }
+
     public static Version fromString(String value) {
         if (value == null || value.isBlank()) {
             return null;
