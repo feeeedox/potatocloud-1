@@ -70,7 +70,7 @@ public class PlatformCommand extends Command {
                     }
                     logger.info("&8» &7Custom: " + (platform.custom() ? "&aYes" : "&cNo"));
                     logger.info("&8» &7Proxy: " + (platform.proxy() ? "&aYes" : "&cNo"));
-                    logger.info("&8» &7Base: &a" + platform.base());
+                    logger.info("&8» &7Base: &a" + platform.base().id());
 
                     if (platform.preCacheBuilder() != null) {
                         logger.info("&8» &7Pre-Cache Builder: &a" + platform.preCacheBuilder());

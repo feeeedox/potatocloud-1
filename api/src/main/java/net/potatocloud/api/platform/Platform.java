@@ -59,7 +59,7 @@ public interface Platform {
      *
      * @return the base of the platform
      */
-    String base();
+    PlatformBase base();
 
     /**
      * Gets the pre-cache builder of the platform.
@@ -117,33 +117,33 @@ public interface Platform {
      * @return {@code true} if the platform is a bukkit based platform, otherwise {@code false}
      */
     default boolean bukkitBased() {
-        return base().equalsIgnoreCase("bukkit") || base().equalsIgnoreCase("spigot") || paperBased();
+        return base() == PlatformBase.BUKKIT || base() == PlatformBase.SPIGOT || paperBased();
     }
 
     /**
-     * Checks whether the platform is a paper based platform.
+     * Checks whether the platform is a paper-based platform.
      *
-     * @return {@code true} if the platform is a paper based platform, otherwise {@code false}
+     * @return {@code true} if the platform is a paper-based platform, otherwise {@code false}
      */
     default boolean paperBased() {
-        return base().equalsIgnoreCase("paper");
+        return base() == PlatformBase.PAPER;
     }
 
     /**
-     * Checks whether the platform is a velocity based platform.
+     * Checks whether the platform is a velocity-based platform.
      *
-     * @return {@code true} if the platform is a velocity based platform, otherwise {@code false}
+     * @return {@code true} if the platform is a velocity-based platform, otherwise {@code false}
      */
     default boolean velocityBased() {
-        return base().equalsIgnoreCase("velocity");
+        return base() == PlatformBase.VELOCITY;
     }
 
     /**
-     * Checks whether the platform is a limbo based platform.
+     * Checks whether the platform is a limbo-based platform.
      *
-     * @return {@code true} if the platform is a limbo based platform, otherwise {@code false}
+     * @return {@code true} if the platform is a limbo-based platform, otherwise {@code false}
      */
     default boolean limboBased() {
-        return base().equalsIgnoreCase("limbo");
+        return base() == PlatformBase.LIMBO;
     }
 }

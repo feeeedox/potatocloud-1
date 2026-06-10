@@ -11,7 +11,7 @@ public class PlatformBuilder {
     private String downloadUrl = null;
     private boolean custom = false;
     private boolean proxy = false;
-    private String base = "";
+    private PlatformBase base = PlatformBase.UNKNOWN;
     private String preCacheBuilder = null;
     private String parser = null;
     private String hashType = null;
@@ -36,7 +36,7 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformBuilder base(String base) {
+    public PlatformBuilder base(PlatformBase base) {
         this.base = base;
         return this;
     }

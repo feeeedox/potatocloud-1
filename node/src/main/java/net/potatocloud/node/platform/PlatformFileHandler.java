@@ -2,6 +2,7 @@ package net.potatocloud.node.platform;
 
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformBase;
 import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
 import net.potatocloud.common.JacksonUtils;
@@ -55,7 +56,7 @@ public class PlatformFileHandler {
                     download != null ? download.url() : null,
                     flags != null && flags.custom(),
                     flags != null && flags.proxy(),
-                    config.base() != null ? config.base() : "UNKNOWN",
+                    PlatformBase.fromId(config.base()),
                     processing != null ? processing.cacheBuilder() : null,
                     download != null ? download.parser() : "",
                     download != null ? download.hash() : "",
@@ -101,7 +102,7 @@ public class PlatformFileHandler {
             return;
         }
 
-        // Load default from resources
+        // load default from resources
         PlatformsConfig defaults = loadDefaultConfig();
         if (defaults == null) {
             return;
@@ -109,7 +110,7 @@ public class PlatformFileHandler {
 
         final PlatformsConfig user = readFile();
 
-        // Merge user custom platforms with defaults
+        // merge user custom platforms with defaults
         final Map<String, PlatformConfig> merged = new LinkedHashMap<>(defaults.platforms());
         for (Map.Entry<String, PlatformConfig> entry : user.platforms().entrySet()) {
             if (entry.getValue().flags() != null && entry.getValue().flags().custom()) {
@@ -117,7 +118,7 @@ public class PlatformFileHandler {
             }
         }
 
-        // Replace current user config with merged
+        // replace current user config with merged
         writeFile(new PlatformsConfig(merged));
     }
 

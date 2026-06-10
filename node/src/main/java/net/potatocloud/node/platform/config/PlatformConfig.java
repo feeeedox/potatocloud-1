@@ -23,7 +23,7 @@ public record PlatformConfig(
 
     public static PlatformConfig from(Platform platform) {
         return new PlatformConfig(
-                platform.base(),
+                platform.base().id(),
                 new DownloadConfig(
                         platform.downloadUrl(),
                         platform.hashType(),

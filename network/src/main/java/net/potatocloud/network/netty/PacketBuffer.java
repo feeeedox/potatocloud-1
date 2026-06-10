@@ -6,6 +6,7 @@ import net.potatocloud.api.cluster.impl.AbstractClusterNode;
 import net.potatocloud.api.group.Group;
 import net.potatocloud.api.group.impl.GroupImpl;
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformBase;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
@@ -343,7 +344,7 @@ public class PacketBuffer {
         writeString(platform.downloadUrl());
         writeBoolean(platform.custom());
         writeBoolean(platform.proxy());
-        writeString(platform.base());
+        writeString(platform.base().id());
         writeString(platform.preCacheBuilder());
         writeString(platform.parser());
         writeString(platform.hashType());
@@ -365,7 +366,7 @@ public class PacketBuffer {
         final String downloadUrl = readString();
         final boolean custom = readBoolean();
         final boolean isProxy = readBoolean();
-        final String base = readString();
+        final PlatformBase base = PlatformBase.fromId(readString());
         final String preCacheBuilder = readString();
         final String parser = readString();
         final String hashType = readString();

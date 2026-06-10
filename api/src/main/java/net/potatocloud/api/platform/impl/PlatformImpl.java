@@ -2,6 +2,7 @@ package net.potatocloud.api.platform.impl;
 
 
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformBase;
 import net.potatocloud.api.platform.PlatformVersion;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class PlatformImpl implements Platform {
     private final String downloadUrl;
     private final boolean custom;
     private final boolean isProxy;
-    private final String base;
+    private final PlatformBase base;
     private final String preCacheBuilder;
     private final String parser;
     private final String hashType;
@@ -21,7 +22,7 @@ public class PlatformImpl implements Platform {
 
     private List<PlatformVersion> versions = new ArrayList<>();
 
-    public PlatformImpl(String name, String downloadUrl, boolean custom, boolean isProxy, String base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
+    public PlatformImpl(String name, String downloadUrl, boolean custom, boolean isProxy, PlatformBase base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
         this.name = name;
         this.downloadUrl = downloadUrl;
         this.custom = custom;
@@ -69,7 +70,7 @@ public class PlatformImpl implements Platform {
     }
 
     @Override
-    public String base() {
+    public PlatformBase base() {
         return base;
     }
 
