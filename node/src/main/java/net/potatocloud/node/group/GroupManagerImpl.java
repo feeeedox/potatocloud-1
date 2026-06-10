@@ -147,7 +147,7 @@ public class GroupManagerImpl implements GroupManager {
                 group.startPriority(),
                 group.startPercentage(),
                 group.templates(),
-                group.getPropertyMap()
+                group.propertyMap()
         );
         server.broadcast().connectors().send(updatePacket);
         clusterManager.broadcast(updatePacket);

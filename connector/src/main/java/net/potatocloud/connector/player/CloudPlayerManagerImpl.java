@@ -93,7 +93,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
                 player.uniqueId(),
                 player.proxy().name(),
                 player.service().map(Service::name).orElse(null),
-                player.getPropertyMap()
+                player.propertyMap()
         ));
     }
 }

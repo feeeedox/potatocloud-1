@@ -39,6 +39,6 @@ public final class PropertyUtil {
     @SuppressWarnings("unchecked")
     public static <T> void setPropertyUnchecked(PropertyHolder holder, Property<?> property) {
         final Property<T> typed = (Property<T>) property;
-        holder.setProperty(typed, typed.value(), false);
+        holder.set(typed, typed.value(), false);
     }
 }

@@ -123,7 +123,7 @@ public class GroupCommand extends Command {
                     try {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
 
-                        group.setProperty(property);
+                        group.set(property);
                         groupManager.update(group);
                         logger.info("Property &a" + key + " &7was set to &a" + value + " &7in group &a" + group.name());
                     } catch (Exception e) {
@@ -141,7 +141,7 @@ public class GroupCommand extends Command {
 
                     final Group group = ctx.get("group");
 
-                    return group.getProperties().stream()
+                    return group.properties().stream()
                             .map(Property::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
@@ -150,13 +150,13 @@ public class GroupCommand extends Command {
                     final Group group = ctx.get("group");
                     final String key = ctx.get("key");
 
-                    final Property<?> property = group.getProperty(key);
+                    final Property<?> property = group.property(key);
                     if (property == null) {
                         logger.info("Property &a" + key + "&7 was &cnot found &7in group &a" + group.name());
                         return;
                     }
 
-                    group.getPropertyMap().remove(property.name());
+                    group.propertyMap().remove(property.name());
                     groupManager.update(group);
                     logger.info("Property &a" + key + " &7was removed in group &a" + group.name());
                 });
@@ -165,7 +165,7 @@ public class GroupCommand extends Command {
                 .argument(ArgumentType.Group("group"))
                 .executes(ctx -> {
                     final Group group = ctx.get("group");
-                    final List<Property<?>> properties = group.getProperties();
+                    final List<Property<?>> properties = group.properties();
 
                     if (properties.isEmpty()) {
                         logger.info("No properties found for group &a" + group.name());

@@ -25,7 +25,7 @@ public final class ProxyUtils {
             return false;
         }
 
-        final Property<Boolean> property = getProxyGroup().getProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING);
+        final Property<Boolean> property = getProxyGroup().property(DefaultProperties.VELOCITY_MODERN_FORWARDING);
         if (property == null) {
             return false;
         }

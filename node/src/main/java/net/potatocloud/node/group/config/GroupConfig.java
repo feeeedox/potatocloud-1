@@ -46,7 +46,7 @@ public record GroupConfig(
                 group.startPriority(),
                 group.startPercentage(),
                 group.templates(),
-                group.getProperties().stream().map(PropertyConfig::from).toList()
+                group.properties().stream().map(PropertyConfig::from).toList()
         );
     }
 

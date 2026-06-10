@@ -1,6 +1,5 @@
 package net.potatocloud.connector.properties;
 
-import lombok.Getter;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.property.PropertyHolder;
 import net.potatocloud.network.NetworkClient;
@@ -11,7 +10,6 @@ import net.potatocloud.network.packet.packets.property.RequestPropertiesPacket;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 public class ConnectorPropertiesHolder implements PropertyHolder {
 
     private final NetworkClient client;
@@ -36,21 +34,26 @@ public class ConnectorPropertiesHolder implements PropertyHolder {
     }
 
     @Override
-    public <T> void setProperty(Property<T> property, T value, boolean fireEvent) {
-        final Property<T> existing = getProperty(property.name());
-        PropertyHolder.super.setProperty(property, value, fireEvent);
+    public <T> void set(Property<T> key, T value, boolean fireEvent) {
+        final Property<T> existing = property(key.name());
+        PropertyHolder.super.set(key, value, fireEvent);
 
         if (existing == null) {
             // Property was just created, so send the add packet to the node
-            client.send(new PropertyAddPacket(property));
+            client.send(new PropertyAddPacket(key));
         } else {
             // Property was just updated, so send the update packet to the node
-            client.send(new PropertyUpdatePacket(property.name(), value));
+            client.send(new PropertyUpdatePacket(key.name(), value));
         }
     }
 
     @Override
-    public String getPropertyHolderName() {
+    public Map<String, Property<?>> propertyMap() {
+        return propertyMap;
+    }
+
+    @Override
+    public String name() {
         return "Global";
     }
 }

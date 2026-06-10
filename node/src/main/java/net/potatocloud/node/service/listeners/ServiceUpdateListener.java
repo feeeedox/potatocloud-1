@@ -26,7 +26,7 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
         serviceManager.find(packet.serviceName()).ifPresent(service -> {
             service.state(ServiceState.valueOf(packet.status()));
             service.maxPlayers(packet.maxPlayers());
-            service.getPropertyMap().clear();
+            service.propertyMap().clear();
             for (Property<?> property : packet.propertyMap().values()) {
                 PropertyUtil.setPropertyUnchecked(service, property);
             }

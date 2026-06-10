@@ -34,11 +34,6 @@ public class CloudPlayerImpl implements CloudPlayer {
     }
 
     @Override
-    public String getPropertyHolderName() {
-        return username();
-    }
-
-    @Override
     public UUID uniqueId() {
         return uniqueId;
     }
@@ -67,7 +62,12 @@ public class CloudPlayerImpl implements CloudPlayer {
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public String name() {
+        return username();
+    }
+
+    @Override
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
     }
 

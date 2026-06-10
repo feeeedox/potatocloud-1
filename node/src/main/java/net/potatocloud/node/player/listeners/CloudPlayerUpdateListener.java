@@ -28,7 +28,7 @@ public class CloudPlayerUpdateListener implements PacketListener<CloudPlayerUpda
                 playerImpl.proxyName(packet.connectedProxyName());
                 playerImpl.serviceName(packet.connectedServiceName());
 
-                playerImpl.getPropertyMap().clear();
+                playerImpl.propertyMap().clear();
                 for (Property<?> property : packet.propertyMap().values()) {
                     PropertyUtil.setPropertyUnchecked(playerImpl, property);
                 }

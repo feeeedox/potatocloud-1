@@ -125,7 +125,7 @@ public class GroupConfigurationSetup extends Setup {
         final String modernForwarding = answers.get("velocity_modern_forwarding");
         if (modernForwarding != null) {
             groupManager.find(name).ifPresent(created -> {
-                created.setProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
+                created.set(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
                 groupManager.update(created);
             });
         }

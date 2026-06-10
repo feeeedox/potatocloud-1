@@ -181,7 +181,7 @@ public class ServiceCommand extends Command {
                     try {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
 
-                        service.setProperty(property);
+                        service.set(property);
                         serviceManager.update(service);
                         logger.info("Property &a" + key + " &7was set to &a" + value + " &7in service &a" + service.name());
                     } catch (Exception e) {
@@ -199,7 +199,7 @@ public class ServiceCommand extends Command {
 
                     final Service service = ctx.get("service");
 
-                    return service.getProperties().stream()
+                    return service.properties().stream()
                             .map(Property::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
@@ -208,13 +208,13 @@ public class ServiceCommand extends Command {
                     final Service service = ctx.get("service");
                     final String key = ctx.get("key");
 
-                    final Property<?> property = service.getProperty(key);
+                    final Property<?> property = service.property(key);
                     if (property == null) {
                         logger.info("Property &a" + key + "&7 was &cnot found &7in service &a" + service.name());
                         return;
                     }
 
-                    service.getPropertyMap().remove(property.name());
+                    service.propertyMap().remove(property.name());
                     serviceManager.update(service);
                     logger.info("Property &a" + key + " &7was removed in service &a" + service.name());
                 });
@@ -223,7 +223,7 @@ public class ServiceCommand extends Command {
                 .argument(ArgumentType.Service("service"))
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
-                    final List<Property<?>> properties = service.getProperties();
+                    final List<Property<?>> properties = service.properties();
 
                     if (properties.isEmpty()) {
                         logger.info("No properties found for service &a" + service.name());

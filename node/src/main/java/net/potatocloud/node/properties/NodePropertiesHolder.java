@@ -54,17 +54,17 @@ public class NodePropertiesHolder implements PropertyHolder {
     }
 
     @Override
-    public <T> void setProperty(Property<T> property, T value, boolean fireEvent) {
-        final Property<T> existing = getProperty(property.name());
-        PropertyHolder.super.setProperty(property, value, fireEvent);
+    public <T> void set(Property<T> key, T value, boolean fireEvent) {
+        final Property<T> existing = property(key.name());
+        PropertyHolder.super.set(key, value, fireEvent);
 
         if (existing == null) {
-            final PropertyAddPacket packet = new PropertyAddPacket(property);
+            final PropertyAddPacket packet = new PropertyAddPacket(key);
 
             server.broadcast().connectors().send(packet);
             clusterManager.broadcast(packet);
         } else {
-            final PropertyUpdatePacket packet = new PropertyUpdatePacket(property.name(), value);
+            final PropertyUpdatePacket packet = new PropertyUpdatePacket(key.name(), value);
 
             server.broadcast().connectors().send(packet);
             clusterManager.broadcast(packet);
@@ -72,12 +72,12 @@ public class NodePropertiesHolder implements PropertyHolder {
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
     }
 
     @Override
-    public String getPropertyHolderName() {
+    public String name() {
         return "Global";
     }
 }

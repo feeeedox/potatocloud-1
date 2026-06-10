@@ -87,7 +87,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 service.name(),
                 service.state().name(),
                 service.maxPlayers(),
-                service.getPropertyMap()
+                service.propertyMap()
         );
         server.broadcast().connectors().send(packet);
         clusterManager.broadcast(packet);

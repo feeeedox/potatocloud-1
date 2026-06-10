@@ -269,7 +269,7 @@ public class PacketBuffer {
         writeInt(group.startPriority());
         writeInt(group.startPercentage());
         writeStringSet(group.templates());
-        writePropertyMap(group.getPropertyMap());
+        writePropertyMap(group.propertyMap());
     }
 
     public Group readGroup() {
@@ -299,7 +299,7 @@ public class PacketBuffer {
         writeInt(service.port());
         writeString(service.name());
         writeString(service.group().name());
-        writePropertyMap(service.getPropertyMap());
+        writePropertyMap(service.propertyMap());
         writeLong(service.startedAt().toEpochMilli());
         writeString(service.state().name());
         writeInt(service.maxPlayers());
@@ -326,7 +326,7 @@ public class PacketBuffer {
         writeUUID(player.uniqueId());
         writeString(player.proxy().name());
         writeString(player.service().map(Service::name).orElse(null));
-        writePropertyMap(player.getPropertyMap());
+        writePropertyMap(player.propertyMap());
     }
 
     public CloudPlayer readCloudPlayer() {

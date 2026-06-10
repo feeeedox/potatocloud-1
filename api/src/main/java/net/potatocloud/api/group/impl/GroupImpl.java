@@ -235,13 +235,13 @@ public class GroupImpl implements Group {
     }
 
     @Override
-    public <T> void setProperty(Property<T> property, T value) {
-        Group.super.setProperty(property, value);
+    public <T> void set(Property<T> property, T value) {
+        Group.super.set(property, value);
 
-        final Property<T> prop = getProperty(property.name());
+        final Property<T> prop = property(property.name());
         if (prop != null) {
             for (Service service : services()) {
-                service.setProperty(prop, prop.value(), false);
+                service.set(prop, prop.value(), false);
 
                 CloudAPI.instance().serviceManager().update(service);
             }
@@ -249,12 +249,7 @@ public class GroupImpl implements Group {
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
-    }
-
-    @Override
-    public String getPropertyHolderName() {
-        return name;
     }
 }

@@ -117,12 +117,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
-    }
-
-    @Override
-    public String getPropertyHolderName() {
-        return name;
     }
 }

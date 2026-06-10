@@ -73,7 +73,7 @@ public abstract class AbstractService extends ServiceImpl {
             ServiceRuntime runtime,
             ClusterManagerImpl clusterManager
     ) {
-        super(serviceId, clusterManager.localNode().host(), port, group.name() + config.service().splitter() + serviceId, group.name(), new HashMap<>(group.getPropertyMap()), Instant.ofEpochSecond(0L), ServiceState.STOPPED, group.maxPlayers(), 0);
+        super(serviceId, clusterManager.localNode().host(), port, group.name() + config.service().splitter() + serviceId, group.name(), new HashMap<>(group.propertyMap()), Instant.ofEpochSecond(0L), ServiceState.STOPPED, group.maxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;

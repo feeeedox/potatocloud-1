@@ -157,7 +157,7 @@ public class ServiceSubCommand {
 
         switch (sub) {
             case "list" -> {
-                final List<Property<?>> props = service.get().getProperties();
+                final List<Property<?>> props = service.get().properties();
 
                 if (props.isEmpty()) {
                     player.sendMessage(messages.get("service.property.empty")
@@ -182,7 +182,7 @@ public class ServiceSubCommand {
                 }
 
                 final String key = args[4];
-                final Property<?> property = service.get().getProperty(key);
+                final Property<?> property = service.get().property(key);
 
                 if (property == null) {
                     player.sendMessage(messages.get("service.property.not-found")
@@ -190,7 +190,7 @@ public class ServiceSubCommand {
                     return;
                 }
 
-                service.get().getPropertyMap().remove(property.name());
+                service.get().propertyMap().remove(property.name());
                 serviceManager.update(service.get());
 
                 player.sendMessage(messages.get("service.property.remove.success")
@@ -209,7 +209,7 @@ public class ServiceSubCommand {
 
                 try {
                     final Property<?> property = PropertyUtil.stringToProperty(key, value);
-                    service.get().setProperty(property);
+                    service.get().set(property);
                     serviceManager.update(service.get());
 
                     player.sendMessage(messages.get("service.property.set.success")
@@ -311,7 +311,7 @@ public class ServiceSubCommand {
 
             if (args.length == 5 && args[2].equalsIgnoreCase("remove")) {
                 return serviceManager.find(args[3])
-                        .map(service -> service.getProperties().stream()
+                        .map(service -> service.properties().stream()
                                 .map(Property::name)
                                 .filter(p -> p.toLowerCase().startsWith(args[4].toLowerCase()))
                                 .toList())

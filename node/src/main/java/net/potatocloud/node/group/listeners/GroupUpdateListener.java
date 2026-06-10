@@ -38,7 +38,7 @@ public class GroupUpdateListener implements PacketListener<GroupUpdatePacket> {
             group.customJvmFlags().clear();
             packet.customJvmFlags().forEach(group::addCustomJvmFlag);
 
-            group.getPropertyMap().clear();
+            group.propertyMap().clear();
             packet.propertyMap().values().forEach(property -> PropertyUtil.setPropertyUnchecked(group, property));
 
             if (ctx.connection().type() == ConnectionType.CONNECTOR && groupManager instanceof GroupManagerImpl groupManagerImpl) {

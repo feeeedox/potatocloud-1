@@ -77,7 +77,7 @@ public class GroupSubCommand {
         groupManager.find(name).ifPresentOrElse(group -> {
             switch (sub) {
                 case "list" -> {
-                    final List<Property<?>> props = group.getProperties();
+                    final List<Property<?>> props = group.properties();
 
                     if (props.isEmpty()) {
                         player.sendMessage(messages.get("group.property.empty").replaceText(text -> text.match("%name%").replacement(name)));
@@ -98,14 +98,14 @@ public class GroupSubCommand {
                     }
 
                     final String key = args[4];
-                    final Property<?> property = group.getProperty(key);
+                    final Property<?> property = group.property(key);
 
                     if (property == null) {
                         player.sendMessage(messages.get("group.property.not-found").replaceText(text -> text.match("%key%").replacement(key)));
                         return;
                     }
 
-                    group.getPropertyMap().remove(property.name());
+                    group.propertyMap().remove(property.name());
                     groupManager.update(group);
 
                     player.sendMessage(messages.get("group.property.remove.success").replaceText(text -> text.match("%name%").replacement(name)).replaceText(text -> text.match("%key%").replacement(key)));
@@ -122,7 +122,7 @@ public class GroupSubCommand {
 
                     try {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
-                        group.setProperty(property);
+                        group.set(property);
                         groupManager.update(group);
 
                         player.sendMessage(messages.get("group.property.set.success").replaceText(text -> text.match("%key%").replacement(key)).replaceText(text -> text.match("%value%").replacement(value)).replaceText(text -> text.match("%name%").replacement(name)));
@@ -231,7 +231,7 @@ public class GroupSubCommand {
 
             if (args.length == 5 && args[2].equalsIgnoreCase("remove")) {
                 return groupManager.find(args[3])
-                        .map(group -> group.getProperties().stream().map(Property::name)
+                        .map(group -> group.properties().stream().map(Property::name)
                                 .filter(propertyName -> propertyName.startsWith(args[4]))
                                 .toList())
                         .orElseGet(List::of);
