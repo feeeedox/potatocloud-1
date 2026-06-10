@@ -125,8 +125,8 @@ public class GroupImpl implements Group {
 
     @Override
     public PlatformVersion platformVersion() {
-        // todoooooo
-        return platform() == null ? null : platform().version(platformVersionName).get();
+        return platform().version(platformVersionName)
+                .orElseThrow(() -> new IllegalStateException("Platform version not found: " + platformVersionName));
     }
 
     @Override
