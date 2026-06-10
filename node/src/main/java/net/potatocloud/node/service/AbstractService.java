@@ -1,7 +1,7 @@
 package net.potatocloud.node.service;
 
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
+import net.potatocloud.api.event.events.service.ServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
 import net.potatocloud.api.group.Group;
@@ -113,7 +113,7 @@ public abstract class AbstractService extends ServiceImpl {
 
         clusterManager.broadcast(new ServiceStartingPacket(name()));
 
-        eventBus.publish(new PreparedServiceStartingEvent(name()));
+        eventBus.publish(new ServiceStartingEvent(name()));
     }
 
     public CompletableFuture<Void> shutdown() {

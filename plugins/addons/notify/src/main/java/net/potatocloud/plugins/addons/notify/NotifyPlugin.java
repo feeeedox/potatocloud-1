@@ -9,7 +9,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
+import net.potatocloud.api.event.events.service.ServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
@@ -18,7 +18,6 @@ import net.potatocloud.common.config.yaml.YamlConfig;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.nio.file.Path;
-import java.util.logging.Logger;
 
 public class NotifyPlugin {
 
@@ -43,7 +42,7 @@ public class NotifyPlugin {
         final EventBus eventBus = cloudAPI.eventBus();
 
         if (config.get("messages.enable-service-starting").asBoolean()) {
-            eventBus.subscribe(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
+            eventBus.subscribe(ServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
         }
 
         eventBus.subscribe(ServiceStartedEvent.class, startedEvent -> sendMessage(startedEvent.serviceName(), "service-started", true));
