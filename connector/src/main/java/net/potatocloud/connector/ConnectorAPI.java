@@ -27,7 +27,7 @@ import net.potatocloud.network.packet.PacketRegistry;
  */
 public class ConnectorAPI extends CloudAPI {
 
-    private static final String NODE_HOST = "127.0.0.1";
+    private static final String NODE_HOST = System.getProperty("potatocloud.node.host", "127.0.0.1");
     private static final int NODE_PORT = Integer.parseInt(System.getProperty("potatocloud.node.port"));
 
     private final PacketManager packetManager;

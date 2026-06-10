@@ -123,6 +123,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
         args.add("-Xms" + group.maxMemory() + "M");
         args.add("-Xmx" + group.maxMemory() + "M");
         args.add("-Dpotatocloud.service.name=" + name);
+        args.add("-Dpotatocloud.node.host=" + config.node().host());
         args.add("-Dpotatocloud.node.port=" + config.node().port());
 
         args.addAll(ServicePerformanceFlags.DEFAULT_FLAGS);
