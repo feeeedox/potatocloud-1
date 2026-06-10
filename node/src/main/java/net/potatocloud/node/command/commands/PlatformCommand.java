@@ -86,7 +86,7 @@ public class PlatformCommand extends Command {
                 .executes(ctx -> {
                     logger.info("&7Available platforms:");
 
-                    for (Platform platform : platformManager.getPlatforms()) {
+                    for (Platform platform : platformManager.platforms()) {
                         logger.info("&8» &a" + platform.name() +
                                 " &7- Proxy: &a" + platform.proxy() +
                                 " &7- Custom: &a" + platform.custom());
@@ -134,7 +134,7 @@ public class PlatformCommand extends Command {
                     final List<PlatformVersion> versions = new ArrayList<>(platform.versions());
                     versions.remove(version);
                     platform.versions(versions);
-                    platformManager.updatePlatform(platform);
+                    platformManager.update(platform);
 
                     logger.info("Version &a" + version.get().name() + " &7was removed from platform &a" + platform.name());
                 });

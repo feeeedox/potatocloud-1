@@ -86,10 +86,13 @@ public class PlatformFileHandler {
 
     public void savePlatform(Platform platform) {
         final PlatformsConfig root = readFile();
-        final PlatformConfig config = PlatformConfig.from(platform);
+        root.platforms().put(platform.name(), PlatformConfig.from(platform));
+        writeFile(root);
+    }
 
-        root.platforms().put(platform.name(), config);
-
+    public void deletePlatform(Platform platform) {
+        final PlatformsConfig root = readFile();
+        root.platforms().remove(platform.name());
         writeFile(root);
     }
 

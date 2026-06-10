@@ -65,6 +65,6 @@ public class PlatformVersionImpl implements PlatformVersion {
 
     @Override
     public Platform platform() {
-        return CloudAPI.instance().platformManager().getPlatform(platformName);
+        return CloudAPI.instance().platformManager().find(platformName).orElseThrow(() -> new IllegalStateException("Platform not found: " + platformName));
     }
 }

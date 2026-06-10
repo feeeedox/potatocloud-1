@@ -65,8 +65,16 @@ public class PlatformConfigurationSetup extends Setup {
             case "limbo" -> prepareSteps = List.of("default-files", "port", "setup-proxy");
         }
 
-        final Platform platform = platformManager.createPlatform(name, null, true, proxy, base, preCache, null, null, prepareSteps);
-        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + platform.name());
+        final Platform platform = platformManager.builder(name)
+                .custom(true)
+                .proxy(proxy)
+                .base(base)
+                .preCacheBuilder(preCache)
+                .prepareSteps(prepareSteps)
+                .build();
+
+        platformManager.create(platform);
+        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + name);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class RequestPlatformsListener implements PacketListener<RequestPlatforms
 
     @Override
     public void handle(PacketContext<RequestPlatformsPacket> ctx) {
-        for (Platform platform : platformManager.getPlatforms()) {
+        for (Platform platform : platformManager.platforms()) {
             ctx.connection().send(new PlatformAddPacket(platform));
         }
     }

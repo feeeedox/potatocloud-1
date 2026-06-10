@@ -1,7 +1,6 @@
 package net.potatocloud.node.platform.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
@@ -14,10 +13,7 @@ public class PlatformUpdateListener implements PacketListener<PlatformUpdatePack
 
     @Override
     public void handle(PacketContext<PlatformUpdatePacket> ctx) {
-        final Platform platform = platformManager.getPlatform(ctx.packet().platform().name());
-        if (platform == null) {
-            return;
-        }
-        platform.versions(ctx.packet().platform().versions());
+        platformManager.find(ctx.packet().platform().name())
+                .ifPresent(platform -> platform.versions(ctx.packet().platform().versions()));
     }
 }

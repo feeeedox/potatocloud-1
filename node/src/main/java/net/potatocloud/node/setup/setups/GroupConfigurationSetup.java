@@ -37,7 +37,7 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         text("platform", "Which platform should be used by this group?")
-                .suggestions(() -> platformManager.getPlatforms().stream()
+                .suggestions(() -> platformManager.platforms().stream()
                         .map(Platform::name)
                         .collect(Collectors.toList()))
                 .customValidator(input -> platformManager.exists(input)
@@ -46,17 +46,13 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         text("platform_version", "Which version of the selected platform should be used?")
-                .suggestions(() -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform == null ? List.of()
-                            : platform.versions().stream().map(PlatformVersion::name).collect(Collectors.toList());
-                })
-                .customValidator(input -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.version(input) != null
-                            ? AnswerResult.success()
-                            : AnswerResult.error("This version does not exist for the selected platform");
-                })
+                .suggestions(() -> platformManager.find(answers.get("platform"))
+                        .map(platform -> platform.versions().stream().map(PlatformVersion::name).collect(Collectors.toList()))
+                        .orElse(List.of()))
+                .customValidator(input -> platformManager.find(answers.get("platform"))
+                        .filter(platform -> platform.hasVersion(input))
+                        .map(_ -> AnswerResult.success())
+                        .orElseGet(() -> AnswerResult.error("This version does not exist for the selected platform")))
                 .add();
 
         number("min_online_count", "How many services of this group should always be online?")
@@ -75,10 +71,9 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         bool("fallback", "Is this group a fallback?")
-                .skipIf(answers -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.proxy();
-                })
+                .skipIf(answers -> platformManager.find(answers.get("platform"))
+                        .map(Platform::proxy)
+                        .orElse(false))
                 .add();
 
         bool("static_servers", "Are services in this group static? (Service files will not be deleted on shutdown)")
@@ -93,10 +88,9 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         bool("velocity_modern_forwarding", "Do you want to use Velocity modern forwarding? Modern forwarding is more secure but will break support for versions below 1.13")
-                .skipIf(answers -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform == null || !platform.velocityBased();
-                })
+                .skipIf(answers -> platformManager.find(answers.get("platform"))
+                        .map(platform -> !platform.velocityBased())
+                        .orElse(false))
                 .add();
     }
 
@@ -107,11 +101,9 @@ public class GroupConfigurationSetup extends Setup {
             return;
         }
 
-        final Platform platform = platformManager.getPlatform(platformName);
-
-        if (platform.proxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
-            Node.getInstance().logger().warn("You have more than one proxy group! This may cause issues");
-        }
+        platformManager.find(platformName)
+                .filter(platform -> platform.proxy() && !ProxyUtils.getProxyGroups().isEmpty())
+                .ifPresent(_ -> Node.getInstance().logger().warn("You have more than one proxy group! This may cause issues"));
 
         final String name = answers.get("name");
         final Group group = groupManager.builder(name)

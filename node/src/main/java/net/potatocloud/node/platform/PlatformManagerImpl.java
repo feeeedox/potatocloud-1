@@ -3,9 +3,9 @@ package net.potatocloud.node.platform;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformManager;
-import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.network.NetworkServer;
 import net.potatocloud.network.packet.packets.platform.PlatformAddPacket;
+import net.potatocloud.network.packet.packets.platform.PlatformRemovePacket;
 import net.potatocloud.network.packet.packets.platform.PlatformUpdatePacket;
 import net.potatocloud.network.packet.packets.platform.RequestPlatformsPacket;
 import net.potatocloud.node.platform.listeners.PlatformAddListener;
@@ -33,37 +33,40 @@ public class PlatformManagerImpl implements PlatformManager {
         server.on(PlatformAddPacket.class, new PlatformAddListener(this));
     }
 
-    public List<Platform> getPlatforms() {
+    @Override
+    public List<Platform> platforms() {
         return Collections.unmodifiableList(platforms);
     }
 
     @Override
-    public Platform createPlatform(String name, String downloadUrl, boolean custom, boolean isProxy, String base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
-        final Platform platform = new PlatformImpl(
-                name,
-                downloadUrl,
-                custom,
-                isProxy,
-                base,
-                preCacheBuilder,
-                parser,
-                hashType,
-                prepareSteps
-        );
+    public void create(Platform platform) {
+        if (platform == null || exists(platform.name())) {
+            return;
+        }
 
-        addPlatform(platform);
-
+        platforms.add(platform);
+        fileHandler.savePlatform(platform);
         server.broadcast().connectors().send(new PlatformAddPacket(platform));
 
-        logger.info("Platform &a" + name + " &7was successfully created");
-
-        return platform;
+        logger.info("Platform &a" + platform.name() + " &7was successfully created");
     }
 
     @Override
-    public void updatePlatform(Platform platform) {
-        server.broadcast().connectors().send(new PlatformUpdatePacket(platform));
+    public void delete(Platform platform) {
+        if (platform == null) {
+            return;
+        }
 
+        platforms.remove(platform);
+        fileHandler.deletePlatform(platform);
+        server.broadcast().connectors().send(new PlatformRemovePacket(platform.name()));
+
+        logger.info("Platform &a" + platform.name() + " &7was successfully deleted");
+    }
+
+    @Override
+    public void update(Platform platform) {
+        server.broadcast().connectors().send(new PlatformUpdatePacket(platform));
         fileHandler.savePlatform(platform);
     }
 
@@ -73,7 +76,6 @@ public class PlatformManagerImpl implements PlatformManager {
         }
 
         platforms.add(platform);
-
         fileHandler.savePlatform(platform);
     }
 }
