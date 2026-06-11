@@ -45,7 +45,8 @@ public class CloudPlayerImpl implements CloudPlayer {
 
     @Override
     public Service proxy() {
-        return CloudAPI.instance().serviceManager().find(proxyName).orElseThrow();
+        return CloudAPI.instance().serviceManager().find(proxyName)
+                .orElseThrow(() -> new IllegalStateException("Proxy not found for player: " + proxyName + ", " + username));
     }
 
     public void proxyName(String proxyName) {
