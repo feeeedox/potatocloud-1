@@ -11,6 +11,7 @@ import net.potatocloud.network.packet.packets.platform.RequestPlatformsPacket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class PlatformManagerImpl implements PlatformManager {
 
@@ -28,6 +29,11 @@ public class PlatformManagerImpl implements PlatformManager {
                 find(ctx.packet().platform().name()).ifPresent(platform -> platform.versions(ctx.packet().platform().versions())));
 
         client.send(new RequestPlatformsPacket());
+    }
+
+    @Override
+    public Optional<Platform> find(String name) {
+        return platforms.stream().filter(platform -> platform.name().equalsIgnoreCase(name)).findFirst();
     }
 
     @Override

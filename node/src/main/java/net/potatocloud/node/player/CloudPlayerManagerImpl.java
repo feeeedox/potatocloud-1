@@ -8,6 +8,7 @@ import net.potatocloud.network.packet.packets.player.*;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.player.listeners.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -39,13 +40,6 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     }
 
     @Override
-    public Optional<CloudPlayer> find(String username) {
-        return onlinePlayers.stream()
-                .filter(player -> player.username().equals(username))
-                .findFirst();
-    }
-
-    @Override
     public Optional<CloudPlayer> find(UUID uniqueId) {
         return onlinePlayers.stream()
                 .filter(player -> player.uniqueId().equals(uniqueId))
@@ -53,8 +47,15 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     }
 
     @Override
+    public Optional<CloudPlayer> find(String username) {
+        return onlinePlayers.stream()
+                .filter(player -> player.username().equals(username))
+                .findFirst();
+    }
+
+    @Override
     public Set<CloudPlayer> players() {
-        return onlinePlayers;
+        return Collections.unmodifiableSet(onlinePlayers);
     }
 
     @Override

@@ -18,9 +18,7 @@ public interface PlatformManager {
      * @param name the name of the platform
      * @return the platform or empty if not found
      */
-    default Optional<Platform> find(String name) {
-        return platforms().stream().filter(platform -> platform.name().equalsIgnoreCase(name)).findFirst();
-    }
+    Optional<Platform> find(String name);
 
     /**
      * Checks if a platform with the given name exists.

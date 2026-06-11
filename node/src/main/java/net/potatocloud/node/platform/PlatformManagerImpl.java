@@ -14,6 +14,7 @@ import net.potatocloud.node.platform.listeners.RequestPlatformsListener;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class PlatformManagerImpl implements PlatformManager {
 
@@ -31,6 +32,11 @@ public class PlatformManagerImpl implements PlatformManager {
         server.on(RequestPlatformsPacket.class, new RequestPlatformsListener(this));
         server.on(PlatformUpdatePacket.class, new PlatformUpdateListener(this));
         server.on(PlatformAddPacket.class, new PlatformAddListener(this));
+    }
+
+    @Override
+    public Optional<Platform> find(String name) {
+        return platforms.stream().filter(platform -> platform.name().equalsIgnoreCase(name)).findFirst();
     }
 
     @Override
