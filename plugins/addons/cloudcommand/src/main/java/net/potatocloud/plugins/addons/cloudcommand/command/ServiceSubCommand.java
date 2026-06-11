@@ -40,7 +40,7 @@ public class ServiceSubCommand {
             player.sendMessage(messages.get("service.list.entry")
                     .replaceText(text -> text.match("%name%").replacement(service.name()))
                     .replaceText(text -> text.match("%group%").replacement(service.group().name()))
-                    .replaceText(text -> text.match("%status%").replacement(service.state().name())));
+                    .replaceText(text -> text.match("%state%").replacement(service.state().name())));
         }
     }
 
@@ -102,7 +102,7 @@ public class ServiceSubCommand {
             player.sendMessage(messages.get("service.info.name").replaceText(text -> text.match("%name%").replacement(service.name())));
             player.sendMessage(messages.get("service.info.group").replaceText(text -> text.match("%group%").replacement(service.group().name())));
             player.sendMessage(messages.get("service.info.port").replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port()))));
-            player.sendMessage(messages.get("service.info.status").replaceText(text -> text.match("%status%").replacement(service.state().name())));
+            player.sendMessage(messages.get("service.info.state").replaceText(text -> text.match("%state%").replacement(service.state().name())));
             player.sendMessage(messages.get("service.info.online-players").replaceText(text -> text.match("%players%").replacement(String.valueOf(service.playerCount()))));
             player.sendMessage(messages.get("service.info.max-players").replaceText(text -> text.match("%maxPlayers%").replacement(String.valueOf(service.maxPlayers()))));
             player.sendMessage(messages.get("service.info.online-time").replaceText(text -> text.match("%onlineTime%").replacement(TimeFormatter.formatAsDuration(service.uptime().toMillis()))));

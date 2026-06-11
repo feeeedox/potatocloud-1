@@ -125,7 +125,7 @@ public class ServiceCommand extends Command {
                     logger.info("&7Info for service &a" + service.name() + "&8:");
                     logger.info("&8» &7Group: &a" + service.group().name());
                     logger.info("&8» &7Port: &a" + service.port());
-                    logger.info("&8» &7Status: &a" + service.state());
+                    logger.info("&8» &7State: &a" + service.state());
                     logger.info("&8» &7Online Players: &a" + service.playerCount());
                     logger.info("&8» &7Max Players: &a" + service.maxPlayers());
                     logger.info("&8» &7Memory usage: &a" + service.usedMemory() + "MB");
@@ -144,7 +144,7 @@ public class ServiceCommand extends Command {
 
                     logger.info("All services&8:");
                     for (Service service : services) {
-                        logger.info("&8» &a" + service.name() + " &7- Group: &a" + service.group().name() + " &7- Status: &a" + service.state());
+                        logger.info("&8» &a" + service.name() + " &7- Group: &a" + service.group().name() + " &7- State: &a" + service.state());
                     }
                 });
 
