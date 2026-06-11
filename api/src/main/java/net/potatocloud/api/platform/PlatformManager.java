@@ -8,7 +8,7 @@ public interface PlatformManager {
     /**
      * Gets all platforms.
      *
-     * @return an list of all platforms
+     * @return a list of all platforms
      */
     List<Platform> platforms();
 

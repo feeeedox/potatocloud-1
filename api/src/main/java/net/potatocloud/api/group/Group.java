@@ -118,9 +118,9 @@ public interface Group extends PropertyHolder {
     void maxMemory(int maxMemory);
 
     /**
-     * @return {@code true} if the group is a fallback, othe
      * Gets whether the group is a fallback.
-     *rwise {@code false}
+     *
+     * @return {@code true} if the group is a fallback, otherwise {@code false}
      */
     boolean fallback();
 
