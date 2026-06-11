@@ -90,7 +90,7 @@ public class GroupBuilder {
         return this;
     }
 
-    public GroupBuilder jvmFlag(String flag) {
+    public GroupBuilder customJvmFlag(String flag) {
         this.customJvmFlags.add(flag);
         return this;
     }
