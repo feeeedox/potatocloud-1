@@ -21,7 +21,7 @@ public class ServiceImpl implements Service {
     private final String groupName;
     private final Map<String, Property<?>> propertyMap;
 
-    private Instant startedAt;
+    private final Instant startedAt;
     private ServiceState state;
     private int maxPlayers;
     private int usedMemory;
@@ -81,10 +81,6 @@ public class ServiceImpl implements Service {
     @Override
     public Duration uptime() {
         return Duration.between(startedAt, Instant.now());
-    }
-
-    protected void startedAt(Instant startedAt) {
-        this.startedAt = startedAt;
     }
 
     @Override
