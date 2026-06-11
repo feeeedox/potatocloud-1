@@ -46,22 +46,8 @@ public class GroupImpl implements Group {
             int startPercentage,
             Map<String, Property<?>> propertyMap
     ) {
-        this.name = name;
-        this.nodeName = nodeName;
-        this.platformName = platformName;
-        this.platformVersionName = platformVersionName;
-        this.javaCommand = javaCommand;
-        this.customJvmFlags = customJvmFlags;
-        this.maxPlayers = maxPlayers;
-        this.maxMemory = maxMemory;
-        this.minServices = minServices;
-        this.maxServices = maxServices;
-        this.staticServices = staticServices;
-        this.fallback = fallback;
-        this.startPriority = startPriority;
-        this.startPercentage = startPercentage;
-        this.templates = new HashSet<>();
-        this.propertyMap = propertyMap;
+        this(name, nodeName, platformName, platformVersionName, javaCommand, customJvmFlags, maxPlayers, maxMemory,
+                minServices, maxServices, staticServices, fallback, startPriority, startPercentage, new HashSet<>(), propertyMap);
 
         addTemplate("every");
         addTemplate(name);
