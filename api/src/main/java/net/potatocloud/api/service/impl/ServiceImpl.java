@@ -21,7 +21,7 @@ public class ServiceImpl implements Service {
     private final String groupName;
     private final Map<String, Property<?>> propertyMap;
 
-    private final Instant startedAt;
+    private Instant startedAt;
     private ServiceState state;
     private int maxPlayers;
     private int usedMemory;
@@ -76,6 +76,10 @@ public class ServiceImpl implements Service {
     @Override
     public Instant startedAt() {
         return startedAt;
+    }
+
+    public void startedAt(Instant startedAt) {
+        this.startedAt = startedAt;
     }
 
     @Override
