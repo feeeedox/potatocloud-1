@@ -279,9 +279,9 @@ public class ServiceCommand extends Command {
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
 
-                    final ServiceState status = service.state();
-                    if (status == ServiceState.STOPPED || status == ServiceState.STOPPING) {
-                        logger.info("Service &a" + service.name() + " &7is already &c" + status.name().toLowerCase());
+                    final ServiceState state = service.state();
+                    if (state == ServiceState.STOPPED || state == ServiceState.STOPPING) {
+                        logger.info("Service &a" + service.name() + " &7is already &c" + state.name().toLowerCase());
                         return;
                     }
 

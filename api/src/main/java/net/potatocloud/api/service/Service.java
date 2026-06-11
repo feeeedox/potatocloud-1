@@ -50,18 +50,18 @@ public interface Service extends PropertyHolder {
     int port();
 
     /**
-     * Gets the status of the service.
+     * Gets the state of the service.
      *
-     * @return the status of the service
+     * @return the state of the service
      */
     ServiceState state();
 
     /**
-     * Sets the status of the service.
+     * Sets the state of the service.
      *
-     * @param status the new status of the service
+     * @param state the new state of the service
      */
-    void state(ServiceState status);
+    void state(ServiceState state);
 
     /**
      * Gets whether the service is online or not.

@@ -19,7 +19,7 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
         final ServiceUpdatePacket packet = ctx.packet();
 
         serviceManager.find(packet.serviceName()).ifPresent(service -> {
-            service.state(ServiceState.valueOf(packet.status()));
+            service.state(ServiceState.valueOf(packet.state()));
             service.maxPlayers(packet.maxPlayers());
 
             service.propertyMap().clear();

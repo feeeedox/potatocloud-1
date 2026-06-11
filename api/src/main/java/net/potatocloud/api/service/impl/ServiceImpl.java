@@ -22,11 +22,11 @@ public class ServiceImpl implements Service {
     private final Map<String, Property<?>> propertyMap;
 
     private Instant startedAt;
-    private ServiceState status;
+    private ServiceState state;
     private int maxPlayers;
     private int usedMemory;
 
-    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, Instant startedAt, ServiceState status, int maxPlayers, int usedMemory) {
+    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, Instant startedAt, ServiceState state, int maxPlayers, int usedMemory) {
         this.serviceId = serviceId;
         this.host = host;
         this.port = port;
@@ -34,7 +34,7 @@ public class ServiceImpl implements Service {
         this.groupName = groupName;
         this.propertyMap = propertyMap;
         this.startedAt = startedAt;
-        this.status = status;
+        this.state = state;
         this.maxPlayers = maxPlayers;
         this.usedMemory = usedMemory;
     }
@@ -65,12 +65,12 @@ public class ServiceImpl implements Service {
 
     @Override
     public ServiceState state() {
-        return status;
+        return state;
     }
 
     @Override
-    public void state(ServiceState status) {
-        this.status = status;
+    public void state(ServiceState state) {
+        this.state = state;
     }
 
     @Override
