@@ -13,7 +13,7 @@ public class PlatformImpl implements Platform {
     private final String name;
     private final String downloadUrl;
     private final boolean custom;
-    private final boolean isProxy;
+    private final boolean proxy;
     private final PlatformBase base;
     private final String preCacheBuilder;
     private final String parser;
@@ -22,11 +22,11 @@ public class PlatformImpl implements Platform {
 
     private List<PlatformVersion> versions = new ArrayList<>();
 
-    public PlatformImpl(String name, String downloadUrl, boolean custom, boolean isProxy, PlatformBase base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
+    public PlatformImpl(String name, String downloadUrl, boolean custom, boolean proxy, PlatformBase base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps) {
         this.name = name;
         this.downloadUrl = downloadUrl;
         this.custom = custom;
-        this.isProxy = isProxy;
+        this.proxy = proxy;
         this.base = base;
         this.preCacheBuilder = preCacheBuilder;
         this.parser = parser;
@@ -51,7 +51,7 @@ public class PlatformImpl implements Platform {
 
     @Override
     public boolean proxy() {
-        return isProxy;
+        return proxy;
     }
 
     @Override
