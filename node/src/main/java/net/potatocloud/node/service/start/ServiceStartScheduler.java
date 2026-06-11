@@ -6,7 +6,6 @@ import net.potatocloud.api.event.events.property.PropertyChangedEvent;
 import net.potatocloud.api.group.Group;
 import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.property.DefaultProperties;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.ServiceManagerImpl;
 import net.potatocloud.node.service.start.condition.ServiceStartCondition;
@@ -65,9 +64,7 @@ public class ServiceStartScheduler {
 
             serviceManager.find(event.holderName()).ifPresent(service -> {
                 final Group group = service.group();
-                final int onlineServices = group.services().stream()
-                        .mapToInt(Service::playerCount)
-                        .sum();
+                final int onlineServices = group.services().size();
 
                 if (onlineServices >= group.maxServices()) {
                     return;
