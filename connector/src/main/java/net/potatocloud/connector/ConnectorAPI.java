@@ -87,7 +87,7 @@ public class ConnectorAPI extends CloudAPI {
 
     @Override
     public EventBus eventBus() {
-        return null;
+        return eventBus;
     }
 
     @Override
