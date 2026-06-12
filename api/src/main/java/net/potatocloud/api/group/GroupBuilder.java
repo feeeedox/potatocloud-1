@@ -11,6 +11,8 @@ import java.util.Set;
 public class GroupBuilder {
 
     private final String name;
+    private final Set<String> customJvmFlags = new HashSet<>();
+    private final Map<String, Property<?>> properties = new HashMap<>();
     private String nodeName = "";
     private String platformName;
     private String platformVersionName;
@@ -23,8 +25,6 @@ public class GroupBuilder {
     private int startPriority = 1;
     private int startPercentage = 80;
     private String javaCommand = "java";
-    private final Set<String> customJvmFlags = new HashSet<>();
-    private final Map<String, Property<?>> properties = new HashMap<>();
 
     public GroupBuilder(String name) {
         this.name = name;
@@ -98,6 +98,16 @@ public class GroupBuilder {
     public <T> GroupBuilder property(Property<T> property, T value) {
         property.value(value);
         this.properties.put(property.name(), property);
+        return this;
+    }
+
+    public GroupBuilder properties(Map<String, Property<?>> properties) {
+        this.properties.putAll(properties);
+        return this;
+    }
+
+    public GroupBuilder customJvmFlags(Set<String> customJvmFlags) {
+        this.customJvmFlags.addAll(customJvmFlags);
         return this;
     }
 
