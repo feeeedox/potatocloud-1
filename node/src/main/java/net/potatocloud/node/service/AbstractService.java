@@ -1,13 +1,13 @@
 package net.potatocloud.node.service;
 
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
+import net.potatocloud.api.event.events.service.ServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.api.service.impl.ServiceImpl;
 import net.potatocloud.common.FileUtils;
 import net.potatocloud.network.NetworkServer;
@@ -25,6 +25,7 @@ import net.potatocloud.node.template.TemplateManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.concurrent.Executors;
 
 public abstract class AbstractService extends ServiceImpl {
 
-    protected final ServiceGroup group;
+    protected final Group group;
     protected final Path directory;
     protected final NodeConfig config;
     protected final Logger logger;
@@ -59,7 +60,7 @@ public abstract class AbstractService extends ServiceImpl {
     protected AbstractService(
             int serviceId,
             int port,
-            ServiceGroup group,
+            Group group,
             NodeConfig config,
             Logger logger,
             NetworkServer server,
@@ -72,7 +73,7 @@ public abstract class AbstractService extends ServiceImpl {
             ServiceRuntime runtime,
             ClusterManagerImpl clusterManager
     ) {
-        super(serviceId, clusterManager.localNode().host(), port, group.getName() + config.service().splitter() + serviceId, group.getName(), new HashMap<>(group.getPropertyMap()), 0L, ServiceStatus.STOPPED, group.getMaxPlayers(), 0);
+        super(serviceId, clusterManager.localNode().host(), port, group.name() + config.service().splitter() + serviceId, group.name(), new HashMap<>(group.propertyMap()), Instant.ofEpochSecond(0L), ServiceState.STOPPED, group.maxPlayers(), 0);
         this.group = group;
         this.config = config;
         this.logger = logger;
@@ -85,44 +86,44 @@ public abstract class AbstractService extends ServiceImpl {
         this.preparer = preparer;
         this.runtime = runtime;
         this.clusterManager = clusterManager;
-        this.screen = new Screen(getName());
+        this.screen = new Screen(name());
         this.directory = resolveDirectory();
     }
 
     public void start() {
-        if (isOnline()) {
+        if (running()) {
             return;
         }
 
-        setStartTimestamp(System.currentTimeMillis());
+        startedAt(Instant.now());
         screenManager.register(screen);
 
-        setStatus(ServiceStatus.PREPARING);
-        preparer.prepare(directory, getName(), getPort());
+        state(ServiceState.PREPARING);
+        preparer.prepare(directory, name(), port());
 
-        setStatus(ServiceStatus.STARTING);
+        state(ServiceState.STARTING);
         runtime.start(directory, this);
 
-        final String nodeInfo = config.cluster().enabled() ? " on Node &a" + nodeName() + "&7" : "";
-        logger.info("Service &a" + getName() + "&7 is starting" + nodeInfo
-                + " &8[&7Port&8: &a" + getPort()
-                + "&8, &7Group&8: &a" + group.getName() + "&8]"
+        // todo
+        final String nodeInfo = config.cluster().enabled() ? " on Node &a" + node().get().name() + "&7" : "";
+        logger.info("Service &a" + name() + "&7 is starting" + nodeInfo
+                + " &8[&7Port&8: &a" + port()
+                + "&8, &7Group&8: &a" + group.name() + "&8]"
         );
 
-        clusterManager.broadcast(new ServiceStartingPacket(getName()));
+        clusterManager.broadcast(new ServiceStartingPacket(name()));
 
-        eventBus.publish(new PreparedServiceStartingEvent(getName()));
+        eventBus.publish(new ServiceStartingEvent(name()));
     }
 
-    @Override
     public CompletableFuture<Void> shutdown() {
-        if (getStatus() == ServiceStatus.STOPPED || getStatus() == ServiceStatus.STOPPING) {
+        if (state() == ServiceState.STOPPED || state() == ServiceState.STOPPING) {
             return CompletableFuture.completedFuture(null);
         }
 
-        setStatus(ServiceStatus.STOPPING);
-        logger.info("Service &a" + getName() + "&7 is now stopping&8...");
-        eventBus.publish(new ServiceStoppingEvent(getName()));
+        state(ServiceState.STOPPING);
+        logger.info("Service &a" + name() + "&7 is now stopping&8...");
+        eventBus.publish(new ServiceStoppingEvent(name()));
 
         return CompletableFuture.runAsync(() -> {
             if (processChecker != null) {
@@ -134,23 +135,23 @@ public abstract class AbstractService extends ServiceImpl {
             ((ServiceManagerImpl) serviceManager).removeService(this);
             screenManager.unregister(screen.name());
 
-            if (screenManager.getCurrentScreen().name().equals(getName())) {
+            if (screenManager.getCurrentScreen().name().equals(name())) {
                 screenManager.switchTo(Screen.NODE_SCREEN);
             }
 
-            server.broadcast().connectors().send(new ServiceRemovePacket(getName(), getPort()));
-            clusterManager.broadcast(new ServiceRemovePacket(getName(), getPort()));
-            eventBus.publish(new ServiceStoppedEvent(getName()));
+            server.broadcast().connectors().send(new ServiceRemovePacket(name(), port()));
+            clusterManager.broadcast(new ServiceRemovePacket(name(), port()));
+            eventBus.publish(new ServiceStoppedEvent(name()));
 
-            if (!group.isStatic() && Files.exists(directory)) {
+            if (!group.staticServices() && Files.exists(directory)) {
                 FileUtils.deleteDirectory(directory);
             }
 
             synchronized (this) {
-                setStatus(ServiceStatus.STOPPED);
+                state(ServiceState.STOPPED);
             }
 
-            logger.info("Service &a" + getName() + " &7has been stopped");
+            logger.info("Service &a" + name() + " &7has been stopped");
         }, executorService);
     }
 
@@ -176,9 +177,8 @@ public abstract class AbstractService extends ServiceImpl {
         FileUtils.copyDirectory(sourcePath, targetPath);
     }
 
-    @Override
-    public boolean executeCommand(String command) {
-        return runtime.executeCommand(command);
+    public void executeCommand(String command) {
+        runtime.executeCommand(command);
     }
 
     public boolean alive() {
@@ -186,7 +186,7 @@ public abstract class AbstractService extends ServiceImpl {
     }
 
     @Override
-    public int getUsedMemory() {
+    public int usedMemory() {
         return runtime.usedMemory();
     }
 
@@ -206,15 +206,15 @@ public abstract class AbstractService extends ServiceImpl {
         logs.add(log);
         screen.addLog(log);
         // TODO Remove console
-        if (screenManager.getCurrentScreen().name().equals(getName())) {
+        if (screenManager.getCurrentScreen().name().equals(name())) {
             console.println(log);
         }
     }
 
     private Path resolveDirectory() {
-        if (group.isStatic()) {
-            return Path.of(config.folders().staticServices()).resolve(getName());
+        if (group.staticServices()) {
+            return Path.of(config.folders().staticServices()).resolve(name());
         }
-        return Path.of(config.folders().tempServices()).resolve(getName() + "-" + UUID.randomUUID());
+        return Path.of(config.folders().tempServices()).resolve(name() + "-" + UUID.randomUUID());
     }
 }

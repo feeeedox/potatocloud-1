@@ -23,18 +23,17 @@ public class CloudPlayerUpdateListener implements PacketListener<CloudPlayerUpda
     public void handle(PacketContext<CloudPlayerUpdatePacket> ctx) {
         final CloudPlayerUpdatePacket packet = ctx.packet();
 
-        final CloudPlayerImpl player = (CloudPlayerImpl) playerManager.getCloudPlayer(packet.playerUniqueId());
-        if (player == null) {
-            return;
-        }
+        playerManager.find(packet.playerUniqueId()).ifPresent(player -> {
+            if (player instanceof CloudPlayerImpl playerImpl) {
+                playerImpl.proxyName(packet.connectedProxyName());
+                playerImpl.serviceName(packet.connectedServiceName());
 
-        player.setConnectedProxyName(packet.connectedProxyName());
-        player.setConnectedServiceName(packet.connectedServiceName());
-
-        player.getPropertyMap().clear();
-        for (Property<?> property : packet.propertyMap().values()) {
-            PropertyUtil.setPropertyUnchecked(player, property);
-        }
+                playerImpl.propertyMap().clear();
+                for (Property<?> property : packet.propertyMap().values()) {
+                    PropertyUtil.setPropertyUnchecked(playerImpl, property);
+                }
+            }
+        });
 
         server.broadcast().connectors().exclude(ctx.connection()).send(packet);
 

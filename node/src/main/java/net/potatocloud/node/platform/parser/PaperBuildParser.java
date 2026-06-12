@@ -18,7 +18,7 @@ public class PaperBuildParser implements BuildParser {
     @Override
     public void parse(PlatformVersion version, String baseUrl) {
         try {
-            String versionName = version.getName();
+            String versionName = version.name();
 
             // Find the latest Minecraft version if the user wants the latest
             if (versionName.equalsIgnoreCase("latest")) {
@@ -67,12 +67,12 @@ public class PaperBuildParser implements BuildParser {
                     .replace("{sha256}", sha256);
 
             if (version instanceof PlatformVersionImpl versionImpl) {
-                versionImpl.setFileHash(sha256);
-                versionImpl.setDownloadUrl(downloadUrl);
+                versionImpl.fileHash(sha256);
+                versionImpl.downloadUrl(downloadUrl);
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse Paper build for: " + projectName + " : " + version.getName(), e);
+            throw new RuntimeException("Failed to parse Paper build for: " + projectName + " : " + version.name(), e);
         }
     }
 

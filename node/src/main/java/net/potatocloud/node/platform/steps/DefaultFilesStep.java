@@ -15,9 +15,9 @@ public class DefaultFilesStep extends AbstractPrepareStep {
     @Override
     public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
-            final NodeConfig config = Node.getInstance().getConfig();
+            final NodeConfig config = Node.getInstance().config();
 
-            if (platform.isBukkitBased()) {
+            if (platform.bukkitBased()) {
                 final Path serverProperties = serverDirectory.resolve("server.properties");
                 if (!serverProperties.toFile().exists()) {
                     Files.copy(Path.of(config.folders().data(), "server.properties"), serverProperties);
@@ -32,7 +32,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
                     }
                 }
 
-                if (platform.isPaperBased() && ProxyUtils.isProxyModernForwarding()) {
+                if (platform.paperBased() && ProxyUtils.isProxyModernForwarding()) {
                     final Path paperYml = serverDirectory.resolve("config").resolve("paper-global.yml");
 
                     if (!Files.exists(paperYml)) {
@@ -43,7 +43,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
                 return;
             }
 
-            if (platform.isVelocityBased()) {
+            if (platform.velocityBased()) {
                 final Path velocityToml = serverDirectory.resolve("velocity.toml");
                 if (!Files.exists(velocityToml)) {
                     Files.copy(Path.of(config.folders().data(), "velocity.toml"), velocityToml);
@@ -51,7 +51,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
                 }
             }
 
-            if (platform.isLimboBased()) {
+            if (platform.limboBased()) {
                 final Path serverProperties = serverDirectory.resolve("server.properties");
 
                 if (!Files.exists(serverProperties)) {
@@ -64,7 +64,7 @@ public class DefaultFilesStep extends AbstractPrepareStep {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "default-files";
     }
 }

@@ -1,11 +1,11 @@
 package net.potatocloud.node.command.commands;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.node.command.ArgumentType;
 import net.potatocloud.node.command.Command;
@@ -13,6 +13,7 @@ import net.potatocloud.node.command.CommandInfo;
 import net.potatocloud.node.command.SubCommand;
 import net.potatocloud.node.screen.Screen;
 import net.potatocloud.node.screen.ScreenManager;
+import net.potatocloud.api.utils.TimeFormatter;
 import net.potatocloud.node.service.AbstractService;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
@@ -24,7 +25,7 @@ import java.util.List;
 public class ServiceCommand extends Command {
 
     public ServiceCommand(Logger logger, ServiceManagerImpl serviceManager, ScreenManager screenManager) {
-        defaultExecutor(ctx -> sendHelp());
+        defaultExecutor(_ -> sendHelp());
 
         sub("copy", "Copy files from a service to a template")
                 .argument(ArgumentType.Service("service"))
@@ -40,8 +41,8 @@ public class ServiceCommand extends Command {
                         return List.of();
                     }
 
-                    return service.getServiceGroup()
-                            .getServiceTemplates()
+                    return service.group()
+                            .templates()
                             .stream()
                             .filter(name -> name.startsWith(input))
                             .toList();
@@ -53,9 +54,9 @@ public class ServiceCommand extends Command {
                     final String filter = ctx.has("filter") ? ctx.get("filter") : "";
 
                     if (filter.isEmpty()) {
-                        service.copy(template);
+                        serviceManager.copyTo(service, template);
                     } else {
-                        service.copy(template, filter);
+                        serviceManager.copyTo(service, template, filter);
                     }
 
                     logger.info("Copied &a" + (filter.isEmpty() ? "all service files" : filter) + " &7to template: &a" + template);
@@ -87,7 +88,7 @@ public class ServiceCommand extends Command {
 
                     try {
                         if (key.equals("maxplayers")) {
-                            service.setMaxPlayers(Integer.parseInt(value));
+                            service.maxPlayers(Integer.parseInt(value));
                         } else {
                             sendHelp();
                         }
@@ -96,8 +97,8 @@ public class ServiceCommand extends Command {
                         return;
                     }
 
-                    service.update();
-                    logger.info("Updated &a" + key + " &7for service &a" + service.getName() + "&7 to &a" + value);
+                    serviceManager.update(service);
+                    logger.info("Updated &a" + key + " &7for service &a" + service.name() + "&7 to &a" + value);
                 });
 
         sub("execute", "Execute a command on a sevice")
@@ -107,36 +108,34 @@ public class ServiceCommand extends Command {
                     final Service service = ctx.get("service");
                     final String command = ctx.get("command");
 
-                    if (!service.isOnline()) {
-                        logger.info("Service &a" + service.getName() + " &7is &coffline");
+                    if (!service.running()) {
+                        logger.info("Service &a" + service.name() + " &7is &coffline");
                         return;
                     }
 
-                    if (service.executeCommand(command)) {
-                        logger.info("Executed command &a" + command + " &7on service &a" + service.getName());
-                    } else {
-                        logger.info("&cFailed to execute command &a" + command + " &con service &a" + service.getName());
-                    }
+                    serviceManager.execute(service, command);
+                    logger.info("Executed command &a" + command + " &7on service &a" + service.name());
                 });
+
         sub("info", "Show details of a service")
                 .argument(ArgumentType.Service("service"))
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
 
-                    logger.info("&7Info for service &a" + service.getName() + "&8:");
-                    logger.info("&8» &7Group: &a" + service.getServiceGroup().getName());
-                    logger.info("&8» &7Port: &a" + service.getPort());
-                    logger.info("&8» &7Status: &a" + service.getStatus());
-                    logger.info("&8» &7Online Players: &a" + service.getOnlinePlayerCount());
-                    logger.info("&8» &7Max Players: &a" + service.getMaxPlayers());
-                    logger.info("&8» &7Memory usage: &a" + service.getUsedMemory() + "MB");
-                    logger.info("&8» &7Online Time: &a" + service.getFormattedUptime());
-                    logger.info("&8» &7Started At: &a" + service.getFormattedStartTimestamp());
+                    logger.info("&7Info for service &a" + service.name() + "&8:");
+                    logger.info("&8» &7Group: &a" + service.group().name());
+                    logger.info("&8» &7Port: &a" + service.port());
+                    logger.info("&8» &7State: &a" + service.state());
+                    logger.info("&8» &7Online Players: &a" + service.playerCount());
+                    logger.info("&8» &7Max Players: &a" + service.maxPlayers());
+                    logger.info("&8» &7Memory usage: &a" + service.usedMemory() + "MB");
+                    logger.info("&8» &7Online Time: &a" + TimeFormatter.formatAsDuration(service.uptime().toMillis()));
+                    logger.info("&8» &7Started At: &a" + TimeFormatter.formatAsDateAndTime(service.startedAt().toEpochMilli()));
                 });
 
         sub("list", "List all services")
-                .executes(ctx -> {
-                    final List<Service> services = serviceManager.getAllServices();
+                .executes(_ -> {
+                    final List<Service> services = serviceManager.services();
 
                     if (services.isEmpty()) {
                         logger.info("There are &cno &7services");
@@ -145,13 +144,13 @@ public class ServiceCommand extends Command {
 
                     logger.info("All services&8:");
                     for (Service service : services) {
-                        logger.info("&8» &a" + service.getName() + " &7- Group: &a" + service.getServiceGroup().getName() + " &7- Status: &a" + service.getStatus());
+                        logger.info("&8» &a" + service.name() + " &7- Group: &a" + service.group().name() + " &7- State: &a" + service.state());
                     }
                 });
 
         final SubCommand propertySub = sub("property", "Manage properties of a service");
 
-        propertySub.executes(ctx -> propertySub.sendHelp());
+        propertySub.executes(_ -> propertySub.sendHelp());
 
         propertySub.sub("set")
                 .argument(ArgumentType.Service("service"))
@@ -165,7 +164,7 @@ public class ServiceCommand extends Command {
                     final List<String> suggestions = new ArrayList<>();
 
                     for (Property<?> property : DefaultProperties.asSet()) {
-                        suggestions.add(property.getName());
+                        suggestions.add(property.name());
                     }
 
                     suggestions.add("<custom>");
@@ -182,9 +181,9 @@ public class ServiceCommand extends Command {
                     try {
                         final Property<?> property = PropertyUtil.stringToProperty(key, value);
 
-                        service.setProperty(property);
-                        service.update();
-                        logger.info("Property &a" + key + " &7was set to &a" + value + " &7in service &a" + service.getName());
+                        service.set(property);
+                        serviceManager.update(service);
+                        logger.info("Property &a" + key + " &7was set to &a" + value + " &7in service &a" + service.name());
                     } catch (Exception e) {
                         propertySub.sendHelp();
                     }
@@ -200,8 +199,8 @@ public class ServiceCommand extends Command {
 
                     final Service service = ctx.get("service");
 
-                    return service.getProperties().stream()
-                            .map(Property::getName)
+                    return service.properties().stream()
+                            .map(Property::name)
                             .filter(name -> name.startsWith(input))
                             .toList();
                 })
@@ -209,31 +208,31 @@ public class ServiceCommand extends Command {
                     final Service service = ctx.get("service");
                     final String key = ctx.get("key");
 
-                    final Property<?> property = service.getProperty(key);
+                    final Property<?> property = service.property(key);
                     if (property == null) {
-                        logger.info("Property &a" + key + "&7 was &cnot found &7in service &a" + service.getName());
+                        logger.info("Property &a" + key + "&7 was &cnot found &7in service &a" + service.name());
                         return;
                     }
 
-                    service.getPropertyMap().remove(property.getName());
-                    service.update();
-                    logger.info("Property &a" + key + " &7was removed in service &a" + service.getName());
+                    service.propertyMap().remove(property.name());
+                    serviceManager.update(service);
+                    logger.info("Property &a" + key + " &7was removed in service &a" + service.name());
                 });
 
         propertySub.sub("list")
                 .argument(ArgumentType.Service("service"))
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
-                    final List<Property<?>> properties = service.getProperties();
+                    final List<Property<?>> properties = service.properties();
 
                     if (properties.isEmpty()) {
-                        logger.info("No properties found for service &a" + service.getName());
+                        logger.info("No properties found for service &a" + service.name());
                         return;
                     }
 
-                    logger.info("Properties of service &a" + service.getName() + "&8:");
+                    logger.info("Properties of service &a" + service.name() + "&8:");
                     for (Property<?> property : properties) {
-                        logger.info("&8» &a" + property.getName() + " &7- " + property.getValue());
+                        logger.info("&8» &a" + property.name() + " &7- " + property.value());
                     }
                 });
 
@@ -245,7 +244,7 @@ public class ServiceCommand extends Command {
                     if (service instanceof AbstractService abstractService) {
                         final Screen screen = abstractService.getScreen();
                         if (screen == null) {
-                            logger.error("&cFailed to switch to screen of service " + service.getName());
+                            logger.error("&cFailed to switch to screen of service " + service.name());
                             return;
                         }
 
@@ -257,7 +256,7 @@ public class ServiceCommand extends Command {
                 .argument(ArgumentType.Group("group"))
                 .optionalArgument(ArgumentType.Integer("amount"))
                 .executes(ctx -> {
-                    final ServiceGroup group = ctx.get("group");
+                    final Group group = ctx.get("group");
                     final int amount = ctx.has("amount") ? ctx.get("amount") : 1;
 
                     int started = 0;
@@ -266,12 +265,12 @@ public class ServiceCommand extends Command {
                             serviceManager.logMemoryWarning(group);
                             break;
                         }
-                        serviceManager.startService(group.getName());
+                        serviceManager.start(group);
                         started++;
                     }
 
                     if (started > 0) {
-                        logger.info("Starting " + started + " service" + (started == 1 ? "" : "s") + " in group &a" + group.getName());
+                        logger.info("Starting " + started + " service" + (started == 1 ? "" : "s") + " in group &a" + group.name());
                     }
                 });
 
@@ -280,13 +279,13 @@ public class ServiceCommand extends Command {
                 .executes(ctx -> {
                     final Service service = ctx.get("service");
 
-                    final ServiceStatus status = service.getStatus();
-                    if (status == ServiceStatus.STOPPED || status == ServiceStatus.STOPPING) {
-                        logger.info("Service &a" + service.getName() + " &7is already &c" + status.name().toLowerCase());
+                    final ServiceState state = service.state();
+                    if (state == ServiceState.STOPPED || state == ServiceState.STOPPING) {
+                        logger.info("Service &a" + service.name() + " &7is already &c" + state.name().toLowerCase());
                         return;
                     }
 
-                    service.shutdown();
+                    serviceManager.stop(service);
                 });
     }
 }

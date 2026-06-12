@@ -9,6 +9,8 @@ import net.potatocloud.node.command.Command;
 import net.potatocloud.node.command.CommandInfo;
 import net.potatocloud.node.command.SubCommand;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,12 +23,12 @@ public class ClusterCommand extends Command {
         sub("info", "Show info about the local node")
                 .executes(ctx -> {
                     final ClusterNode local = clusterManager.localNode();
-                    final long uptime = System.currentTimeMillis() - local.startedAt();
+                    final long uptime = Duration.between(local.startedAt(), Instant.now()).toMillis();
 
                     logger.info("Local node&8:");
                     logger.info("&8» &7Name&8: &a" + local.name());
                     logger.info("&8» &7Address&8: &a" + local.host() + "&8:&a" + local.port());
-                    logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(local.startedAt()));
+                    logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(local.startedAt().toEpochMilli()));
                     logger.info("&8» &7Uptime&8: &a" + TimeFormatter.formatAsDuration(uptime));
                     logger.info("&8» &7Connected nodes&8: &a" + (clusterManager.nodes().size() - 1));
                 });
@@ -34,7 +36,7 @@ public class ClusterCommand extends Command {
         sub("list", "List all cluster nodes")
                 .executes(ctx -> {
                     final List<ClusterNode> nodes = clusterManager.nodes().stream()
-                            .sorted(Comparator.comparingLong(ClusterNode::startedAt))
+                            .sorted(Comparator.comparing(ClusterNode::startedAt))
                             .toList();
 
                     final ClusterNode local = clusterManager.localNode();
@@ -54,12 +56,12 @@ public class ClusterCommand extends Command {
                 .argument(ArgumentType.ClusterNode("node"))
                 .executes(ctx -> {
                     final ClusterNode node = ctx.get("node");
-                    final long uptime = System.currentTimeMillis() - node.startedAt();
+                    final long uptime = Duration.between(node.startedAt(), Instant.now()).toMillis();
 
                     logger.info("Node &a" + node.name() + "&8:");
                     logger.info("&8» &7Name&8: &a" + node.name());
                     logger.info("&8» &7Address&8: &a" + node.host() + "&8:&a" + node.port());
-                    logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(node.startedAt()));
+                    logger.info("&8» &7Started At&8: &a" + TimeFormatter.formatAsDateAndTime(node.startedAt().toEpochMilli()));
                     logger.info("&8» &7Uptime&8: &a" + TimeFormatter.formatAsDuration(uptime));
                 });
     }

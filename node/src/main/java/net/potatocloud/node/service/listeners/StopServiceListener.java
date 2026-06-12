@@ -1,13 +1,15 @@
 package net.potatocloud.node.service.listeners;
 
 import lombok.AllArgsConstructor;
-import net.potatocloud.api.service.Service;
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.StopServicePacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.service.AbstractService;
+
+import java.util.Optional;
 
 @AllArgsConstructor
 public class StopServiceListener implements PacketListener<StopServicePacket> {
@@ -17,19 +19,17 @@ public class StopServiceListener implements PacketListener<StopServicePacket> {
 
     @Override
     public void handle(PacketContext<StopServicePacket> ctx) {
-        final Service service = serviceManager.getService(ctx.packet().serviceName());
-        if (service == null) {
-            return;
-        }
+        serviceManager.find(ctx.packet().serviceName()).ifPresent(service -> {
+            final Optional<ClusterNode> node = service.node();
 
-        final String nodeName = service.nodeName();
-        if (!clusterManager.isLocal(nodeName)) {
-            clusterManager.sendTo(nodeName, ctx.packet());
-            return;
-        }
+            if (node.isPresent() && !clusterManager.isLocal(node.get().name())) {
+                clusterManager.sendTo(node.get().name(), ctx.packet());
+                return;
+            }
 
-        if (service instanceof AbstractService abstractService) {
-            abstractService.shutdown();
-        }
+            if (service instanceof AbstractService abstractService) {
+                abstractService.shutdown();
+            }
+        });
     }
 }

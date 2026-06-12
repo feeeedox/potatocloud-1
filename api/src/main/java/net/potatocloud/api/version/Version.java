@@ -1,26 +1,13 @@
 package net.potatocloud.api.version;
 
-import lombok.Getter;
-
-import java.util.Objects;
-
-@Getter
-public class Version implements Comparable<Version> {
-
-    private final int major;
-    private final int minor;
-    private final int patch;
-    private final String tag;
-
-    protected Version(int major, int minor, int patch, String tag) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.tag = tag;
-    }
+public record Version(int major, int minor, int patch, String tag) implements Comparable<Version> {
 
     public static Version of(int major, int minor, int patch) {
         return new Version(major, minor, patch, null);
+    }
+
+    public static Version of(int major, int minor, int patch, String tag) {
+        return new Version(major, minor, patch, tag);
     }
 
     public static Version fromString(String value) {
@@ -35,9 +22,7 @@ public class Version implements Comparable<Version> {
         }
 
         String tag = null;
-
         final String[] split = version.split("-", 2);
-
         version = split[0];
 
         if (split.length == 2) {
@@ -71,22 +56,6 @@ public class Version implements Comparable<Version> {
             return Integer.compare(minor, other.minor);
         }
         return Integer.compare(patch, other.patch);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Version other)) {
-            return false;
-        }
-        return major == other.major && minor == other.minor && patch == other.patch && Objects.equals(tag, other.tag);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(major, minor, patch, tag);
     }
 
     @Override

@@ -2,10 +2,11 @@ package net.potatocloud.network.netty;
 
 import io.netty.buffer.ByteBuf;
 import net.potatocloud.api.cluster.ClusterNode;
-import net.potatocloud.api.cluster.impl.AbstractClusterNode;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.impl.ServiceGroupImpl;
+import net.potatocloud.api.cluster.impl.SimpleClusterNode;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.impl.GroupImpl;
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformBase;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformImpl;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
@@ -13,16 +14,12 @@ import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.api.service.impl.ServiceImpl;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 
 public class PacketBuffer {
 
@@ -91,6 +88,29 @@ public class PacketBuffer {
         return list;
     }
 
+    public void writeStringSet(Set<String> set) {
+        if (set == null) {
+            writeInt(-1);
+            return;
+        }
+        writeInt(set.size());
+        for (String item : set) {
+            writeString(item);
+        }
+    }
+
+    public Set<String> readStringSet() {
+        final int size = readInt();
+        if (size == -1) {
+            return new HashSet<>();
+        }
+        final Set<String> set = new HashSet<>(size);
+        for (int i = 0; i < size; i++) {
+            set.add(readString());
+        }
+        return set;
+    }
+
     public void writeObject(Object object) {
         switch (object) {
             case String string -> {
@@ -135,9 +155,9 @@ public class PacketBuffer {
     }
 
     public <T> void writeProperty(Property<T> property) {
-        writeString(property.getName());
-        writeObject(property.getDefaultValue());
-        writeObject(property.getValue());
+        writeString(property.name());
+        writeObject(property.defaultValue());
+        writeObject(property.value());
     }
 
     public Property<?> readProperty() {
@@ -168,7 +188,7 @@ public class PacketBuffer {
         for (int i = 0; i < size; i++) {
             final Property<?> property = readProperty();
 
-            map.put(property.getName(), property);
+            map.put(property.name(), property);
         }
         return map;
     }
@@ -177,11 +197,11 @@ public class PacketBuffer {
         writeString(node.name());
         writeString(node.host());
         writeInt(node.port());
-        writeLong(node.startedAt());
+        writeLong(node.startedAt().toEpochMilli());
     }
 
     public ClusterNode readClusterNode() {
-        return new AbstractClusterNode(readString(), readString(), readInt(), readLong());
+        return new SimpleClusterNode(readString(), readString(), readInt(), Instant.ofEpochMilli(readLong()));
     }
 
     public void writeClusterNodeList(Collection<? extends ClusterNode> nodes) {
@@ -233,33 +253,33 @@ public class PacketBuffer {
         return buf.readDouble();
     }
 
-    public void writeServiceGroup(ServiceGroup group) {
-        writeString(group.getName());
-        writeString(group.nodeName());
-        writeString(group.getPlatformName());
-        writeString(group.getPlatformVersionName());
-        writeString(group.getJavaCommand());
-        writeStringList(group.getCustomJvmFlags());
-        writeInt(group.getMaxPlayers());
-        writeInt(group.getMaxMemory());
-        writeInt(group.getMinOnlineCount());
-        writeInt(group.getMaxOnlineCount());
-        writeBoolean(group.isStatic());
-        writeBoolean(group.isFallback());
-        writeInt(group.getStartPriority());
-        writeInt(group.getStartPercentage());
-        writeStringList(group.getServiceTemplates());
-        writePropertyMap(group.getPropertyMap());
+    public void writeGroup(Group group) {
+        writeString(group.name());
+        writeString(group.node().map(ClusterNode::name).orElse(null));
+        writeString(group.platform().name());
+        writeString(group.platformVersion().name());
+        writeString(group.javaCommand());
+        writeStringSet(group.customJvmFlags());
+        writeInt(group.maxPlayers());
+        writeInt(group.maxMemory());
+        writeInt(group.minServices());
+        writeInt(group.maxServices());
+        writeBoolean(group.staticServices());
+        writeBoolean(group.fallback());
+        writeInt(group.startPriority());
+        writeInt(group.startPercentage());
+        writeStringSet(group.templates());
+        writePropertyMap(group.propertyMap());
     }
 
-    public ServiceGroup readServiceGroup() {
-        return new ServiceGroupImpl(
+    public Group readGroup() {
+        return new GroupImpl(
                 readString(),
                 readString(),
                 readString(),
                 readString(),
                 readString(),
-                readStringList(),
+                readStringSet(),
                 readInt(),
                 readInt(),
                 readInt(),
@@ -268,22 +288,22 @@ public class PacketBuffer {
                 readBoolean(),
                 readInt(),
                 readInt(),
-                readStringList(),
+                readStringSet(),
                 readPropertyMap()
         );
     }
 
     public void writeService(Service service) {
-        writeInt(service.getServiceId());
+        writeInt(service.id());
         writeString(service.host());
-        writeInt(service.getPort());
-        writeString(service.getName());
-        writeString(service.getServiceGroup().getName());
-        writePropertyMap(service.getPropertyMap());
-        writeLong(service.getStartTimestamp());
-        writeString(service.getStatus().name());
-        writeInt(service.getMaxPlayers());
-        writeInt(service.getUsedMemory());
+        writeInt(service.port());
+        writeString(service.name());
+        writeString(service.group().name());
+        writePropertyMap(service.propertyMap());
+        writeLong(service.startedAt().toEpochMilli());
+        writeString(service.state().name());
+        writeInt(service.maxPlayers());
+        writeInt(service.usedMemory());
     }
 
     public Service readService() {
@@ -294,19 +314,19 @@ public class PacketBuffer {
                 readString(),
                 readString(),
                 readPropertyMap(),
-                readLong(),
-                ServiceStatus.valueOf(readString()),
+                Instant.ofEpochMilli(readLong()),
+                ServiceState.valueOf(readString()),
                 readInt(),
                 readInt()
         );
     }
 
     public void writeCloudPlayer(CloudPlayer player) {
-        writeString(player.getUsername());
-        writeUUID(player.getUniqueId());
-        writeString(player.getConnectedProxyName());
-        writeString(player.getConnectedServiceName());
-        writePropertyMap(player.getPropertyMap());
+        writeString(player.username());
+        writeUUID(player.uniqueId());
+        writeString(player.proxy().name());
+        writeString(player.service().map(Service::name).orElse(null));
+        writePropertyMap(player.propertyMap());
     }
 
     public CloudPlayer readCloudPlayer() {
@@ -320,24 +340,24 @@ public class PacketBuffer {
     }
 
     public void writePlatform(Platform platform) {
-        writeString(platform.getName());
-        writeString(platform.getDownloadUrl());
-        writeBoolean(platform.isCustom());
-        writeBoolean(platform.isProxy());
-        writeString(platform.getBase());
-        writeString(platform.getPreCacheBuilder());
-        writeString(platform.getParser());
-        writeString(platform.getHashType());
-        writeStringList(platform.getPrepareSteps());
+        writeString(platform.name());
+        writeString(platform.downloadUrl());
+        writeBoolean(platform.custom());
+        writeBoolean(platform.proxy());
+        writeString(platform.base().id());
+        writeString(platform.preCacheBuilder());
+        writeString(platform.parser());
+        writeString(platform.hashType());
+        writeStringList(platform.prepareSteps());
 
-        writeInt(platform.getVersions().size());
-        for (PlatformVersion version : platform.getVersions()) {
-            writeString(version.getPlatformName());
-            writeString(version.getName());
-            writeBoolean(version.isLocal());
-            writeString(version.getDownloadUrl());
-            writeString(version.getFileHash());
-            writeBoolean(version.isLegacy());
+        writeInt(platform.versions().size());
+        for (PlatformVersion version : platform.versions()) {
+            writeString(version.platform().name());
+            writeString(version.name());
+            writeBoolean(version.local());
+            writeString(version.downloadUrl());
+            writeString(version.fileHash());
+            writeBoolean(version.legacy());
         }
     }
 
@@ -346,7 +366,7 @@ public class PacketBuffer {
         final String downloadUrl = readString();
         final boolean custom = readBoolean();
         final boolean isProxy = readBoolean();
-        final String base = readString();
+        final PlatformBase base = PlatformBase.fromId(readString());
         final String preCacheBuilder = readString();
         final String parser = readString();
         final String hashType = readString();
@@ -366,7 +386,7 @@ public class PacketBuffer {
 
             final PlatformVersion version = new PlatformVersionImpl(
                     platformName, versionName, local, versionDownloadUrl, fileHash, legacy);
-            platform.getVersions().add(version);
+            platform.versions().add(version);
         }
 
         return platform;

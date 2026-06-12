@@ -11,7 +11,7 @@ public class PurpurBuildParser implements BuildParser {
     @Override
     public void parse(PlatformVersion version, String baseUrl) {
         try {
-            String versionName = version.getName();
+            String versionName = version.name();
 
             // Find the latest Minecraft version if the user wants the latest
             if (versionName.equalsIgnoreCase("latest")) {
@@ -49,11 +49,11 @@ public class PurpurBuildParser implements BuildParser {
             final String md5 = latestBuild.get("md5").asString();
 
             if (version instanceof PlatformVersionImpl versionImpl) {
-                versionImpl.setFileHash(md5);
-                versionImpl.setDownloadUrl(downloadUrl);
+                versionImpl.fileHash(md5);
+                versionImpl.downloadUrl(downloadUrl);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse Purpur build for: " + version.getName(), e);
+            throw new RuntimeException("Failed to parse Purpur build for: " + version.name(), e);
         }
     }
 

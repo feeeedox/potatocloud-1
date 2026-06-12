@@ -1,7 +1,7 @@
 package net.potatocloud.node.service.start.rule.rules;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.node.service.ServiceManagerImpl;
 import net.potatocloud.node.service.start.rule.ServiceStartRule;
 
@@ -16,15 +16,15 @@ public class MaxMemoryRule implements ServiceStartRule {
     private final Set<String> memoryWarnedGroups = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean allows(ServiceGroup group) {
+    public boolean allows(Group group) {
         final boolean enough = serviceManager.hasEnoughMemory(group);
 
-        if (!enough && memoryWarnedGroups.add(group.getName())) {
+        if (!enough && memoryWarnedGroups.add(group.name())) {
             serviceManager.logMemoryWarning(group);
         }
 
         if (enough) {
-            memoryWarnedGroups.remove(group.getName());
+            memoryWarnedGroups.remove(group.name());
         }
 
         return enough;

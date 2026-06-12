@@ -1,6 +1,6 @@
 package net.potatocloud.node.platform.cache;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.common.FileUtils;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
 
     @Override
-    public void buildCache(Platform platform, PlatformVersion version, ServiceGroup group, Path cacheFolder) {
+    public void buildCache(Platform platform, PlatformVersion version, Group group, Path cacheFolder) {
         try {
             final Path platformJarPath = PlatformUtils.getPlatformJarPath(platform, version);
 
@@ -23,7 +23,7 @@ public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
             Files.createDirectories(tempDir);
 
             final ArrayList<String> args = new ArrayList<>();
-            args.add(group.getJavaCommand());
+            args.add(group.javaCommand());
             args.add("-Dpaperclip.patchonly=true");
             args.add("-jar");
             args.add(platformJarPath.toFile().getAbsolutePath());
@@ -51,7 +51,7 @@ public class PaperPlatformPreCacheBuilder implements PlatformPreCacheBuilder {
 
             FileUtils.deleteDirectory(tempDir);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Failed to build Paper platform cache for group: " + group.getName(), e);
+            throw new RuntimeException("Failed to build Paper platform cache for group: " + group.name(), e);
         }
     }
 

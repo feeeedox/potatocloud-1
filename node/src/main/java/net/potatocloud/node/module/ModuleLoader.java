@@ -49,8 +49,8 @@ public class ModuleLoader {
                 final Module module = (Module) clazz.getDeclaredConstructor().newInstance();
 
                 if (module instanceof AbstractModule abstractModule) {
-                    abstractModule.setName(config.name());
-                    abstractModule.setVersion(Version.fromString(config.version()));
+                    abstractModule.name(config.name());
+                    abstractModule.version(Version.fromString(config.version()));
                 }
 
                 module.onLoad();

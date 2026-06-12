@@ -14,24 +14,20 @@ public class ServiceArgument extends ArgumentType<Service> {
 
     @Override
     public ParseResult<Service> parse(String input) {
-        final Service service = Node.getInstance()
-                .getServiceManager()
-                .getService(input);
-
-        if (service == null) {
-            return ParseResult.error("Service &a" + input + " &7does &cnot &7exist");
-        }
-
-        return ParseResult.success(service);
+        return Node.getInstance()
+                .serviceManager()
+                .find(input)
+                .map(ParseResult::success)
+                .orElseGet(() -> ParseResult.error("Service &a" + input + " &7does &cnot &7exist"));
     }
 
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
-                .getServiceManager()
-                .getAllServices()
+                .serviceManager()
+                .services()
                 .stream()
-                .map(Service::getName)
+                .map(Service::name)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

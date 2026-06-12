@@ -1,11 +1,13 @@
 package net.potatocloud.node.service.listeners;
 
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.logging.Logger;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.packet.PacketContext;
 import net.potatocloud.network.packet.PacketListener;
 import net.potatocloud.network.packet.packets.service.ServiceStartingPacket;
+
+import java.util.Optional;
 
 public class ServiceStartingListener implements PacketListener<ServiceStartingPacket> {
 
@@ -19,14 +21,16 @@ public class ServiceStartingListener implements PacketListener<ServiceStartingPa
 
     @Override
     public void handle(PacketContext<ServiceStartingPacket> ctx) {
-        final Service service = serviceManager.getService(ctx.packet().serviceName());
-        if (service == null) {
-            return;
-        }
+        serviceManager.find(ctx.packet().serviceName()).ifPresent(service -> {
+            final Optional<ClusterNode> node = service.node();
+            if (node.isEmpty()) {
+                return;
+            }
 
-        logger.info("Service &a" + service.getName() + "&7 is starting on Node &a" + service.nodeName()
-                + " &8[&7Port&8: &a" + service.getPort()
-                + "&8, &7Group&8: &a" + service.getServiceGroup().getName()
-        );
+            logger.info("Service &a" + service.name() + "&7 is starting on Node &a" + node.get().name()
+                    + " &8[&7Port&8: &a" + service.port()
+                    + "&8, &7Group&8: &a" + service.group().name()
+            );
+        });
     }
 }

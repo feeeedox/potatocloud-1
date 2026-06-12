@@ -4,6 +4,7 @@ import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
 import net.potatocloud.api.platform.impl.PlatformVersionImpl;
+import net.potatocloud.node.Node;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.ScreenManager;
 import net.potatocloud.node.setup.Setup;
@@ -41,14 +42,14 @@ public class AddVersionToPlatformSetup extends Setup {
                 .answerAction((answers, answer) -> {
                     final boolean usingLocalFile = answer.equalsIgnoreCase("false") || answer.equalsIgnoreCase("no");
                     if (usingLocalFile) {
-                        new File("platforms/" + platform.getName() + "/" + answers.get("name")).mkdirs();
+                        new File("platforms/" + platform.name() + "/" + answers.get("name")).mkdirs();
                     }
                 })
                 .add();
 
         text("local_ready", "Please copy your platform file to /platforms/"
-                + platform.getName() + "/<version-name>"
-                + " and name it " + platform.getName() + "-<version-name>.jar\n"
+                + platform.name() + "/<version-name>"
+                + " and name it " + platform.name() + "-<version-name>.jar\n"
                 + "Type 'done' when ready cancel' to cancel.")
                 .customValidator(input -> input.equalsIgnoreCase("done")
                         ? AnswerResult.success()
@@ -95,7 +96,7 @@ public class AddVersionToPlatformSetup extends Setup {
         final boolean useDownload = Boolean.parseBoolean(answers.get("use_download"));
 
         final PlatformVersion version = new PlatformVersionImpl(
-                platform.getName(),
+                platform.name(),
                 answers.get("name"),
                 !useDownload,
                 answers.get("download_url"),
@@ -103,9 +104,9 @@ public class AddVersionToPlatformSetup extends Setup {
         );
 
         platform.addVersion(version);
-        platform.update();
+        Node.getInstance().platformManager().update(platform);
 
-        logger.info("Version &a" + version.getName() + " &7was added to platform &a" + platform.getName());
+        logger.info("Version &a" + version.name() + " &7was added to platform &a" + platform.name());
     }
 
     @Override

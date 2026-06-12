@@ -16,12 +16,12 @@ public class SetupProxyStep extends AbstractPrepareStep {
     public void execute(String serviceName, Platform platform, Path serverDirectory) {
         try {
             // Skip if Bukkit based uses legacy proxy mode (already configured in the spigot.yml)
-            if (platform.isBukkitBased() && !ProxyUtils.isProxyModernForwarding()) {
+            if (platform.bukkitBased() && !ProxyUtils.isProxyModernForwarding()) {
                 return;
             }
 
             // Configure Paper for modern Velocity forwarding
-            if (platform.isPaperBased() && ProxyUtils.isProxyModernForwarding()) {
+            if (platform.paperBased() && ProxyUtils.isProxyModernForwarding()) {
                 final YamlConfig config = new YamlConfig(serverDirectory.resolve("config").resolve("paper-global.yml"));
                 config.load();
 
@@ -33,7 +33,7 @@ public class SetupProxyStep extends AbstractPrepareStep {
             }
 
             // Configure Limbo proxy settings
-            if (platform.isLimboBased()) {
+            if (platform.limboBased()) {
                 final Path propertiesPath = serverDirectory.resolve("server.properties");
                 final Properties properties = PropertiesFileUtils.loadProperties(propertiesPath);
 
@@ -52,7 +52,7 @@ public class SetupProxyStep extends AbstractPrepareStep {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return "setup-proxy";
     }
 }

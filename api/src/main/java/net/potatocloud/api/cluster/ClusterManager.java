@@ -1,14 +1,30 @@
 package net.potatocloud.api.cluster;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface ClusterManager {
 
+    /**
+     * Gets the local cluster node this instance is running on.
+     *
+     * @return the local cluster node
+     */
     ClusterNode localNode();
 
-    Collection<ClusterNode> nodes();
+    /**
+     * Gets all nodes in the cluster.
+     *
+     * @return a list of all cluster nodes
+     */
+    List<ClusterNode> nodes();
 
-    Optional<ClusterNode> get(String name);
+    /**
+     * Gets a cluster node by its name.
+     *
+     * @param name the name of the node
+     * @return the node, or an empty optional if not found
+     */
+    Optional<ClusterNode> find(String name);
 
 }

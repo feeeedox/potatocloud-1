@@ -85,9 +85,9 @@ public class NodeLogger implements Logger {
 
         cache.add(colored);
 
-        if (Node.getInstance().getScreenManager().getCurrentScreen() != null) {
+        if (Node.getInstance().screenManager().getCurrentScreen() != null) {
             final boolean nodeScreen = Node.getInstance()
-                    .getScreenManager()
+                    .screenManager()
                     .getCurrentScreen()
                     .name()
                     .equals(Screen.NODE_SCREEN);
@@ -105,7 +105,7 @@ public class NodeLogger implements Logger {
     }
 
     private String formatColored(Level level, String time, String message) {
-        return "&8[&7" + time + " " + level.getColorCode() + level.name() + "&8] &7" + message;
+        return "&8[&7" + time + " " + level.colorCode() + level.name() + "&8] &7" + message;
     }
 
     private String stripColors(String input) {

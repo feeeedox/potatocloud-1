@@ -16,7 +16,7 @@ public class PlayerSubCommand {
 
     private final Player player;
     private final MessagesConfig messages;
-    private final CloudPlayerManager playerManager = CloudAPI.getInstance().getPlayerManager();
+    private final CloudPlayerManager playerManager = CloudAPI.instance().playerManager();
 
     public void sendHelp() {
         player.sendMessage(messages.get("player.help.list"));
@@ -24,13 +24,13 @@ public class PlayerSubCommand {
     }
 
     public void listPlayers() {
-        final Set<CloudPlayer> players = playerManager.getOnlinePlayers();
+        final Set<CloudPlayer> players = playerManager.players();
         player.sendMessage(messages.get("player.list.header"));
         for (CloudPlayer cloudPlayer : players) {
             player.sendMessage(messages.get("player.list.entry")
-                    .replaceText(text -> text.match("%name%").replacement(cloudPlayer.getUsername()))
-                    .replaceText(text -> text.match("%service%").replacement(cloudPlayer.getConnectedServiceName()))
-                    .replaceText(text -> text.match("%proxy%").replacement(cloudPlayer.getConnectedProxyName())));
+                    .replaceText(text -> text.match("%name%").replacement(cloudPlayer.username()))
+                    .replaceText(text -> text.match("%service%").replacement(cloudPlayer.service().map(Service::name).orElse("none")))
+                    .replaceText(text -> text.match("%proxy%").replacement(cloudPlayer.proxy().name())));
         }
     }
 
@@ -43,29 +43,28 @@ public class PlayerSubCommand {
         final String playerName = args[2];
         final String serviceName = args[3];
 
-        final CloudPlayer cloudPlayer = playerManager.getCloudPlayer(playerName);
-        if (playerName == null) {
-            player.sendMessage(messages.get("no-player"));
-            return;
-        }
+        playerManager.find(playerName).ifPresentOrElse(cloudPlayer -> {
+            if (playerName == null) {
+                player.sendMessage(messages.get("no-player"));
+                return;
+            }
 
-        final Service service = CloudAPI.getInstance().getServiceManager().getService(serviceName);
-        if (service == null) {
-            player.sendMessage(messages.get("no-service"));
-            return;
-        }
+            CloudAPI.instance().serviceManager().find(serviceName).ifPresent(service -> {
+                final boolean alreadyConnected = cloudPlayer.service().map(s -> s.name().equals(service.name())).orElse(false);
 
-        if (cloudPlayer.getConnectedServiceName().equals(service.getName())) {
-            player.sendMessage(messages.get("player.connect.already-connected")
-                    .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
-                    .replaceText(text -> text.match("%service%").replacement(service.getName())));
-            return;
-        }
+                if (alreadyConnected) {
+                    player.sendMessage(messages.get("player.connect.already-connected")
+                            .replaceText(text -> text.match("%player%").replacement(cloudPlayer.username()))
+                            .replaceText(text -> text.match("%service%").replacement(service.name())));
+                    return;
+                }
 
-        cloudPlayer.connectWithService(service);
-        player.sendMessage(messages.get("player.connect.success")
-                .replaceText(text -> text.match("%player%").replacement(cloudPlayer.getUsername()))
-                .replaceText(text -> text.match("%service%").replacement(service.getName())));
+                CloudAPI.instance().playerManager().connectTo(cloudPlayer, service);
+                player.sendMessage(messages.get("player.connect.success")
+                        .replaceText(text -> text.match("%player%").replacement(cloudPlayer.username()))
+                        .replaceText(text -> text.match("%service%").replacement(service.name())));
+            });
+        }, () -> player.sendMessage(messages.get("no-player")));
     }
 
     public List<String> suggest(String[] args) {
@@ -79,13 +78,13 @@ public class PlayerSubCommand {
 
         if (sub.equalsIgnoreCase("connect")) {
             if (args.length == 3) {
-                return playerManager.getOnlinePlayers().stream().map(CloudPlayer::getUsername).
+                return playerManager.players().stream().map(CloudPlayer::username).
                         filter(input -> input.startsWith(args[2])).toList();
             }
             if (args.length == 4) {
-                return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
-                        .filter(service -> !service.getServiceGroup().getPlatform().isProxy())
-                        .map(Service::getName)
+                return CloudAPI.instance().serviceManager().services().stream()
+                        .filter(service -> !service.group().platform().proxy())
+                        .map(Service::name)
                         .filter(name -> name.startsWith(args[3]))
                         .toList();
             }

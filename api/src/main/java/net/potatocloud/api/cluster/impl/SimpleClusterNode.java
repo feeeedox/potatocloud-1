@@ -2,14 +2,16 @@ package net.potatocloud.api.cluster.impl;
 
 import net.potatocloud.api.cluster.ClusterNode;
 
-public class AbstractClusterNode implements ClusterNode {
+import java.time.Instant;
+
+public class SimpleClusterNode implements ClusterNode {
 
     private final String name;
     private final String host;
     private final int port;
-    private final long startedAt;
+    private final Instant startedAt;
 
-    public AbstractClusterNode(String name, String host, int port, long startedAt) {
+    public SimpleClusterNode(String name, String host, int port, Instant startedAt) {
         this.name = name;
         this.host = host;
         this.port = port;
@@ -32,7 +34,7 @@ public class AbstractClusterNode implements ClusterNode {
     }
 
     @Override
-    public long startedAt() {
+    public Instant startedAt() {
         return startedAt;
     }
 }

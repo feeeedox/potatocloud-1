@@ -1,7 +1,7 @@
 package net.potatocloud.node.cluster.listeners;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
 import net.potatocloud.network.NetworkServer;
@@ -11,14 +11,14 @@ import net.potatocloud.network.packet.packets.cluster.ClusterSyncPacket;
 import net.potatocloud.network.packet.packets.group.GroupAddPacket;
 import net.potatocloud.network.packet.packets.player.CloudPlayerAddPacket;
 import net.potatocloud.network.packet.packets.service.ServiceAddPacket;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+import net.potatocloud.node.group.GroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
 @RequiredArgsConstructor
 public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
 
-    private final ServiceGroupManagerImpl groupManager;
+    private final GroupManagerImpl groupManager;
     private final ServiceManagerImpl serviceManager;
     private final CloudPlayerManagerImpl playerManager;
     private final NetworkServer server;
@@ -27,16 +27,16 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
     public void handle(PacketContext<ClusterSyncPacket> ctx) {
         final ClusterSyncPacket packet = ctx.packet();
 
-        for (ServiceGroup group : packet.groups()) {
-            if (groupManager.existsServiceGroup(group.getName())) {
+        for (Group group : packet.groups()) {
+            if (groupManager.exists(group.name())) {
                 continue;
             }
-            groupManager.registerServiceGroup(group);
+            groupManager.registerGroup(group);
             server.broadcast().connectors().send(new GroupAddPacket(group));
         }
 
         for (Service service : packet.services()) {
-            if (serviceManager.getService(service.getName()) != null) {
+            if (serviceManager.find(service.name()).isPresent()) {
                 continue;
             }
             serviceManager.addService(service);
@@ -44,7 +44,7 @@ public class ClusterSyncListener implements PacketListener<ClusterSyncPacket> {
         }
 
         for (CloudPlayer player : packet.players()) {
-            if (playerManager.getCloudPlayer(player.getUniqueId()) != null) {
+            if (playerManager.find(player.uniqueId()).isPresent()) {
                 continue;
             }
             playerManager.registerPlayer(player);

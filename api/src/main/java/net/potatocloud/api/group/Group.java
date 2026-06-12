@@ -11,119 +11,82 @@ import net.potatocloud.api.service.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public interface ServiceGroup extends PropertyHolder {
+public interface Group extends PropertyHolder {
 
     /**
      * Gets the name of the group.
      *
      * @return the name of the group
      */
-    String getName();
+    String name();
 
     /**
-     * Gets the name of the cluster node this group is assigned to.
+     * Gets the node of the group.
      *
-     * @return the node name, or {@code null} if not assigned to a specific node
+     * @return the node of the group
      */
-    String nodeName();
-
-    /**
-     * Gets the cluster node this group is assigned to.
-     *
-     * @return the cluster node, or an empty optional if not assigned
-     */
-    default Optional<ClusterNode> node() {
-        final String nodeName = nodeName();
-        if (nodeName == null) {
-            return Optional.empty();
-        }
-        return CloudAPI.getInstance().getClusterManager().get(nodeName);
-    }
-
-    /**
-     * Gets the name of the platform of the group.
-     *
-     * @return the name of the platform of the group
-     */
-    String getPlatformName();
+    Optional<ClusterNode> node();
 
     /**
      * Gets the platform of the group as an object.
      *
      * @return the platform of the group
      */
-    default Platform getPlatform() {
-        return CloudAPI.getInstance().getPlatformManager().getPlatform(getPlatformName());
-    }
-
-    /**
-     * Gets the name of the platform version of the group.
-     *
-     * @return the name of the platform version of the group
-     */
-    String getPlatformVersionName();
+    Platform platform();
 
     /**
      * Gets the platform version of the group as an object.
      *
      * @return the platform version of the group
      */
-    default PlatformVersion getPlatformVersion() {
-        return getPlatform().getVersion(getPlatformVersionName());
-    }
+    PlatformVersion platformVersion();
 
     /**
      * Gets the service templates of the group.
      *
-     * @return the list of service templates of the group
+     * @return the set of service templates of the group
      */
-    List<String> getServiceTemplates();
+    Set<String> templates();
 
     /**
      * Gets the minimum online count of the group.
      *
      * @return the minimum online count of the group
      */
-    int getMinOnlineCount();
+    int minServices();
 
     /**
      * Sets the minimum online count of the group.
      *
-     * @param minOnlineCount the minimum online count of the group
+     * @param minServices the minimum online count of the group
      */
-    void setMinOnlineCount(int minOnlineCount);
+    void minServices(int minServices);
 
     /**
      * Gets the maximum online count of the group.
      *
      * @return the maximum online count of the group
      */
-    int getMaxOnlineCount();
+    int maxServices();
 
     /**
      * Sets the maximum online count of the group.
      *
-     * @param maxOnlineCount the maximum online count of the group
+     * @param maxServices the maximum online count of the group
      */
-    void setMaxOnlineCount(int maxOnlineCount);
+    void maxServices(int maxServices);
 
     /**
      * Gets the online players of the group.
      *
      * @return the online players of the group
      */
-    default Set<CloudPlayer> getOnlinePlayers() {
-        return CloudAPI.getInstance().getPlayerManager().getOnlinePlayersByGroup(this);
-    }
-
-    /**
-     * Gets the online player count of the group.
-     *
-     * @return the online player count of the group
-     */
-    default int getOnlinePlayerCount() {
-        return getOnlinePlayers().size();
+    default Set<CloudPlayer> players() {
+        return CloudAPI.instance().playerManager().players().stream()
+                .filter(player -> player.service().stream().anyMatch(service -> service.group().name().equals(name())))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -131,91 +94,91 @@ public interface ServiceGroup extends PropertyHolder {
      *
      * @return the maximum players of the group
      */
-    int getMaxPlayers();
+    int maxPlayers();
 
     /**
      * Sets the maximum players of the group.
      *
      * @param maxPlayers the maximum players of the group
      */
-    void setMaxPlayers(int maxPlayers);
+    void maxPlayers(int maxPlayers);
 
     /**
      * Gets the maximum memory of the group.
      *
      * @return the maximum memory of the group in MB
      */
-    int getMaxMemory();
+    int maxMemory();
 
     /**
      * Sets the maximum memory of the group.
      *
      * @param maxMemory the maximum memory of the group in MB
      */
-    void setMaxMemory(int maxMemory);
+    void maxMemory(int maxMemory);
 
     /**
      * Gets whether the group is a fallback.
      *
      * @return {@code true} if the group is a fallback, otherwise {@code false}
      */
-    boolean isFallback();
+    boolean fallback();
 
     /**
      * Sets whether the group is a fallback.
      *
      * @param fallback {@code true} to make the group a fallback, otherwise {@code false}
      */
-    void setFallback(boolean fallback);
+    void fallback(boolean fallback);
 
     /**
      * Gets whether the group is static.
      *
      * @return {@code true} if the group is static, otherwise {@code false}
      */
-    boolean isStatic();
+    boolean staticServices();
 
     /**
      * Gets the start priority of the group.
      *
      * @return the start priority of the group
      */
-    int getStartPriority();
+    int startPriority();
 
     /**
      * Sets the start priority of the group.
      *
      * @param startPriority the start priority of the group
      */
-    void setStartPriority(int startPriority);
+    void startPriority(int startPriority);
 
     /**
      * Gets the start percentage of the group.
      *
      * @return the start percentage of the group
      */
-    int getStartPercentage();
+    int startPercentage();
 
     /**
      * Sets the start percentage of the group.
      *
      * @param startPercentage the start percentage of the group
      */
-    void setStartPercentage(int startPercentage);
+    void startPercentage(int startPercentage);
 
     /**
      * Gets the Java command used to start services of the group.
      *
      * @return the Java command of the group
      */
-    String getJavaCommand();
+    String javaCommand();
 
     /**
      * Gets the custom jvm flags of the group.
      *
      * @return the custom jvm flags of the group
      */
-    List<String> getCustomJvmFlags();
+    Set<String> customJvmFlags();
 
     /**
      * Adds a custom jvm flag to the group.
@@ -225,50 +188,27 @@ public interface ServiceGroup extends PropertyHolder {
     void addCustomJvmFlag(String flag);
 
     /**
-     * Adds a service template to the group.
+     * Adds a template to the group.
      *
      * @param template the service template to add
      */
-    void addServiceTemplate(String template);
+    void addTemplate(String template);
 
     /**
-     * Removes a service template from the group.
+     * Removes a template from the group.
      *
      * @param template the service template to remove
      */
-    void removeServiceTemplate(String template);
+    void removeTemplate(String template);
 
     /**
      * Gets all services of the group.
      *
      * @return the list of all services of the group
      */
-    default List<Service> getAllServices() {
-        return CloudAPI.getInstance().getServiceManager().getAllServices(getName());
-    }
-
-    /**
-     * Gets all online services of the group.
-     *
-     * @return the list of all online services of the group
-     */
-    default List<Service> getOnlineServices() {
-        return CloudAPI.getInstance().getServiceManager().getOnlineServices(getName());
-    }
-
-    /**
-     * Gets the online service count of the group.
-     *
-     * @return the online service count of the group
-     */
-    default int getOnlineServiceCount() {
-        return getOnlineServices().size();
-    }
-
-    /**
-     * Updates the group.
-     */
-    default void update() {
-        CloudAPI.getInstance().getServiceGroupManager().updateServiceGroup(this);
+    default List<Service> services() {
+        return CloudAPI.instance().serviceManager().services().stream()
+                .filter(service -> service.group().name().equals(name()))
+                .toList();
     }
 }

@@ -1,9 +1,9 @@
 package net.potatocloud.node.service.start.condition;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 
 public interface ServiceStartCondition {
 
-    boolean shouldStart(ServiceGroup group);
+    boolean shouldStart(Group group);
 
 }

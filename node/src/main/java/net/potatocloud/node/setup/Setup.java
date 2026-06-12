@@ -61,8 +61,8 @@ public abstract class Setup {
         input = input.strip();
 
         final Node node = Node.getInstance();
-        final SetupManager setupManager = node.getSetupManager();
-        final Logger logger = node.getLogger();
+        final SetupManager setupManager = node.setupManager();
+        final Logger logger = node.logger();
 
         if (input.equalsIgnoreCase("cancel")) {
             cleanup();

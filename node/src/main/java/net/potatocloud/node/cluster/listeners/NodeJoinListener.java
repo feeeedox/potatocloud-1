@@ -13,7 +13,9 @@ import net.potatocloud.network.packet.packets.cluster.NodeJoinPacket;
 import net.potatocloud.network.packet.packets.cluster.NodeJoinRejectPacket;
 import net.potatocloud.node.cluster.ClusterManagerImpl;
 import net.potatocloud.node.cluster.ClusterNodeImpl;
-import net.potatocloud.node.group.ServiceGroupManagerImpl;
+
+import java.time.Instant;
+import net.potatocloud.node.group.GroupManagerImpl;
 import net.potatocloud.node.player.CloudPlayerManagerImpl;
 import net.potatocloud.node.service.ServiceManagerImpl;
 
@@ -23,11 +25,11 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
     private final ClusterManagerImpl clusterManager;
     private final String clusterToken;
     private final Logger logger;
-    private final ServiceGroupManagerImpl groupManager;
+    private final GroupManagerImpl groupManager;
     private final ServiceManagerImpl serviceManager;
     private final CloudPlayerManagerImpl playerManager;
 
-    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, String clusterToken, Logger logger, ServiceGroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
+    public NodeJoinListener(ClusterNode localNode, ClusterManagerImpl clusterManager, String clusterToken, Logger logger, GroupManagerImpl groupManager, ServiceManagerImpl serviceManager, CloudPlayerManagerImpl playerManager) {
         this.localNode = localNode;
         this.clusterManager = clusterManager;
         this.clusterToken = clusterToken;
@@ -69,14 +71,14 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
 
         connection.type(ConnectionType.NODE);
 
-        final ClusterNodeImpl node = new ClusterNodeImpl(nodeName, packet.host(), packet.port(), packet.startedAt(), connection);
+        final ClusterNodeImpl node = new ClusterNodeImpl(nodeName, packet.host(), packet.port(), Instant.ofEpochMilli(packet.startedAt()), connection);
         clusterManager.add(node);
 
         if (clusterManager.isOutbound(connection)) {
             logger.info("Connected to cluster node &a" + node.name() + " &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
         } else {
             logger.info("Cluster node &a" + node.name() + " &7connected to the cluster &8(&a" + node.host() + "&8:&a" + node.port() + "&8)");
-            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt(), CloudAPI.VERSION.toString(), clusterToken));
+            connection.send(new NodeJoinPacket(localNode.name(), localNode.host(), localNode.port(), localNode.startedAt().toEpochMilli(), CloudAPI.VERSION.toString(), clusterToken));
 
             connection.send(new NodeDiscoveryPacket(
                     clusterManager.remoteNodes().stream()
@@ -89,9 +91,9 @@ public class NodeJoinListener implements PacketListener<NodeJoinPacket> {
         final long syncStart = System.currentTimeMillis();
 
         connection.send(new ClusterSyncPacket(
-                groupManager.getAllServiceGroups(),
-                serviceManager.getAllServices(),
-                playerManager.getOnlinePlayers()
+                groupManager.groups(),
+                serviceManager.services(),
+                playerManager.players()
         ));
 
         logger.debug("Cluster sync sent to node &a" + node.name() + " &7in &a" + (System.currentTimeMillis() - syncStart) + "ms");

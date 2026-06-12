@@ -1,14 +1,16 @@
 package net.potatocloud.node.cluster;
 
-import net.potatocloud.api.cluster.impl.AbstractClusterNode;
+import net.potatocloud.api.cluster.impl.SimpleClusterNode;
 import net.potatocloud.network.NetworkConnection;
 
-public class ClusterNodeImpl extends AbstractClusterNode {
+import java.time.Instant;
+
+public class ClusterNodeImpl extends SimpleClusterNode {
 
     private final NetworkConnection connection;
     private volatile long lastHeartbeat = System.currentTimeMillis();
 
-    public ClusterNodeImpl(String name, String host, int port, long startedAt, NetworkConnection connection) {
+    public ClusterNodeImpl(String name, String host, int port, Instant startedAt, NetworkConnection connection) {
         super(name, host, port, startedAt);
         this.connection = connection;
     }

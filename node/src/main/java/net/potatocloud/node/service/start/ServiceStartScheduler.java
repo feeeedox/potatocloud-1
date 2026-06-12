@@ -1,11 +1,11 @@
 package net.potatocloud.node.service.start;
 
+import net.potatocloud.api.cluster.ClusterNode;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.property.PropertyChangedEvent;
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.property.DefaultProperties;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.ServiceManagerImpl;
 import net.potatocloud.node.service.start.condition.ServiceStartCondition;
@@ -27,7 +27,7 @@ public class ServiceStartScheduler {
 
     private final NodeConfig config;
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
     private final ServiceManagerImpl serviceManager;
 
     private final List<ServiceStartRule> rules;
@@ -35,7 +35,7 @@ public class ServiceStartScheduler {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().factory());
 
-    public ServiceStartScheduler(NodeConfig config, ServiceGroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
+    public ServiceStartScheduler(NodeConfig config, GroupManager groupManager, ServiceManagerImpl serviceManager, EventBus eventBus) {
         this.config = config;
         this.groupManager = groupManager;
         this.serviceManager = serviceManager;
@@ -54,7 +54,7 @@ public class ServiceStartScheduler {
 
         // Handle game state changes
         eventBus.subscribe(PropertyChangedEvent.class, event -> {
-            if (!event.propertyName().equals(DefaultProperties.GAME_STATE.getName())) {
+            if (!event.propertyName().equals(DefaultProperties.GAME_STATE.name())) {
                 return;
             }
 
@@ -62,17 +62,17 @@ public class ServiceStartScheduler {
                 return;
             }
 
-            final Service service = serviceManager.getService(event.holderName());
-            if (service == null) {
-                return;
-            }
+            serviceManager.find(event.holderName()).ifPresent(service -> {
+                final Group group = service.group();
+                final int onlineServices = group.services().size();
 
-            final ServiceGroup group = service.getServiceGroup();
-            if (group.getOnlineServiceCount() >= group.getMaxOnlineCount()) {
-                return;
-            }
+                if (onlineServices >= group.maxServices()) {
+                    return;
+                }
 
-            serviceManager.startService(service.getServiceGroup());
+                serviceManager.start(service.group());
+            });
+
         });
     }
 
@@ -81,22 +81,22 @@ public class ServiceStartScheduler {
     }
 
     private void run() {
-        groupManager.getAllServiceGroups().stream()
-                .filter(group -> groupManager.existsServiceGroup(group.getName()))
+        groupManager.groups().stream()
+                .filter(group -> groupManager.exists(group.name()))
                 .filter(this::isLocalNode)
-                .sorted(Comparator.comparingInt(ServiceGroup::getStartPriority).reversed())
+                .sorted(Comparator.<Group>comparingInt(Group::startPriority).reversed())
                 .forEach(group -> {
                     if (rules.stream().allMatch(rule -> rule.allows(group)) && conditions.stream().anyMatch(condition -> condition.shouldStart(group))) {
-                        serviceManager.startService(group);
+                        serviceManager.start(group);
                     }
                 });
     }
 
-    private boolean isLocalNode(ServiceGroup group) {
+    private boolean isLocalNode(Group group) {
         if (!config.cluster().enabled()) {
             return true;
         }
-        final String nodeName = group.nodeName();
+        final String nodeName = group.node().map(ClusterNode::name).orElse(null);
         return nodeName == null || nodeName.equals(config.cluster().name());
     }
 

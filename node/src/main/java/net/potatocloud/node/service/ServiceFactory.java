@@ -1,7 +1,7 @@
 package net.potatocloud.node.service;
 
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.service.ServiceManager;
 import net.potatocloud.network.NetworkServer;
@@ -56,7 +56,7 @@ public final class ServiceFactory {
         this.clusterManager = clusterManager;
     }
 
-    public AbstractService create(ServiceType type, int serviceId, int port, ServiceGroup group) {
+    public AbstractService create(ServiceType type, int serviceId, int port, Group group) {
         return switch (type) {
             case LOCAL -> {
                 final ServicePreparer preparer = new LocalServicePreparer(
@@ -66,7 +66,7 @@ public final class ServiceFactory {
                 yield new LocalService(
                         serviceId, port, group,
                         config, logger, server, eventBus, serviceManager, templateManager,
-                        screenManager, Node.getInstance().getConsole(), preparer, runtime, clusterManager // TODO Remove console
+                        screenManager, Node.getInstance().console(), preparer, runtime, clusterManager // TODO Remove console
                 );
             }
         };

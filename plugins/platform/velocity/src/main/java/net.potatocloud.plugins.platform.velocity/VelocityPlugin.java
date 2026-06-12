@@ -19,11 +19,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.events.player.CloudPlayerDisconnectEvent;
 import net.potatocloud.api.event.events.player.CloudPlayerJoinEvent;
-import net.potatocloud.api.event.events.service.ServiceStartedEvent;
-import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.impl.CloudPlayerImpl;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.connector.ConnectorAPI;
 import net.potatocloud.connector.event.ConnectPlayerWithServiceEvent;
 import net.potatocloud.connector.player.CloudPlayerManagerImpl;
@@ -37,19 +35,16 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public class VelocityPlugin implements PlatformPlugin {
 
     private final ConnectorAPI api;
     private final ProxyServer server;
-    private final Logger logger;
     private Service currentService;
 
     @Inject
-    public VelocityPlugin(ProxyServer server, Logger logger) {
+    public VelocityPlugin(ProxyServer server) {
         this.server = server;
-        this.logger = logger;
         api = new ConnectorAPI();
     }
 
@@ -62,27 +57,20 @@ public class VelocityPlugin implements PlatformPlugin {
     public void onServiceReady(Service service) {
         currentService = service;
 
-        // Register already online services
-        for (Service ser : api.getServiceManager().getAllServices()) {
-            registerServer(ser);
-        }
+        // register services that are already running
+        api.serviceManager().services().forEach(this::registerServer);
 
-        api.getClient().on(ServiceStartedPacket.class, ctx -> {
-            final Service startedService = api.getServiceManager().getService(ctx.packet().serviceName());
-            registerServer(startedService);
-        });
+        api.client().on(ServiceStartedPacket.class, ctx ->
+                api.serviceManager().find(ctx.packet().serviceName()).ifPresent(this::registerServer));
 
-        api.getEventBus().subscribe(ConnectPlayerWithServiceEvent.class, connectEvent -> {
-            connectPlayer(connectEvent.playerUsername(), connectEvent.serviceName());
-        });
+        api.eventBus().subscribe(ConnectPlayerWithServiceEvent.class, connectEvent ->
+                connectPlayer(connectEvent.playerUsername(), connectEvent.serviceName()));
 
-        api.getClient().on(CloudPlayerConnectPacket.class, ctx -> {
-            connectPlayer(ctx.packet().playerUsername(), ctx.packet().serviceName());
-        });
+        api.client().on(CloudPlayerConnectPacket.class, ctx ->
+                connectPlayer(ctx.packet().playerUsername(), ctx.packet().serviceName()));
 
-        api.getClient().on(ServiceRemovePacket.class, ctx -> {
-            server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort())));
-        });
+        api.client().on(ServiceRemovePacket.class, ctx ->
+                server.unregisterServer(new ServerInfo(ctx.packet().serviceName(), new InetSocketAddress(service.host(), ctx.packet().servicePort()))));
     }
 
     private void connectPlayer(String username, String serviceName) {
@@ -104,15 +92,15 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        if (server.getServer(service.getName()).isPresent()) {
+        if (server.getServer(service.name()).isPresent()) {
             return;
         }
 
-        if (service.getServiceGroup().getPlatform().isProxy()) {
+        if (service.group().platform().proxy()) {
             return;
         }
 
-        server.registerServer(new ServerInfo(service.getName(), new InetSocketAddress(service.host(), service.getPort())));
+        server.registerServer(new ServerInfo(service.name(), new InetSocketAddress(service.host(), service.port())));
     }
 
     @Subscribe
@@ -122,7 +110,7 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.getName());
+        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.name());
         if (fallback.isEmpty()) {
             return;
         }
@@ -137,7 +125,7 @@ public class VelocityPlugin implements PlatformPlugin {
         }
         event.setPing(event.getPing().asBuilder()
                 .onlinePlayers(server.getPlayerCount())
-                .maximumPlayers(currentService.getMaxPlayers())
+                .maximumPlayers(currentService.maxPlayers())
                 .build());
     }
 
@@ -147,7 +135,7 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        if (server.getPlayerCount() >= currentService.getMaxPlayers()) {
+        if (server.getPlayerCount() >= currentService.maxPlayers()) {
             if (event.getPlayer().hasPermission("potatocloud.maxplayers.bypass")) {
                 return;
             }
@@ -155,11 +143,11 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        final CloudPlayerManagerImpl playerManager = (CloudPlayerManagerImpl) api.getPlayerManager();
+        final CloudPlayerManagerImpl playerManager = (CloudPlayerManagerImpl) api.playerManager();
         playerManager.registerPlayer(
-                new CloudPlayerImpl(event.getPlayer().getUsername(), event.getPlayer().getUniqueId(), currentService.getName()));
+                new CloudPlayerImpl(event.getPlayer().getUsername(), event.getPlayer().getUniqueId(), currentService.name()));
 
-        api.getEventBus().publish(new CloudPlayerJoinEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
+        api.eventBus().publish(new CloudPlayerJoinEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
     }
 
     @Subscribe
@@ -172,20 +160,23 @@ public class VelocityPlugin implements PlatformPlugin {
 
     @Subscribe
     public void onServerConnect(ServerConnectedEvent event) {
-        final CloudPlayerImpl player = (CloudPlayerImpl) api.getPlayerManager().getCloudPlayer(event.getPlayer().getUniqueId());
-        player.setConnectedServiceName(event.getServer().getServerInfo().getName());
-        player.update();
+        api.playerManager().find(event.getPlayer().getUniqueId()).ifPresent(player -> {
+            if (player instanceof CloudPlayerImpl playerImpl) {
+                playerImpl.serviceName(event.getServer().getServerInfo().getName());
+                api.playerManager().update(player);
+                api.playerManager().update(player);
+            }
+        });
     }
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        final CloudPlayerManagerImpl playerManager = (CloudPlayerManagerImpl) api.getPlayerManager();
-        final CloudPlayer player = playerManager.getCloudPlayer(event.getPlayer().getUniqueId());
+        final CloudPlayerManagerImpl playerManager = (CloudPlayerManagerImpl) api.playerManager();
 
-        if (player != null) {
+        playerManager.find(event.getPlayer().getUniqueId()).ifPresent(player -> {
             playerManager.unregisterPlayer(player);
-            api.getEventBus().publish(new CloudPlayerDisconnectEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
-        }
+            api.eventBus().publish(new CloudPlayerDisconnectEvent(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
+        });
     }
 
     @Subscribe
@@ -196,7 +187,7 @@ public class VelocityPlugin implements PlatformPlugin {
             return;
         }
 
-        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.getName());
+        final Optional<RegisteredServer> fallback = server.getServer(bestFallback.name());
         if (fallback.isEmpty()) {
             return;
         }
@@ -209,10 +200,10 @@ public class VelocityPlugin implements PlatformPlugin {
     }
 
     private Service getBestFallback() {
-        return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
-                .filter(service -> service.getServiceGroup() != null && service.getServiceGroup().isFallback())
-                .filter(service -> service.getStatus() == ServiceStatus.RUNNING)
-                .min(Comparator.comparingInt(Service::getOnlinePlayerCount))
+        return CloudAPI.instance().serviceManager().services().stream()
+                .filter(service -> service.group() != null && service.group().fallback())
+                .filter(service -> service.state() == ServiceState.RUNNING)
+                .min(Comparator.comparingInt(Service::playerCount))
                 .orElse(null);
     }
 

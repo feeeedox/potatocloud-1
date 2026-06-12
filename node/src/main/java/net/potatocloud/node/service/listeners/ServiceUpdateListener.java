@@ -2,9 +2,8 @@ package net.potatocloud.node.service.listeners;
 
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.property.Property;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.api.service.ServiceManager;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.common.PropertyUtil;
 import net.potatocloud.network.ConnectionType;
 import net.potatocloud.network.NetworkServer;
@@ -23,17 +22,15 @@ public class ServiceUpdateListener implements PacketListener<ServiceUpdatePacket
     @Override
     public void handle(PacketContext<ServiceUpdatePacket> ctx) {
         final ServiceUpdatePacket packet = ctx.packet();
-        final Service service = serviceManager.getService(packet.serviceName());
-        if (service == null) {
-            return;
-        }
 
-        service.setStatus(ServiceStatus.valueOf(packet.status()));
-        service.setMaxPlayers(packet.maxPlayers());
-        service.getPropertyMap().clear();
-        for (Property<?> property : packet.propertyMap().values()) {
-            PropertyUtil.setPropertyUnchecked(service, property);
-        }
+        serviceManager.find(packet.serviceName()).ifPresent(service -> {
+            service.state(ServiceState.valueOf(packet.state()));
+            service.maxPlayers(packet.maxPlayers());
+            service.propertyMap().clear();
+            for (Property<?> property : packet.propertyMap().values()) {
+                PropertyUtil.setPropertyUnchecked(service, property);
+            }
+        });
 
         server.broadcast().connectors().exclude(ctx.connection()).send(packet);
 

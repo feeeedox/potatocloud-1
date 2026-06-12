@@ -1,6 +1,6 @@
 package net.potatocloud.api.service;
 
-public enum ServiceStatus {
+public enum ServiceState {
 
     /**
      * The service is preparing files, templates, and environment.

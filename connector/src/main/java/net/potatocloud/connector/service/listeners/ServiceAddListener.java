@@ -19,7 +19,7 @@ public class ServiceAddListener implements PacketListener<ServiceAddPacket> {
         final ServiceAddPacket packet = ctx.packet();
         final Service service = packet.service();
 
-        if (serviceManager.getService(service.getName()) == null) {
+        if (serviceManager.find(service.name()).isEmpty()) {
             serviceManager.addService(service);
         }
 

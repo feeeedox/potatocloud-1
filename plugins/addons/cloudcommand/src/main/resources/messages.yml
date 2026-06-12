@@ -72,7 +72,7 @@ service:
     copy: "<gray>/cloud service copy [<green>name<dark_gray>] [<green>template<dark_gray>] (<green>filter<dark_gray>) - <gray>Copy files from a service to a template"
   list:
     header: "<gray>Following services are running:"
-    entry: "<dark_gray>» <green>%name% <gray>- Group: <green>%group% <gray>- Status: <green>%status%"
+    entry: "<dark_gray>» <green>%name% <gray>- Group: <green>%group% <gray>- State: <green>%state%"
   start:
     usage: "<red>Usage<dark_gray>: <gray>/cloud service start <dark_gray>[<green>group<dark_gray>] (<green>amount<dark_gray>)"
     starting: "<gray>Starting %amount% new service(s) of group <green>%group%"
@@ -83,7 +83,7 @@ service:
     name: "<gray>Name: <green>%name%"
     group: "<gray>Group: <green>%group%"
     port: "<gray>Port: <green>%port%"
-    status: "<gray>Name: <green>%status%"
+    state: "<gray>State: <green>%state%"
     online-players: "<gray>Online Players: <green>%players%"
     max-players: "<gray>Max Players: <green>%maxPlayers%"
     online-time: "<gray>Online Time: <green>%onlineTime%"

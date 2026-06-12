@@ -35,7 +35,7 @@ public class LimboPlugin extends com.loohp.limbo.plugins.LimboPlugin implements 
         if (currentService == null) {
             return;
         }
-        event.setMaxPlayers(currentService.getMaxPlayers());
+        event.setMaxPlayers(currentService.maxPlayers());
     }
 
     @EventHandler
@@ -43,7 +43,7 @@ public class LimboPlugin extends com.loohp.limbo.plugins.LimboPlugin implements 
         if (currentService == null) {
             return;
         }
-        if (getServer().getPlayers().size() < currentService.getMaxPlayers()) {
+        if (getServer().getPlayers().size() < currentService.maxPlayers()) {
             return;
         }
         if (event.getConnection().getPlayer().hasPermission("potatocloud.maxplayers.bypass")) {

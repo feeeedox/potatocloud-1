@@ -12,9 +12,9 @@ public final class ServiceProcessChecker implements Closeable {
     public ServiceProcessChecker(AbstractService service) {
         thread = Thread.startVirtualThread(() -> {
             try {
-                while (!Thread.currentThread().isInterrupted() && service.isOnline()) {
+                while (!Thread.currentThread().isInterrupted() && service.running()) {
                     if (!service.alive()) {
-                        service.getLogger().debug("Service &a" + service.getName() + " &7seems to be offline&8...");
+                        service.getLogger().debug("Service &a" + service.name() + " &7seems to be offline&8...");
                         service.shutdown();
                         break;
                     }

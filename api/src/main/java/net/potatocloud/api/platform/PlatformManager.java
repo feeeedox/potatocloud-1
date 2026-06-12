@@ -1,46 +1,63 @@
 package net.potatocloud.api.platform;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlatformManager {
 
     /**
-     * Gets all platforms
+     * Gets all platforms.
      *
      * @return a list of all platforms
      */
-    List<Platform> getPlatforms();
+    List<Platform> platforms();
 
     /**
-     * Gets a platform by its name
+     * Gets a platform by its name.
      *
      * @param name the name of the platform
-     * @return the platform
+     * @return the platform or empty if not found
      */
-    default Platform getPlatform(String name) {
-        return getPlatforms().stream().filter(platform -> platform.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
+    Optional<Platform> find(String name);
 
     /**
-     * Checks if a platform exists by name.
+     * Checks if a platform with the given name exists.
      *
      * @param name the name of the platform
      * @return {@code true} if the platform exists, otherwise {@code false}
      */
     default boolean exists(String name) {
-        return getPlatform(name) != null;
+        return find(name).isPresent();
     }
 
     /**
-     * Creates a new platform with the given configuration.
+     * Creates a builder for a new platform.
+     *
+     * @param name the name of the platform
+     * @return the builder
      */
-    Platform createPlatform(String name, String downloadUrl, boolean custom, boolean isProxy, String base, String preCacheBuilder, String parser, String hashType, List<String> prepareSteps);
+    default PlatformBuilder builder(String name) {
+        return new PlatformBuilder(name);
+    }
+
+    /**
+     * Creates a new platform from the given object.
+     *
+     * @param platform the platform to create
+     */
+    void create(Platform platform);
+
+    /**
+     * Deletes the given platform.
+     *
+     * @param platform the platform to delete
+     */
+    void delete(Platform platform);
 
     /**
      * Updates an existing platform.
      *
      * @param platform the platform to update
      */
-    void updatePlatform(Platform platform);
-
+    void update(Platform platform);
 }

@@ -35,7 +35,7 @@ public class LegacySpigotPlugin extends JavaPlugin implements Listener, Platform
         if (currentService == null) {
             return;
         }
-        event.setMaxPlayers(currentService.getMaxPlayers());
+        event.setMaxPlayers(currentService.maxPlayers());
     }
 
     @EventHandler
@@ -43,7 +43,7 @@ public class LegacySpigotPlugin extends JavaPlugin implements Listener, Platform
         if (currentService == null) {
             return;
         }
-        if (getServer().getOnlinePlayers().size() < currentService.getMaxPlayers()) {
+        if (getServer().getOnlinePlayers().size() < currentService.maxPlayers()) {
             return;
         }
         if (event.getPlayer().hasPermission("potatocloud.maxplayers.bypass")) {

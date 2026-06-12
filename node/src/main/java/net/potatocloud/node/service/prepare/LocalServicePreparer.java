@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.prepare;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -19,7 +19,7 @@ import java.nio.file.StandardCopyOption;
 
 public final class LocalServicePreparer implements ServicePreparer {
 
-    private final ServiceGroup group;
+    private final Group group;
     private final NodeConfig config;
     private final Logger logger;
     private final TemplateManager templateManager;
@@ -27,7 +27,7 @@ public final class LocalServicePreparer implements ServicePreparer {
     private final CacheManager cacheManager;
 
     public LocalServicePreparer(
-            ServiceGroup group,
+            Group group,
             NodeConfig config,
             Logger logger,
             TemplateManager templateManager,
@@ -50,7 +50,7 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to create service directory: " + directory, e);
         }
 
-        for (String template : group.getServiceTemplates()) {
+        for (String template : group.templates()) {
             templateManager.copyTemplate(template, directory);
         }
 
@@ -72,13 +72,13 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to install plugin for service " + serviceName, e);
         }
 
-        final Platform platform = group.getPlatform();
-        downloadManager.downloadPlatformVersion(platform, platform.getVersion(group.getPlatformVersionName()));
+        final Platform platform = group.platform();
+        downloadManager.downloadPlatformVersion(platform, platform.version(group.platformVersion().name()).get());
 
         final Path cacheDirectory = cacheManager.preCachePlatform(group);
         cacheManager.copyCacheToService(group, cacheDirectory, directory);
 
-        final PlatformVersion version = group.getPlatformVersion();
+        final PlatformVersion version = group.platformVersion();
         try {
             Files.copy(
                     PlatformUtils.getPlatformJarPath(platform, version),
@@ -89,36 +89,36 @@ public final class LocalServicePreparer implements ServicePreparer {
             throw new RuntimeException("Failed to copy server jar for service " + serviceName, e);
         }
 
-        for (String stepName : group.getPlatform().getPrepareSteps()) {
+        for (String stepName : group.platform().prepareSteps()) {
             final PrepareStep step = PlatformPrepareSteps.getStep(stepName);
             if (step != null) {
                 step.data().put("group", group);
                 step.data().put("port", port);
 
-                step.execute(serviceName, group.getPlatform(), directory);
+                step.execute(serviceName, group.platform(), directory);
             }
         }
 
     }
 
     private String resolvePluginName() {
-        final Platform platform = group.getPlatform();
-        final PlatformVersion version = group.getPlatformVersion();
+        final Platform platform = group.platform();
+        final PlatformVersion version = group.platformVersion();
 
-        if (platform.isBukkitBased()) {
-            return version.isLegacy()
+        if (platform.bukkitBased()) {
+            return version.legacy()
                     ? "potatocloud-plugin-spigot-legacy.jar"
                     : "potatocloud-plugin-spigot.jar";
         }
 
-        if (platform.isVelocityBased()) {
+        if (platform.velocityBased()) {
             return "potatocloud-plugin-velocity.jar";
         }
-        if (platform.isLimboBased()) {
+        if (platform.limboBased()) {
             return "potatocloud-plugin-limbo.jar";
         }
 
-        logger.error("No plugin found for platform " + platform.getName());
+        logger.error("No plugin found for platform " + platform.name());
         return "";
     }
 }

@@ -2,6 +2,7 @@ package net.potatocloud.node.setup.setups;
 
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
+import net.potatocloud.api.platform.PlatformBase;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.node.console.Console;
 import net.potatocloud.node.screen.ScreenManager;
@@ -9,6 +10,7 @@ import net.potatocloud.node.setup.Setup;
 import net.potatocloud.node.setup.answer.AnswerResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +34,11 @@ public class PlatformConfigurationSetup extends Setup {
                 .add();
 
         text("base", "What is the base of the platform?")
-                .suggestions(() -> List.of("bukkit", "spigot", "paper", "velocity", "limbo"))
-                .customValidator(input -> List.of("bukkit", "spigot", "paper", "velocity", "limbo").contains(input)
+                .suggestions(() -> Arrays.stream(PlatformBase.values())
+                        .filter(base -> base != PlatformBase.UNKNOWN)
+                        .map(PlatformBase::id)
+                        .toList())
+                .customValidator(input -> PlatformBase.fromId(input) != PlatformBase.UNKNOWN
                         ? AnswerResult.success()
                         : AnswerResult.error("This base is not supported"))
                 .add();
@@ -42,31 +47,37 @@ public class PlatformConfigurationSetup extends Setup {
     @Override
     protected void finish(Map<String, String> answers) {
         final String name = answers.get("name");
-        final String base = answers.get("base");
+        final PlatformBase platformBase = PlatformBase.fromId(answers.get("base"));
 
         boolean proxy = false;
         String preCache = null;
         List<String> prepareSteps = new ArrayList<>();
 
-        switch (base) {
-            case "paper" -> {
+        switch (platformBase) {
+            case PAPER -> {
                 preCache = "paper";
                 prepareSteps = List.of("default-files", "eula", "port", "setup-proxy");
             }
-            case "purpur" -> {
-                preCache = "purpur";
-                prepareSteps = List.of("default-files", "eula", "port", "setup-proxy");
-            }
-            case "bukkit", "spigot" -> prepareSteps = List.of("default-files", "eula", "port", "setup-proxy");
-            case "velocity" -> {
+            case BUKKIT, SPIGOT -> prepareSteps = List.of("default-files", "eula", "port", "setup-proxy");
+            case VELOCITY -> {
                 proxy = true;
                 prepareSteps = List.of("default-files", "port", "setup-forwarding");
             }
-            case "limbo" -> prepareSteps = List.of("default-files", "port", "setup-proxy");
+            case LIMBO -> prepareSteps = List.of("default-files", "port", "setup-proxy");
+            default -> {
+            }
         }
 
-        final Platform platform = platformManager.createPlatform(name, null, true, proxy, base, preCache, null, null, prepareSteps);
-        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + platform.getName());
+        final Platform platform = platformManager.builder(name)
+                .custom(true)
+                .proxy(proxy)
+                .base(platformBase)
+                .preCacheBuilder(preCache)
+                .prepareSteps(prepareSteps)
+                .build();
+
+        platformManager.create(platform);
+        logger.info("&aTip&8: &7Add a version using&8: &aplatform version add " + name);
     }
 
     @Override

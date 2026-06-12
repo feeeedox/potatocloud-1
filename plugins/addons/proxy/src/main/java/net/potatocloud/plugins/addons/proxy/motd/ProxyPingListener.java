@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.addons.proxy.ProxyPlugin;
 import net.potatocloud.plugins.shared.MessageUtils;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class ProxyPingListener {
@@ -23,8 +26,14 @@ public class ProxyPingListener {
     }
 
     private ServerPing serverPing(ServerPing ping) {
-        final int onlinePlayers = CloudAPI.getInstance().getPlayerManager().getOnlinePlayers().size();
-        final int maxPlayers = CloudAPI.getInstance().getServiceManager().getCurrentService().getMaxPlayers();
+        final int onlinePlayers = CloudAPI.instance().playerManager().players().size();
+
+        final Optional<Service> service = CloudAPI.instance().serviceManager().current();
+        if (service.isEmpty()) {
+            return ping;
+        }
+
+        final int maxPlayers = service.get().maxPlayers();
 
         final Motd motd = plugin.isMaintenance() ? maintenanceMotd() : defaultMotd();
 

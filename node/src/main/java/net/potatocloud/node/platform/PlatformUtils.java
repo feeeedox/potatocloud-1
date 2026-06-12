@@ -12,13 +12,13 @@ public final class PlatformUtils {
     }
 
     public static Path getDirectoryOfPlatform(Platform platform, PlatformVersion version) {
-        return Path.of(Node.getInstance().getConfig().folders().platforms())
-                .resolve(platform.getName())
-                .resolve(version.getName());
+        return Path.of(Node.getInstance().config().folders().platforms())
+                .resolve(platform.name())
+                .resolve(version.name());
     }
 
     public static Path getPlatformJarPath(Platform platform, PlatformVersion version) {
-        return getDirectoryOfPlatform(platform, version).resolve(version.getFullName() + ".jar");
+        return getDirectoryOfPlatform(platform, version).resolve(version.fullName() + ".jar");
     }
 }
 

@@ -14,7 +14,7 @@ import java.util.Set;
 public class PlayerCommand extends Command {
 
     public PlayerCommand(Logger logger, CloudPlayerManager playerManager) {
-        defaultExecutor(ctx -> sendHelp());
+        defaultExecutor(_ -> sendHelp());
 
         sub("connect", "Connect a player to a service")
                 .argument(ArgumentType.Player("player"))
@@ -23,24 +23,26 @@ public class PlayerCommand extends Command {
                     final CloudPlayer player = ctx.get("player");
                     final Service service = ctx.get("service");
 
-                    if (player.getConnectedServiceName().equalsIgnoreCase(service.getName())) {
-                        logger.info("Player &a" + player.getUsername() + " &7is already connected to &a" + service.getName());
+                    final boolean alreadyConnected = player.service().map(s -> s.name().equals(service.name())).orElse(false);
+
+                    if (alreadyConnected) {
+                        logger.info("Player &a" + player.username() + " &7is already connected to &a" + service.name());
                         return;
                     }
 
-                    player.connectWithService(service);
-                    logger.info("Successfully connected player &a" + player.getUsername() + " &7to service &a" + service.getName());
+                    playerManager.connectTo(player, service);
+                    logger.info("Successfully connected player &a" + player.username() + " &7to service &a" + service.name());
                 });
 
         sub("list", "List online players")
-                .executes(ctx -> {
-                    final Set<CloudPlayer> players = playerManager.getOnlinePlayers();
+                .executes(_ -> {
+                    final Set<CloudPlayer> players = playerManager.players();
                     if (players.isEmpty()) {
                         logger.info("There are &cno &7online players");
                         return;
                     }
                     for (CloudPlayer player : players) {
-                        logger.info("&8» &a" + player.getUsername() + " &7- Proxy: &a" + player.getConnectedProxyName() + " &7- Service: &a" + player.getConnectedServiceName());
+                        logger.info("&8» &a" + player.username() + " &7- Proxy: &a" + player.proxy().name() + " &7- Service: &a" + player.service().map(Service::name).orElse("none"));
                     }
                 });
     }

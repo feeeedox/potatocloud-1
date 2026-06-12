@@ -14,22 +14,21 @@ public class CloudPlayerArgument extends ArgumentType<CloudPlayer> {
 
     @Override
     public ParseResult<CloudPlayer> parse(String input) {
-        // Input is the username of the player in this case
-        final CloudPlayer player = Node.getInstance().getPlayerManager().getCloudPlayer(input);
-        if (player == null) {
-            return ParseResult.error("Player &a" + input + " &7was &cnot &7found");
-        }
-
-        return ParseResult.success(player);
+        // input is the username of the player in this case
+        return Node.getInstance()
+                .playerManager()
+                .find(input)
+                .map(ParseResult::success)
+                .orElseGet(() -> ParseResult.error("Player &a" + input + " &7was &cnot &7found"));
     }
 
     @Override
     public List<String> suggest(String input) {
         return Node.getInstance()
-                .getPlayerManager()
-                .getOnlinePlayers()
+                .playerManager()
+                .players()
                 .stream()
-                .map(CloudPlayer::getUsername)
+                .map(CloudPlayer::username)
                 .filter(name -> name.startsWith(input))
                 .toList();
     }

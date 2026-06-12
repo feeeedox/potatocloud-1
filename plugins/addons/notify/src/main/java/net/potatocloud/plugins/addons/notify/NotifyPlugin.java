@@ -9,30 +9,26 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventBus;
-import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
+import net.potatocloud.api.event.events.service.ServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
-import net.potatocloud.api.service.Service;
 import net.potatocloud.common.config.Config;
 import net.potatocloud.common.config.yaml.YamlConfig;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.nio.file.Path;
-import java.util.logging.Logger;
 
 public class NotifyPlugin {
 
     private final ProxyServer server;
-    private final CloudAPI cloudAPI = CloudAPI.getInstance();
-    private final Logger logger;
+    private final CloudAPI cloudAPI = CloudAPI.instance();
     private final Config config;
     private final MessagesConfig messages;
 
     @Inject
-    public NotifyPlugin(ProxyServer server, Logger logger) {
+    public NotifyPlugin(ProxyServer server) {
         this.server = server;
-        this.logger = logger;
         final String folder = "plugins/potatocloud-notify";
 
         config = new YamlConfig(Path.of(folder).resolve("config.yml"));
@@ -43,10 +39,10 @@ public class NotifyPlugin {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
-        final EventBus eventBus = cloudAPI.getEventBus();
+        final EventBus eventBus = cloudAPI.eventBus();
 
         if (config.get("messages.enable-service-starting").asBoolean()) {
-            eventBus.subscribe(PreparedServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
+            eventBus.subscribe(ServiceStartingEvent.class, startingEvent -> sendMessage(startingEvent.serviceName(), "service-starting", false));
         }
 
         eventBus.subscribe(ServiceStartedEvent.class, startedEvent -> sendMessage(startedEvent.serviceName(), "service-started", true));
@@ -59,23 +55,23 @@ public class NotifyPlugin {
     }
 
     private void sendMessage(String serviceName, String key, boolean clickEvent) {
-        final Service service = cloudAPI.getServiceManager().getService(serviceName);
+        cloudAPI.serviceManager().find(serviceName).ifPresent(service -> {
+            Component message = messages.get(key)
+                    .replaceText(text -> text.match("%service%").replacement(service.name()))
+                    .replaceText(text -> text.match("%port%").replacement(String.valueOf(service.port())))
+                    .replaceText(text -> text.match("%group%").replacement(service.group().name()));
 
-        Component message = messages.get(key)
-                .replaceText(text -> text.match("%service%").replacement(service.getName()))
-                .replaceText(text -> text.match("%port%").replacement(String.valueOf(service.getPort())))
-                .replaceText(text -> text.match("%group%").replacement(service.getServiceGroup().getName()));
+            if (clickEvent) {
+                message = message.clickEvent(ClickEvent.runCommand("/server " + serviceName)).hoverEvent(HoverEvent.showText(
+                        messages.get("hover-text").replaceText(text -> text.match("%service%").replacement(service.name()))
+                ));
+            }
 
-        if (clickEvent) {
-            message = message.clickEvent(ClickEvent.runCommand("/server " + serviceName)).hoverEvent(HoverEvent.showText(
-                    messages.get("hover-text").replaceText(text -> text.match("%service%").replacement(service.getName()))
-            ));
-        }
-
-        final Component finalMessage = message;
-        server.getAllPlayers().stream()
-                .filter(player -> player.hasPermission(config.get("permission").asString()))
-                .forEach(player -> player.sendMessage(finalMessage));
+            final Component finalMessage = message;
+            server.getAllPlayers().stream()
+                    .filter(player -> player.hasPermission(config.get("permission").asString()))
+                    .forEach(player -> player.sendMessage(finalMessage));
+        });
     }
 
     private void sendSimpleMessage(String key, String serviceName) {

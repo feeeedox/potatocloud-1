@@ -1,14 +1,13 @@
 package net.potatocloud.node.group.config;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class ServiceGroupStorage {
+public final class GroupStorage {
 
     private static final YAMLMapper MAPPER = YAMLMapper.builder()
             .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
@@ -18,21 +17,21 @@ public final class ServiceGroupStorage {
             .enable(YAMLWriteFeature.LITERAL_BLOCK_STYLE)
             .build();
 
-    private ServiceGroupStorage() {
+    private GroupStorage() {
     }
 
-    public static void save(ServiceGroup group, Path directory) {
+    public static void save(Group group, Path directory) {
         try {
-            final Path path = directory.resolve(group.getName() + ".yml");
+            final Path path = directory.resolve(group.name() + ".yml");
             Files.createDirectories(path.getParent());
 
-            MAPPER.writeValue(path, ServiceGroupConfig.from(group));
+            MAPPER.writeValue(path, GroupConfig.from(group));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save service group: " + group.getName(), e);
+            throw new RuntimeException("Failed to save group: " + group.name(), e);
         }
     }
 
-    public static ServiceGroup load(Path path) {
-        return MAPPER.readValue(path, ServiceGroupConfig.class).toGroup();
+    public static Group load(Path path) {
+        return MAPPER.readValue(path, GroupConfig.class).toGroup();
     }
 }

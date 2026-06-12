@@ -7,8 +7,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import lombok.RequiredArgsConstructor;
 import net.potatocloud.api.CloudAPI;
+import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.plugins.shared.MessagesConfig;
 
 import java.util.Comparator;
@@ -28,30 +29,32 @@ public class HubCommand implements SimpleCommand {
             return;
         }
 
-        final Service playerService = CloudAPI.getInstance().getPlayerManager().getCloudPlayer(player.getUniqueId()).getConnectedService();
-        if (playerService.getServiceGroup().isFallback()) {
-            player.sendMessage(messagesConfig.get("alreadyOnFallback"));
-            return;
-        }
+        CloudAPI.instance().playerManager()
+                .find(player.getUniqueId())
+                .flatMap(CloudPlayer::service)
+                .ifPresentOrElse(service -> {
+                    if (service.group().fallback()) {
+                        player.sendMessage(messagesConfig.get("alreadyOnFallback"));
+                        return;
+                    }
 
-        final Optional<RegisteredServer> fallback = getBestFallbackServer();
-        if (fallback.isEmpty()) {
-            player.sendMessage(messagesConfig.get("noFallbackFound"));
-            return;
-        }
+                    getBestFallbackServer().ifPresentOrElse(server -> {
+                        player.createConnectionRequest(server).fireAndForget();
 
-        final RegisteredServer registeredServer = fallback.get();
-        player.createConnectionRequest(registeredServer).fireAndForget();
-        player.sendMessage(messagesConfig.get("connect")
-                .replaceText(text -> text.match("%service%").replacement(registeredServer.getServerInfo().getName())));
+                        player.sendMessage(messagesConfig.get("connect").replaceText(text -> text.match("%service%").replacement(server.getServerInfo().getName())));
+
+                    }, () -> player.sendMessage(messagesConfig.get("noFallbackFound")));
+
+                }, () -> {
+                });
     }
 
     private Optional<RegisteredServer> getBestFallbackServer() {
-        return CloudAPI.getInstance().getServiceManager().getAllServices().stream()
-                .filter(service -> service.getServiceGroup().isFallback())
-                .filter(service -> service.getStatus() == ServiceStatus.RUNNING)
-                .sorted(Comparator.comparingInt(Service::getOnlinePlayerCount))
-                .map(service -> server.getServer(service.getName()))
+        return CloudAPI.instance().serviceManager().services().stream()
+                .filter(service -> service.group().fallback())
+                .filter(service -> service.state() == ServiceState.RUNNING)
+                .sorted(Comparator.comparingInt(Service::playerCount))
+                .map(service -> server.getServer(service.name()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();

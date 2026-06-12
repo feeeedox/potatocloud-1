@@ -1,6 +1,6 @@
 package net.potatocloud.node.service.runtime;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.node.config.NodeConfig;
 import net.potatocloud.node.service.AbstractService;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class LocalServiceRuntime implements ServiceRuntime {
 
-    private final ServiceGroup group;
+    private final Group group;
     private final NodeConfig config;
     private final Logger logger;
 
@@ -26,7 +26,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
     private BufferedReader processReader;
     private String serviceName;
 
-    public LocalServiceRuntime(ServiceGroup group, NodeConfig config, Logger logger) {
+    public LocalServiceRuntime(Group group, NodeConfig config, Logger logger) {
         this.group = group;
         this.config = config;
         this.logger = logger;
@@ -34,8 +34,8 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
     @Override
     public void start(Path directory, AbstractService service) {
-        this.serviceName = service.getName();
-        final List<String> args = buildArguments(directory, service.getName());
+        this.serviceName = service.name();
+        final List<String> args = buildArguments(directory, service.name());
 
         try {
             process = new ProcessBuilder(args)
@@ -43,7 +43,7 @@ public final class LocalServiceRuntime implements ServiceRuntime {
                     .start();
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to start server process for service " + service.getName(), e);
+            throw new RuntimeException("Failed to start server process for service " + service.name(), e);
         }
 
         osProcess = new SystemInfo().getOperatingSystem().getProcess((int) process.pid());
@@ -119,26 +119,27 @@ public final class LocalServiceRuntime implements ServiceRuntime {
 
     private List<String> buildArguments(Path directory, String name) {
         final List<String> args = new ArrayList<>();
-        args.add(group.getJavaCommand());
-        args.add("-Xms" + group.getMaxMemory() + "M");
-        args.add("-Xmx" + group.getMaxMemory() + "M");
+        args.add(group.javaCommand());
+        args.add("-Xms" + group.maxMemory() + "M");
+        args.add("-Xmx" + group.maxMemory() + "M");
         args.add("-Dpotatocloud.service.name=" + name);
+        args.add("-Dpotatocloud.node.host=" + config.node().host());
         args.add("-Dpotatocloud.node.port=" + config.node().port());
 
         args.addAll(ServicePerformanceFlags.DEFAULT_FLAGS);
 
-        if (group.getCustomJvmFlags() != null) {
-            args.addAll(group.getCustomJvmFlags());
+        if (group.customJvmFlags() != null) {
+            args.addAll(group.customJvmFlags());
         }
 
         args.add("-jar");
         args.add(directory.resolve("server.jar").toAbsolutePath().toString());
 
-        if (group.getPlatform().isBukkitBased() && !group.getPlatformVersion().isLegacy()) {
+        if (group.platform().bukkitBased() && !group.platformVersion().legacy()) {
             args.add("-nogui");
         }
 
-        if (group.getPlatform().isLimboBased()) {
+        if (group.platform().limboBased()) {
             args.add("--nogui");
         }
 

@@ -1,7 +1,7 @@
 package net.potatocloud.node.setup.setups;
 
-import net.potatocloud.api.group.ServiceGroup;
-import net.potatocloud.api.group.ServiceGroupManager;
+import net.potatocloud.api.group.Group;
+import net.potatocloud.api.group.GroupManager;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformManager;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 public class GroupConfigurationSetup extends Setup {
 
-    private final ServiceGroupManager groupManager;
+    private final GroupManager groupManager;
     private final PlatformManager platformManager;
 
-    public GroupConfigurationSetup(Console console, ScreenManager screenManager, ServiceGroupManager groupManager, PlatformManager platformManager) {
+    public GroupConfigurationSetup(Console console, ScreenManager screenManager, GroupManager groupManager, PlatformManager platformManager) {
         super(console, screenManager);
         this.groupManager = groupManager;
         this.platformManager = platformManager;
@@ -31,14 +31,14 @@ public class GroupConfigurationSetup extends Setup {
     @Override
     public void initQuestions() {
         text("name", "What is the name of this group?")
-                .customValidator(input -> groupManager.existsServiceGroup(input)
+                .customValidator(input -> groupManager.exists(input)
                         ? AnswerResult.error("A group with the same name already exists")
                         : AnswerResult.success())
                 .add();
 
         text("platform", "Which platform should be used by this group?")
-                .suggestions(() -> platformManager.getPlatforms().stream()
-                        .map(Platform::getName)
+                .suggestions(() -> platformManager.platforms().stream()
+                        .map(Platform::name)
                         .collect(Collectors.toList()))
                 .customValidator(input -> platformManager.exists(input)
                         ? AnswerResult.success()
@@ -46,17 +46,13 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         text("platform_version", "Which version of the selected platform should be used?")
-                .suggestions(() -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform == null ? List.of()
-                            : platform.getVersions().stream().map(PlatformVersion::getName).collect(Collectors.toList());
-                })
-                .customValidator(input -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.getVersion(input) != null
-                            ? AnswerResult.success()
-                            : AnswerResult.error("This version does not exist for the selected platform");
-                })
+                .suggestions(() -> platformManager.find(answers.get("platform"))
+                        .map(platform -> platform.versions().stream().map(PlatformVersion::name).collect(Collectors.toList()))
+                        .orElse(List.of()))
+                .customValidator(input -> platformManager.find(answers.get("platform"))
+                        .filter(platform -> platform.hasVersion(input))
+                        .map(_ -> AnswerResult.success())
+                        .orElseGet(() -> AnswerResult.error("This version does not exist for the selected platform")))
                 .add();
 
         number("min_online_count", "How many services of this group should always be online?")
@@ -75,10 +71,9 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         bool("fallback", "Is this group a fallback?")
-                .skipIf(answers -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform != null && platform.isProxy();
-                })
+                .skipIf(answers -> platformManager.find(answers.get("platform"))
+                        .map(Platform::proxy)
+                        .orElse(false))
                 .add();
 
         bool("static_servers", "Are services in this group static? (Service files will not be deleted on shutdown)")
@@ -93,10 +88,9 @@ public class GroupConfigurationSetup extends Setup {
                 .add();
 
         bool("velocity_modern_forwarding", "Do you want to use Velocity modern forwarding? Modern forwarding is more secure but will break support for versions below 1.13")
-                .skipIf(answers -> {
-                    final Platform platform = platformManager.getPlatform(answers.get("platform"));
-                    return platform == null || !platform.isVelocityBased();
-                })
+                .skipIf(answers -> platformManager.find(answers.get("platform"))
+                        .map(platform -> !platform.velocityBased())
+                        .orElse(false))
                 .add();
     }
 
@@ -107,33 +101,33 @@ public class GroupConfigurationSetup extends Setup {
             return;
         }
 
-        final Platform platform = platformManager.getPlatform(platformName);
-
-        if (platform.isProxy() && !ProxyUtils.getProxyGroups().isEmpty()) {
-            Node.getInstance().getLogger().warn("You have more than one proxy group! This may cause issues");
-        }
+        platformManager.find(platformName)
+                .filter(platform -> platform.proxy() && !ProxyUtils.getProxyGroups().isEmpty())
+                .ifPresent(_ -> Node.getInstance().logger().warn("You have more than one proxy group! This may cause issues"));
 
         final String name = answers.get("name");
-        groupManager.createServiceGroup(
-                name,
-                Node.getInstance().getConfig().cluster().name(), // todo ugly
-                answers.get("platform"),
-                answers.get("platform_version"),
-                Integer.parseInt(answers.get("min_online_count")),
-                Integer.parseInt(answers.get("max_online_count")),
-                Integer.parseInt(answers.get("max_players")),
-                Integer.parseInt(answers.get("max_memory")),
-                Boolean.parseBoolean(answers.getOrDefault("fallback", "false")),
-                Boolean.parseBoolean(answers.get("static_servers")),
-                Integer.parseInt(answers.get("start_priority")),
-                Integer.parseInt(answers.get("start_percentage"))
-        );
+        final Group group = groupManager.builder(name)
+                .node(Node.getInstance().config().cluster().name()) // todo ugly
+                .platform(answers.get("platform"))
+                .platformVersion(answers.get("platform_version"))
+                .minServices(Integer.parseInt(answers.get("min_online_count")))
+                .maxServices(Integer.parseInt(answers.get("max_online_count")))
+                .maxPlayers(Integer.parseInt(answers.get("max_players")))
+                .maxMemory(Integer.parseInt(answers.get("max_memory")))
+                .fallback(Boolean.parseBoolean(answers.getOrDefault("fallback", "false")))
+                .staticServices(Boolean.parseBoolean(answers.get("static_servers")))
+                .startPriority(Integer.parseInt(answers.get("start_priority")))
+                .startPercentage(Integer.parseInt(answers.get("start_percentage")))
+                .build();
+
+        groupManager.create(group);
 
         final String modernForwarding = answers.get("velocity_modern_forwarding");
         if (modernForwarding != null) {
-            final ServiceGroup group = groupManager.getServiceGroup(name);
-            group.setProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
-            group.update();
+            groupManager.find(name).ifPresent(created -> {
+                created.set(DefaultProperties.VELOCITY_MODERN_FORWARDING, Boolean.parseBoolean(modernForwarding));
+                groupManager.update(created);
+            });
         }
     }
 

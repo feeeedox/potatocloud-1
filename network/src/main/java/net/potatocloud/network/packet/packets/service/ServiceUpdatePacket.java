@@ -8,7 +8,7 @@ import java.util.Map;
 
 public record ServiceUpdatePacket(
         String serviceName,
-        String status,
+        String state,
         int maxPlayers,
         Map<String, Property<?>> propertyMap
 ) implements Packet {
@@ -18,7 +18,7 @@ public record ServiceUpdatePacket(
         @Override
         public void encode(ServiceUpdatePacket packet, PacketBuffer buf) {
             buf.writeString(packet.serviceName());
-            buf.writeString(packet.status());
+            buf.writeString(packet.state());
             buf.writeInt(packet.maxPlayers());
             buf.writePropertyMap(packet.propertyMap());
         }

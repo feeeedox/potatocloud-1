@@ -23,27 +23,27 @@ public record PlatformConfig(
 
     public static PlatformConfig from(Platform platform) {
         return new PlatformConfig(
-                platform.getBase(),
+                platform.base().id(),
                 new DownloadConfig(
-                        platform.getDownloadUrl(),
-                        platform.getHashType(),
-                        platform.getParser()
+                        platform.downloadUrl(),
+                        platform.hashType(),
+                        platform.parser()
                 ),
                 new ProcessingConfig(
-                        platform.getPreCacheBuilder()
+                        platform.preCacheBuilder()
                 ),
                 new FlagsConfig(
-                        platform.isCustom(),
-                        platform.isProxy()
+                        platform.custom(),
+                        platform.proxy()
                 ),
-                platform.getPrepareSteps(),
-                platform.getVersions()
+                platform.prepareSteps(),
+                platform.versions()
                         .stream()
                         .map(version -> new VersionConfig(
-                                version.getName(),
-                                version.getDownloadUrl(),
-                                version.isLegacy(),
-                                version.isLocal()
+                                version.name(),
+                                version.downloadUrl(),
+                                version.legacy(),
+                                version.local()
                         ))
                         .toList()
         );

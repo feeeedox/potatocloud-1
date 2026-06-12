@@ -1,10 +1,10 @@
 package net.potatocloud.connector.player;
 
-import lombok.Getter;
 import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.PublishTarget;
 import net.potatocloud.api.player.CloudPlayer;
 import net.potatocloud.api.player.CloudPlayerManager;
+import net.potatocloud.api.service.Service;
 import net.potatocloud.connector.event.ConnectPlayerWithServiceEvent;
 import net.potatocloud.connector.player.listeners.CloudPlayerAddListener;
 import net.potatocloud.connector.player.listeners.CloudPlayerRemoveListener;
@@ -15,12 +15,8 @@ import net.potatocloud.network.packet.packets.player.CloudPlayerRemovePacket;
 import net.potatocloud.network.packet.packets.player.CloudPlayerUpdatePacket;
 import net.potatocloud.network.packet.packets.player.RequestCloudPlayersPacket;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-@Getter
 public class CloudPlayerManagerImpl implements CloudPlayerManager {
 
     private final Set<CloudPlayer> onlinePlayers = new HashSet<>();
@@ -40,10 +36,11 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
         if (onlinePlayers.contains(player)) {
             return;
         }
+
         registerPlayerLocal(player);
 
-        // The service of the player is null here because the player has just connected to the proxy and has not joined a service yet
-        // The service will be set later by the proxy plugin once the player successfully connects to a service
+        // the service of the player is null here because the player has just connected to the proxy and has not joined a service yet
+        // it will be set later by the proxy plugin once the player successfully connects to a service
         client.send(new CloudPlayerAddPacket(player));
     }
 
@@ -60,7 +57,7 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
         }
         unregisterPlayerLocal(player);
 
-        client.send(new CloudPlayerRemovePacket(player.getUniqueId()));
+        client.send(new CloudPlayerRemovePacket(player.uniqueId()));
     }
 
     public void unregisterPlayerLocal(CloudPlayer player) {
@@ -71,35 +68,32 @@ public class CloudPlayerManagerImpl implements CloudPlayerManager {
     }
 
     @Override
-    public CloudPlayer getCloudPlayer(String username) {
-        return onlinePlayers.stream()
-                .filter(player -> player.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+    public Optional<CloudPlayer> find(UUID uniqueId) {
+        return onlinePlayers.stream().filter(player -> player.uniqueId().equals(uniqueId)).findFirst();
     }
 
     @Override
-    public CloudPlayer getCloudPlayer(UUID uniqueId) {
-        return onlinePlayers.stream()
-                .filter(player -> player.getUniqueId().equals(uniqueId))
-                .findFirst()
-                .orElse(null);
+    public Optional<CloudPlayer> find(String username) {
+        return onlinePlayers.stream().filter(player -> player.username().equals(username)).findFirst();
     }
 
     @Override
-    public Set<CloudPlayer> getOnlinePlayers() {
+    public Set<CloudPlayer> players() {
         return Collections.unmodifiableSet(onlinePlayers);
     }
 
     @Override
-    public void connectPlayerWithService(String playerName, String serviceName) {
-        CloudAPI.getInstance().getEventBus().publish(new ConnectPlayerWithServiceEvent(playerName, serviceName), PublishTarget.LOCAL);
+    public void connectTo(CloudPlayer player, Service service) {
+        CloudAPI.instance().eventBus().publish(new ConnectPlayerWithServiceEvent(player.username(), service.name()), PublishTarget.LOCAL);
     }
 
     @Override
-    public void updatePlayer(CloudPlayer player) {
-        client.send(new CloudPlayerUpdatePacket(player.getUniqueId(), player.getConnectedProxyName(),
-                player.getConnectedServiceName(), player.getPropertyMap()));
+    public void update(CloudPlayer player) {
+        client.send(new CloudPlayerUpdatePacket(
+                player.uniqueId(),
+                player.proxy().name(),
+                player.service().map(Service::name).orElse(null),
+                player.propertyMap()
+        ));
     }
 }
-

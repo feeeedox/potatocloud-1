@@ -11,11 +11,11 @@ public class ServiceMemoryUpdateTask {
 
     public ServiceMemoryUpdateTask(Service service, NetworkServer server, ClusterManagerImpl clusterManager) {
         Thread.startVirtualThread(() -> {
-            while (service.isOnline()) {
+            while (service.running()) {
 
                 // send current memory to the connector to keep it updated
                 // we use a separate packet from ServiceUpdatePacket for performance because ServiceUpdatePacket contains stuff that does not need constant syncing
-                final ServiceMemoryUpdatePacket packet = new ServiceMemoryUpdatePacket(service.getName(), service.getUsedMemory());
+                final ServiceMemoryUpdatePacket packet = new ServiceMemoryUpdatePacket(service.name(), service.usedMemory());
                 server.broadcast().connectors().send(packet);
                 clusterManager.broadcast(packet);
 

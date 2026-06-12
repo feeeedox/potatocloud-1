@@ -1,7 +1,7 @@
 package net.potatocloud.node.platform.cache;
 
 import lombok.RequiredArgsConstructor;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.logging.Logger;
 import net.potatocloud.api.platform.Platform;
 import net.potatocloud.api.platform.PlatformVersion;
@@ -26,19 +26,19 @@ public class CacheManager {
 
     private final Set<String> runningCacheKeys = ConcurrentHashMap.newKeySet();
 
-    public Path preCachePlatform(ServiceGroup group) {
-        final Platform platform = group.getPlatform();
-        final PlatformVersion version = group.getPlatformVersion();
-        final String builderName = platform.getPreCacheBuilder();
+    public Path preCachePlatform(Group group) {
+        final Platform platform = group.platform();
+        final PlatformVersion version = group.platformVersion();
+        final String builderName = platform.preCacheBuilder();
 
         if (builderName == null) {
             // The platform does not have a pre-cacher
             return null;
         }
 
-        final PlatformPreCacheBuilder builder = getPreCacheBuilder(platform.getPreCacheBuilder());
+        final PlatformPreCacheBuilder builder = getPreCacheBuilder(platform.preCacheBuilder());
 
-        if (version.isLegacy() && builder instanceof PaperPlatformPreCacheBuilder) {
+        if (version.legacy() && builder instanceof PaperPlatformPreCacheBuilder) {
             // Legacy versions not supported by Paper pre-cacher
             return null;
         }
@@ -52,7 +52,7 @@ public class CacheManager {
 
         final String jarHash = HashUtils.sha256(platformJarPath);
         final Path cacheDirectory = platformDirectory.resolve("cache-" + jarHash);
-        final String cacheKey = platform.getName() + "-" + version.getName() + "-" + jarHash;
+        final String cacheKey = platform.name() + "-" + version.name() + "-" + jarHash;
 
 
         if (Files.exists(cacheDirectory) || !runningCacheKeys.add(cacheKey)) {
@@ -67,15 +67,15 @@ public class CacheManager {
                     .filter(path -> path.getFileName().toString().startsWith("cache-"))
                     .forEach(FileUtils::deleteDirectory);
 
-            logger.info("Started caching for &a" + platform.getName() + "&7 version &a" + version.getName());
+            logger.info("Started caching for &a" + platform.name() + "&7 version &a" + version.name());
             Files.createDirectories(cacheDirectory);
 
             // Start the pre cacher implementation of the platform
             builder.buildCache(platform, version, group, cacheDirectory);
-            logger.info("Finished caching for &a" + platform.getName() + "&7 version &a" + version.getName());
+            logger.info("Finished caching for &a" + platform.name() + "&7 version &a" + version.name());
 
         } catch (Exception e) {
-            logger.error("Caching failed for version " + version.getFullName());
+            logger.error("Caching failed for version " + version.fullName());
         } finally {
             runningCacheKeys.remove(cacheKey);
         }
@@ -83,8 +83,8 @@ public class CacheManager {
         return cacheDirectory;
     }
 
-    public void copyCacheToService(ServiceGroup group, Path cacheFolder, Path serviceDir) {
-        final String builderName = group.getPlatform().getPreCacheBuilder();
+    public void copyCacheToService(Group group, Path cacheFolder, Path serviceDir) {
+        final String builderName = group.platform().preCacheBuilder();
         if (builderName != null) {
             // Copy pre-built cache into a service directory
             final PlatformPreCacheBuilder builder = getPreCacheBuilder(builderName);

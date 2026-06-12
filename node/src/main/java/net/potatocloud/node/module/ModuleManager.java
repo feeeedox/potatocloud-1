@@ -12,7 +12,7 @@ public class ModuleManager {
     private final Map<String, Module> modules = new HashMap<>();
 
     public void register(Module module) {
-        modules.put(module.getName(), module);
+        modules.put(module.name(), module);
     }
 
     public void enableAll() {

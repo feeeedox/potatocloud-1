@@ -1,12 +1,16 @@
 package net.potatocloud.api.service.impl;
 
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.cluster.ClusterNode;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 public class ServiceImpl implements Service {
 
@@ -17,74 +21,88 @@ public class ServiceImpl implements Service {
     private final String groupName;
     private final Map<String, Property<?>> propertyMap;
 
-    private long startTimestamp;
-    private ServiceStatus status;
+    private Instant startedAt;
+    private ServiceState state;
     private int maxPlayers;
     private int usedMemory;
 
-    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, long startTimestamp, ServiceStatus status, int maxPlayers, int usedMemory) {
+    public ServiceImpl(int serviceId, String host, int port, String name, String groupName, Map<String, Property<?>> propertyMap, Instant startedAt, ServiceState state, int maxPlayers, int usedMemory) {
         this.serviceId = serviceId;
         this.host = host;
         this.port = port;
         this.name = name;
         this.groupName = groupName;
         this.propertyMap = propertyMap;
-        this.startTimestamp = startTimestamp;
-        this.status = status;
+        this.startedAt = startedAt;
+        this.state = state;
         this.maxPlayers = maxPlayers;
         this.usedMemory = usedMemory;
     }
 
     @Override
-    public ServiceGroup getServiceGroup() {
-        return CloudAPI.getInstance().getServiceGroupManager().getServiceGroup(groupName);
+    public Group group() {
+        return CloudAPI.instance().groupManager().find(groupName).orElse(null);
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return name;
     }
 
     @Override
-    public int getServiceId() {
+    public int id() {
         return serviceId;
     }
 
     @Override
-    public ServiceStatus getStatus() {
-        return status;
+    public Optional<ClusterNode> node() {
+        final Group group = group();
+        if (group == null) {
+            return Optional.empty();
+        }
+        return group.node();
     }
 
     @Override
-    public void setStatus(ServiceStatus status) {
-        this.status = status;
+    public ServiceState state() {
+        return state;
     }
 
     @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    protected void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
+    public void state(ServiceState state) {
+        this.state = state;
     }
 
     @Override
-    public int getMaxPlayers() {
+    public Instant startedAt() {
+        return startedAt;
+    }
+
+    public void startedAt(Instant startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    @Override
+    public Duration uptime() {
+        return Duration.between(startedAt, Instant.now());
+    }
+
+    @Override
+    public int maxPlayers() {
         return maxPlayers;
     }
 
     @Override
-    public void setMaxPlayers(int maxPlayers) {
+    public void maxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
     }
 
     @Override
-    public int getUsedMemory() {
+    public int usedMemory() {
         return usedMemory;
     }
 
-    public void setUsedMemory(int usedMemory) {
+    public void usedMemory(int usedMemory) {
         this.usedMemory = usedMemory;
     }
 
@@ -94,17 +112,12 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public int getPort() {
+    public int port() {
         return port;
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
-    }
-
-    @Override
-    public String getPropertyHolderName() {
-        return name;
     }
 }

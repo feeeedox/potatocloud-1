@@ -30,7 +30,7 @@ public class NodePropertiesHolder implements PropertyHolder {
         server.on(PropertyAddPacket.class, ctx -> {
             final PropertyAddPacket packet = ctx.packet();
 
-            propertyMap.put(packet.property().getName(), packet.property());
+            propertyMap.put(packet.property().name(), packet.property());
 
             server.broadcast().connectors().exclude(ctx.connection()).send(packet);
 
@@ -42,7 +42,7 @@ public class NodePropertiesHolder implements PropertyHolder {
         server.on(PropertyUpdatePacket.class, ctx -> {
             final Property<?> property = propertyMap.get(ctx.packet().propertyName());
             if (property != null) {
-                property.setValueObject(ctx.packet().propertyValue());
+                property.valueObject(ctx.packet().propertyValue());
             }
 
             server.broadcast().connectors().exclude(ctx.connection()).send(ctx.packet());
@@ -54,17 +54,17 @@ public class NodePropertiesHolder implements PropertyHolder {
     }
 
     @Override
-    public <T> void setProperty(Property<T> property, T value, boolean fireEvent) {
-        final Property<T> existing = getProperty(property.getName());
-        PropertyHolder.super.setProperty(property, value, fireEvent);
+    public <T> void set(Property<T> key, T value, boolean fireEvent) {
+        final Property<T> existing = property(key.name());
+        PropertyHolder.super.set(key, value, fireEvent);
 
         if (existing == null) {
-            final PropertyAddPacket packet = new PropertyAddPacket(property);
+            final PropertyAddPacket packet = new PropertyAddPacket(key);
 
             server.broadcast().connectors().send(packet);
             clusterManager.broadcast(packet);
         } else {
-            final PropertyUpdatePacket packet = new PropertyUpdatePacket(property.getName(), value);
+            final PropertyUpdatePacket packet = new PropertyUpdatePacket(key.name(), value);
 
             server.broadcast().connectors().send(packet);
             clusterManager.broadcast(packet);
@@ -72,12 +72,12 @@ public class NodePropertiesHolder implements PropertyHolder {
     }
 
     @Override
-    public Map<String, Property<?>> getPropertyMap() {
+    public Map<String, Property<?>> propertyMap() {
         return propertyMap;
     }
 
     @Override
-    public String getPropertyHolderName() {
+    public String name() {
         return "Global";
     }
 }

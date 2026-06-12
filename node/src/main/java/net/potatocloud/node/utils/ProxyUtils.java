@@ -1,6 +1,6 @@
 package net.potatocloud.node.utils;
 
-import net.potatocloud.api.group.ServiceGroup;
+import net.potatocloud.api.group.Group;
 import net.potatocloud.api.property.DefaultProperties;
 import net.potatocloud.api.property.Property;
 import net.potatocloud.node.Node;
@@ -12,12 +12,12 @@ public final class ProxyUtils {
     private ProxyUtils() {
     }
 
-    public static ServiceGroup getProxyGroup() {
+    public static Group getProxyGroup() {
         return getProxyGroups().stream().findFirst().orElse(null);
     }
 
-    public static List<ServiceGroup> getProxyGroups() {
-        return Node.getInstance().getGroupManager().getAllServiceGroups().stream().filter(group -> group.getPlatform().isProxy()).toList();
+    public static List<Group> getProxyGroups() {
+        return Node.getInstance().groupManager().groups().stream().filter(group -> group.platform().proxy()).toList();
     }
 
     public static boolean isProxyModernForwarding() {
@@ -25,11 +25,11 @@ public final class ProxyUtils {
             return false;
         }
 
-        final Property<Boolean> property = getProxyGroup().getProperty(DefaultProperties.VELOCITY_MODERN_FORWARDING);
+        final Property<Boolean> property = getProxyGroup().property(DefaultProperties.VELOCITY_MODERN_FORWARDING);
         if (property == null) {
             return false;
         }
 
-        return property.getValue();
+        return property.value();
     }
 }

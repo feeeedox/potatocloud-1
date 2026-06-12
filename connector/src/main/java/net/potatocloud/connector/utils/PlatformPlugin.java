@@ -5,6 +5,8 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.connector.ConnectorAPI;
 import net.potatocloud.network.packet.packets.service.ServiceStartedPacket;
 
+import java.util.Optional;
+
 public interface PlatformPlugin {
 
     void runTaskLater(Runnable task, int delaySeconds);
@@ -12,24 +14,26 @@ public interface PlatformPlugin {
     void onServiceReady(Service service);
 
     default void initCurrentService() {
-        final CloudAPI api = CloudAPI.getInstance();
+        final CloudAPI api = CloudAPI.instance();
 
-        if (api.getServiceManager() == null) {
+        if (api.serviceManager() == null) {
             runTaskLater(this::initCurrentService, 1);
             return;
         }
 
-        final Service currentService = api.getServiceManager().getCurrentService();
+        final Optional<Service> current = api.serviceManager().current();
 
-        if (currentService == null || currentService.getServiceGroup() == null) {
+        if (current.isEmpty() || current.get().group() == null) {
             runTaskLater(this::initCurrentService, 1);
             return;
         }
+
+        final Service service = current.get();
 
         ConnectorAPI.getInstance()
-                .getClient()
-                .send(new ServiceStartedPacket(currentService.getName()));
+                .client()
+                .send(new ServiceStartedPacket(service.name()));
 
-        onServiceReady(currentService);
+        onServiceReady(service);
     }
 }

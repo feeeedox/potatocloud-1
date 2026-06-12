@@ -14,6 +14,8 @@ import net.potatocloud.api.service.Service;
 import net.potatocloud.common.config.Config;
 import net.potatocloud.plugins.shared.MessageUtils;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class TablistHandler {
 
@@ -36,32 +38,54 @@ public class TablistHandler {
     }
 
     private void update(Player player) {
-        final CloudPlayer cloudPlayer = CloudAPI.getInstance().getPlayerManager().getCloudPlayer(player.getUsername());
+        final CloudPlayer cloudPlayer = CloudAPI.instance().playerManager().find(player.getUsername()).orElse(null);
         if (cloudPlayer == null) {
             return;
         }
 
-        final Service service = CloudAPI.getInstance().getServiceManager().getService(cloudPlayer.getConnectedServiceName());
-        if (service == null || service.getServiceGroup() == null) {
+        final Optional<Service> optionalService = cloudPlayer.service();
+
+        if (optionalService.isEmpty() || optionalService.get().group() == null) {
             return;
         }
 
-        final String group = service.getServiceGroup().getName();
-        final String proxy = cloudPlayer.getConnectedProxyName();
+        final Service service = optionalService.get();
+        final String group = service.group().name();
+        final String proxy = cloudPlayer.proxy().name();
 
-        final int onlinePlayers = CloudAPI.getInstance().getPlayerManager().getOnlinePlayers().size();
-        final int maxPlayers = CloudAPI.getInstance().getServiceManager().getCurrentService().getMaxPlayers();
+        final int onlinePlayers = CloudAPI.instance()
+                .playerManager()
+                .players()
+                .size();
+
+        final int maxPlayers = CloudAPI.instance()
+                .serviceManager()
+                .current()
+                .map(Service::maxPlayers)
+                .orElse(0);
 
         final Tablist tablist = new Tablist(
                 config.get("tablist.header").asString(),
                 config.get("tablist.footer").asString()
         );
 
-        final Component header = replacePlaceholders(tablist.header(), service.getName(), group,
-                proxy, onlinePlayers, maxPlayers);
+        final Component header = replacePlaceholders(
+                tablist.header(),
+                service.name(),
+                group,
+                proxy,
+                onlinePlayers,
+                maxPlayers
+        );
 
-        final Component footer = replacePlaceholders(tablist.footer(), service.getName(), group,
-                proxy, onlinePlayers, maxPlayers);
+        final Component footer = replacePlaceholders(
+                tablist.footer(),
+                service.name(),
+                group,
+                proxy,
+                onlinePlayers,
+                maxPlayers
+        );
 
         player.sendPlayerListHeaderAndFooter(header, footer);
     }
