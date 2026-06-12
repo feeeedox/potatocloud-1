@@ -46,7 +46,7 @@ public class WebInterfaceModule extends AbstractModule {
     @Override
     public void onEnable() {
         instance = this;
-        cloudAPI = CloudAPI.getInstance();
+        cloudAPI = CloudAPI.instance();
         Node node = Node.getInstance();
 
         Config config = new YamlConfig(Path.of("modules", "webinterface").resolve("wi-config.yml"), getClass().getClassLoader());
@@ -151,14 +151,14 @@ public class WebInterfaceModule extends AbstractModule {
             cfg.routes.ws("/ws/service", serviceDetailsWebSocketHandler::configure);
 
             cfg.routes.exception(Exception.class, (exception, ctx) -> {
-                cloudAPI.getLogger().exception(exception);
+                cloudAPI.logger().exception(exception);
                 ctx.status(500).json(ErrorDto.builder().error("Internal server error").build());
             });
         });
 
         app.start(config.get("bind-address").asString(), config.get("port").asInt());
 
-        cloudAPI.getLogger().info("WebInterface API running on " + config.get("bind-address").asString() + ":" + config.get("port").asInt());
+        cloudAPI.logger().info("WebInterface API running on " + config.get("bind-address").asString() + ":" + config.get("port").asInt());
     }
 
     @Override
@@ -207,6 +207,6 @@ public class WebInterfaceModule extends AbstractModule {
             app.stop();
         }
 
-        cloudAPI.getLogger().info("WebInterface module stopped.");
+        cloudAPI.logger().info("WebInterface module stopped.");
     }
 }

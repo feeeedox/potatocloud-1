@@ -4,7 +4,6 @@ import io.javalin.websocket.WsContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.potatocloud.api.CloudAPI;
-import net.potatocloud.api.event.events.service.PreparedServiceStartingEvent;
 import net.potatocloud.api.event.events.service.ServiceStartedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppedEvent;
 import net.potatocloud.api.event.events.service.ServiceStoppingEvent;
@@ -44,11 +43,7 @@ public class ServerBroadcastService {
     }
 
     public void registerCloudListeners() {
-        var em = cloudAPI.getEventBus();
-
-        em.subscribe(PreparedServiceStartingEvent.class, event ->
-                broadcastTick()
-        );
+        var em = cloudAPI.eventBus();
 
         em.subscribe(ServiceStartedEvent.class, event ->
                 broadcastTick()

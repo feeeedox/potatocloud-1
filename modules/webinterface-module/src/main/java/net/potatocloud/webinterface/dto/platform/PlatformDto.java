@@ -23,17 +23,17 @@ public class PlatformDto {
 
     public static PlatformDto from(Platform platform) {
         return PlatformDto.builder()
-                .name(platform.getName())
-                .base(platform.getBase())
-                .downloadUrl(platform.getDownloadUrl())
-                .custom(platform.isCustom())
-                .proxy(platform.isProxy())
-                .bukkitBased(platform.isBukkitBased())
-                .paperBased(platform.isPaperBased())
-                .velocityBased(platform.isVelocityBased())
-                .limboBased(platform.isLimboBased())
-                .versions(platform.getVersions().stream().map(PlatformVersionDto::from).toList())
-                .prepareSteps(platform.getPrepareSteps())
+                .name(platform.name())
+                .base(platform.base().id())
+                .downloadUrl(platform.downloadUrl())
+                .custom(platform.custom())
+                .proxy(platform.proxy())
+                .bukkitBased(platform.bukkitBased())
+                .paperBased(platform.paperBased())
+                .velocityBased(platform.velocityBased())
+                .limboBased(platform.limboBased())
+                .versions(platform.versions().stream().map(PlatformVersionDto::from).toList())
+                .prepareSteps(platform.prepareSteps())
                 .build();
     }
 }

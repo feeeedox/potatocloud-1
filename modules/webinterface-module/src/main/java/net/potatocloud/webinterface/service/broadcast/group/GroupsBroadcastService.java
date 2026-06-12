@@ -45,7 +45,7 @@ public class GroupsBroadcastService {
     }
 
     public void registerCloudListeners() {
-        var em = cloudAPI.getEventBus();
+        var em = cloudAPI.eventBus();
 
         em.subscribe(ServiceStartedEvent.class, event ->
                 broadcastTick()

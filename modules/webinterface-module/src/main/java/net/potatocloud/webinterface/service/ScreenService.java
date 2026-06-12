@@ -15,7 +15,7 @@ public class ScreenService {
     private final Node node;
 
     public ScreenListDto getAvailableScreens() {
-        List<ScreenInfoDto> screens = node.getScreenManager().getScreens().values().stream()
+        List<ScreenInfoDto> screens = node.screenManager().getScreens().values().stream()
                 .map(screen -> ScreenInfoDto.builder()
                         .name(screen.name())
                         .logCount(screen.cachedLogs().size())
@@ -28,6 +28,6 @@ public class ScreenService {
     }
 
     public Screen getScreen(String name) {
-        return node.getScreenManager().get(name);
+        return node.screenManager().get(name);
     }
 }

@@ -15,13 +15,13 @@ public class PlayerService {
     private final Node node;
 
     public List<PlayerDto> getOnlinePlayers() {
-        return cloudAPI.getPlayerManager().getOnlinePlayers().stream()
-                .map(player -> PlayerDto.from(player, node.isReady()))
+        return cloudAPI.playerManager().players().stream()
+                .map(player -> PlayerDto.from(player, node.ready()))
                 .toList();
     }
 
     private void registerListeners() {
-        cloudAPI.getEventBus().subscribe(CloudPlayerJoinEvent.class, event -> {
+        cloudAPI.eventBus().subscribe(CloudPlayerJoinEvent.class, event -> {
 
         });
     }

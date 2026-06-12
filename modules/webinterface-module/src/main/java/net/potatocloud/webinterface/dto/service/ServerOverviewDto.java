@@ -16,11 +16,11 @@ public class ServerOverviewDto {
 
     public static ServerOverviewDto from(Service service) {
         return ServerOverviewDto.builder()
-                .service(service.getName())
-                .serviceStatus(service.getStatus().name())
-                .playerCount(service.getOnlinePlayerCount())
-                .maxPlayerCount(service.getMaxPlayers())
-                .uptime(service.getStartTimestamp())
+                .service(service.name())
+                .serviceStatus(service.state().name())
+                .playerCount(service.playerCount())
+                .maxPlayerCount(service.maxPlayers())
+                .uptime(service.startedAt().toEpochMilli())
                 .build();
     }
 

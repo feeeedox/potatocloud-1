@@ -43,7 +43,7 @@ public class PlayerBroadcastService {
     }
 
     public void registerCloudListeners() {
-        var em = cloudAPI.getEventBus();
+        var em = cloudAPI.eventBus();
 
         em.subscribe(CloudPlayerJoinEvent.class, event ->
                 broadcastTick()

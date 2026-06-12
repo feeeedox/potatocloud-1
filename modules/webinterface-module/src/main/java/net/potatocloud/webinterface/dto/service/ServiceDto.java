@@ -18,14 +18,14 @@ public class ServiceDto {
 
     public static ServiceDto from(Service service) {
         return ServiceDto.builder()
-                .serviceId(service.getServiceId())
-                .name(service.getName())
-                .formattedUptime(service.getFormattedUptime())
-                .uptime(service.getUptime())
-                .port(service.getPort())
-                .maxPlayers(service.getMaxPlayers())
-                .onlinePlayerCount(service.getOnlinePlayerCount())
-                .usedMemory(service.getUsedMemory())
+                .serviceId(service.id())
+                .name(service.name())
+                .formattedUptime(service.uptime().toString())
+                .uptime(service.uptime().toMillis())
+                .port(service.port())
+                .maxPlayers(service.maxPlayers())
+                .onlinePlayerCount(service.playerCount())
+                .usedMemory(service.usedMemory())
                 .build();
     }
 }

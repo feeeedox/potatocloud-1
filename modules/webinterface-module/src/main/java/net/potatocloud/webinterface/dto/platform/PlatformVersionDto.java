@@ -16,12 +16,12 @@ public class PlatformVersionDto {
 
     public static PlatformVersionDto from(PlatformVersion version) {
         return PlatformVersionDto.builder()
-                .name(version.getName())
-                .fullName(version.getFullName())
-                .downloadUrl(version.getDownloadUrl())
-                .fileHash(version.getFileHash())
-                .local(version.isLocal())
-                .legacy(version.isLegacy())
+                .name(version.name())
+                .fullName(version.fullName())
+                .downloadUrl(version.downloadUrl())
+                .fileHash(version.fileHash())
+                .local(version.local())
+                .legacy(version.legacy())
                 .build();
     }
 }

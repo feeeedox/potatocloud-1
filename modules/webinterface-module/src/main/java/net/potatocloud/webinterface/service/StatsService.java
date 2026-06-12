@@ -5,7 +5,7 @@ import net.potatocloud.api.CloudAPI;
 import net.potatocloud.api.event.EventBus;
 import net.potatocloud.api.event.events.player.CloudPlayerJoinEvent;
 import net.potatocloud.api.service.Service;
-import net.potatocloud.api.service.ServiceStatus;
+import net.potatocloud.api.service.ServiceState;
 import net.potatocloud.node.Node;
 import net.potatocloud.webinterface.dto.player.PlayerCountDto;
 import net.potatocloud.webinterface.dto.stats.JoinPointDto;
@@ -32,16 +32,16 @@ public class StatsService {
     private final CopyOnWriteArrayList<Long> joinTimestamps = new CopyOnWriteArrayList<>();
 
     public void start() {
-        EventBus eventManager = cloudAPI.getEventBus();
+        EventBus eventManager = cloudAPI.eventBus();
         eventManager.subscribe(CloudPlayerJoinEvent.class, event -> joinTimestamps.add(System.currentTimeMillis()));
     }
 
     public StatsDto getStats() {
         return StatsDto.builder()
-                .uptime(Node.getInstance().getStartupTime())
-                .groups(cloudAPI.getServiceGroupManager().getAllServiceGroups().size())
-                .services(cloudAPI.getServiceManager().getOnlineServices().size())
-                .onlinePlayers(cloudAPI.getPlayerManager().getOnlinePlayers().size())
+                .uptime(Node.getInstance().startupTime())
+                .groups(cloudAPI.groupManager().groups().size())
+                .services(cloudAPI.serviceManager().services().size())
+                .onlinePlayers(cloudAPI.playerManager().players().size())
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class StatsService {
 
     public PlayerCountDto getPlayerCount() {
         return PlayerCountDto.builder()
-                .online(cloudAPI.getPlayerManager().getOnlinePlayers().size())
+                .online(cloudAPI.playerManager().players().size())
                 .build();
     }
 
@@ -86,14 +86,14 @@ public class StatsService {
     }
 
     public ServiceStatsDto getServiceStats() {
-        int running = getServices(ServiceStatus.RUNNING);
-        int starting = getServices(ServiceStatus.STARTING);
-        int stopping = getServices(ServiceStatus.STOPPING);
+        int running = getServices(ServiceState.RUNNING);
+        int starting = getServices(ServiceState.STARTING);
+        int stopping = getServices(ServiceState.STOPPING);
         int currentMemoryUsage;
 
-        List<Integer> memUsages = cloudAPI.getServiceManager().getOnlineServices().stream()
-                .filter(service -> service.getStatus() == ServiceStatus.RUNNING || service.getStatus() == ServiceStatus.STARTING)
-                .map(Service::getUsedMemory)
+        List<Integer> memUsages = cloudAPI.serviceManager().services().stream()
+                .filter(service -> service.state() == ServiceState.RUNNING || service.state() == ServiceState.STARTING)
+                .map(Service::usedMemory)
                 .toList();
 
         if (memUsages.isEmpty()) {
@@ -110,9 +110,9 @@ public class StatsService {
                 .build();
     }
 
-    public int getServices(ServiceStatus status) {
-        return cloudAPI.getServiceManager().getAllServices().stream()
-                .filter(service -> service.getStatus() == status)
+    public int getServices(ServiceState status) {
+        return cloudAPI.serviceManager().services().stream()
+                .filter(service -> service.state() == status)
                 .toList().size();
     }
 }

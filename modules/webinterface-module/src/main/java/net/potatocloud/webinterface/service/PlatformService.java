@@ -12,7 +12,7 @@ public class PlatformService {
     private final CloudAPI cloudAPI;
 
     public List<PlatformDto> getPlatforms() {
-        return cloudAPI.getPlatformManager().getPlatforms().stream()
+        return cloudAPI.platformManager().platforms().stream()
                 .map(PlatformDto::from)
                 .toList();
     }

@@ -30,7 +30,7 @@ public class ScreenLogBroadcastService {
         sessionsByScreen.computeIfAbsent(screenName, key -> ConcurrentHashMap.newKeySet()).add(context);
 
         listenerByScreen.computeIfAbsent(screenName, key -> {
-            Screen screen = node.getScreenManager().get(key);
+            Screen screen = node.screenManager().get(key);
             if (screen == null) {
                 return null;
             }
@@ -75,7 +75,7 @@ public class ScreenLogBroadcastService {
         try {
             jsonMessage = objectMapper.writeValueAsString(event);
         } catch (Exception e) {
-            WebInterfaceModule.getInstance().getCloudAPI().getLogger()
+            WebInterfaceModule.getInstance().getCloudAPI().logger()
                     .error("Failed to serialize WebSocket event for screen: " + screenName);
             return;
         }
@@ -88,7 +88,7 @@ public class ScreenLogBroadcastService {
                     }
                 }
             } catch (Exception ignored) {
-                WebInterfaceModule.getInstance().getCloudAPI().getLogger()
+                WebInterfaceModule.getInstance().getCloudAPI().logger()
                         .error("Failed to send screen log to session " + ctx.sessionId());
             }
         }
@@ -99,7 +99,7 @@ public class ScreenLogBroadcastService {
         if (listener == null) {
             return;
         }
-        Screen screen = node.getScreenManager().get(screenName);
+        Screen screen = node.screenManager().get(screenName);
         if (screen != null) {
             screen.unsubscribe(listener);
         }
